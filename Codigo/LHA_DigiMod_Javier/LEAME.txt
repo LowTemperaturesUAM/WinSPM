@@ -1,0 +1,15 @@
+Existe un problema con las rutas de las librerías al haber salvado modificaciones sobre un proyecto existente.
+
+Se puede sacar la ruta pulsando sobre guardar como, y ahí aparece la ruta que toma como base.
+
+En mi caso es:
+
+C:\Program Files (x86)\Microsoft Visual Studio\VB98
+
+Ahí he copiado los tres ficheros:
+
+FTCSPI.dll
+FTCSPI.h
+FTCSPI.lib
+
+y el problema inicial desaparece.

@@ -1,0 +1,7 @@
+frmMain = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+USB_SPI = 0, 0, 0, 0, C
+FTCSPI_Module = 0, 0, 0, 0, C
+D2XX_Module = 0, 0, 0, 0, C
+USB_SPI_ParaBorrar = 0, 0, 0, 0, C
+LHA_Module = 0, 0, 0, 0, C
+frmSPITest = 0, 0, 0, 0, C, 0, 0, 0, 0, C

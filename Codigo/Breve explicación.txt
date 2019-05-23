@@ -1,0 +1,15 @@
+2. Visor de propiedades FTDI
+-----------------------------
+Aplicación para obtener la dirección del aparato (hay que meterlo a mano en el código de Data Adquisition (del proyecto myScanner) en la variable "LocationID" y lo mismo en Project1 en la carpeta de Librería en Delphi))
+
+3. Librería en Delphi
+----------------------
+Código de la librería de VisualBasic hecha por Juan Antonio y Javi adaptada a delphi por Javi.
+
+LHA_DigiMod_Javier
+----------------------
+Proyecto de VisualBasic para el control del aparato hecho por Juan Antonio y Javi
+
+MyScanner_V1.301 Copy  Funcional v5
+------------------------------------
+Proyecto en Delphi para el control del STM hecho por nosotros. En DataAdquisition está metida la adaptación a delphi que hizo Javi.

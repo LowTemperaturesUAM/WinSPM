@@ -1,0 +1,72 @@
+object Form9: TForm9
+  Left = 715
+  Top = 659
+  Width = 781
+  Height = 164
+  Caption = 'Files Directories'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 16
+    Top = 16
+    Width = 82
+    Height = 13
+    Caption = 'Scanning Images'
+  end
+  object Label2: TLabel
+    Left = 16
+    Top = 32
+    Width = 34
+    Height = 13
+    Caption = 'IV Files'
+  end
+  object Label3: TLabel
+    Left = 16
+    Top = 48
+    Width = 34
+    Height = 13
+    Caption = 'IZ Files'
+  end
+  object Label4: TLabel
+    Left = 16
+    Top = 64
+    Width = 31
+    Height = 13
+    Caption = 'Others'
+  end
+  object Label5: TLabel
+    Left = 112
+    Top = 16
+    Width = 32
+    Height = 13
+    Caption = 'Label5'
+  end
+  object Label6: TLabel
+    Left = 112
+    Top = 32
+    Width = 32
+    Height = 13
+    Caption = 'Label6'
+  end
+  object Label7: TLabel
+    Left = 112
+    Top = 48
+    Width = 32
+    Height = 13
+    Caption = 'Label7'
+  end
+  object Label8: TLabel
+    Left = 112
+    Top = 64
+    Width = 32
+    Height = 13
+    Caption = 'Label8'
+  end
+end
