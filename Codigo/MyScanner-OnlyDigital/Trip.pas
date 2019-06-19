@@ -214,12 +214,14 @@ Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,Form1
 //Label7.caption:=Floattostr(Strom_jetzt);
 //times:=1000;
 //while (abs(Strom_jetzt)<(Strom_Stop/10)) and (StopTrip=False) do Button1Click(nil);
+Label7.Caption:='Moving';
 while (abs(Strom_jetzt)<(Form6.spinCurrentLimit.Value/100)) and (StopTrip=False) do
 begin
 Button1Click(nil);
 Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,Form1.P_Scan_Mean);
 end;
 punto_salida:=True;
+Label7.Caption:='Not Moving';
 //times:=Spinedit1.Value;
 end
 end;

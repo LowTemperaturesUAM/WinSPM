@@ -1,7 +1,7 @@
 object Form7: TForm7
-  Left = 369
-  Top = 595
-  Width = 448
+  Left = 190
+  Top = 583
+  Width = 472
   Height = 231
   Caption = 'Config_Liner'
   Color = clBtnFace
@@ -17,7 +17,7 @@ object Form7: TForm7
   object Panel1: TPanel
     Left = 8
     Top = 8
-    Width = 417
+    Width = 353
     Height = 81
     TabOrder = 0
     object Label1: TLabel
@@ -105,20 +105,19 @@ object Form7: TForm7
   object Panel2: TPanel
     Left = 8
     Top = 96
-    Width = 417
+    Width = 353
     Height = 89
-    Caption = 'Panel2'
     TabOrder = 1
     object Label5: TLabel
-      Left = 128
+      Left = 120
       Top = 32
-      Width = 268
-      Height = 24
+      Width = 191
+      Height = 16
       Caption = 'Uses Settings of Config Scanner'
       Color = clCaptionText
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clRed
-      Font.Height = -19
+      Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentColor = False
@@ -152,6 +151,31 @@ object Form7: TForm7
       Caption = 'Measure Other'
       TabOrder = 2
       OnClick = CheckBox3Click
+    end
+  end
+  object Pane3: TPanel
+    Left = 368
+    Top = 8
+    Width = 81
+    Height = 177
+    Caption = 'Pane3'
+    TabOrder = 2
+    object RadioGroup2: TRadioGroup
+      Left = 0
+      Top = 0
+      Width = 81
+      Height = 177
+      Caption = 'Bias Voltage'
+      ItemIndex = 0
+      Items.Strings = (
+        '10 V'
+        '1 V'
+        '100 mV'
+        '10 mV'
+        '1 mV'
+        'Other')
+      TabOrder = 0
+      OnClick = RadioGroup2Click
     end
   end
 end
