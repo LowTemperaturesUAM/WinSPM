@@ -46,23 +46,7 @@ type
     Button7: TButton;
     CheckBox2: TCheckBox;
     Button8: TButton;
-    Label13: TLabel;
-    Label14: TLabel;
-    Label15: TLabel;
-    Label16: TLabel;
-    Label17: TLabel;
-    Label18: TLabel;
-    Label19: TLabel;
-    Label20: TLabel;
     Button9: TButton;
-    Label21: TLabel;
-    Label22: TLabel;
-    Label23: TLabel;
-    Label24: TLabel;
-    Label25: TLabel;
-    Label26: TLabel;
-    Label27: TLabel;
-    Label28: TLabel;
     ScrollBox1: TScrollBox;
     PaintBox1: TPaintBox;
     Button10: TButton;
@@ -91,8 +75,6 @@ type
     Button18: TButton;
     ScrollBar2: TScrollBar;
     ScrollBar3: TScrollBar;
-    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -198,35 +180,6 @@ var
   F: TFileStream;
 
 {$R *.DFM}
-
-procedure TForm1.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
-  var
-  xVolt, YVolt, Xnm,Ynm: Single;
-  pntCursor: TPoint;
-  pntCursorGlobal: TPointFloat;
-
-begin
-if (StopAction=True) then
-begin
-  pntCursor.X := X;
-  pntCursor.Y := Y;
-  pntCursorGlobal := PointCanvasToGlobal(pntCursor, SizeOfWindow);
-
-  xVolt := pntCursorGlobal.x*10*AmpX;
-  yVolt := pntCursorGlobal.y*10*AmpY;
-  Label15.Caption:=FloattoStrF(xVolt,ffGeneral,4,5);
-  Label16.Caption:=FloattoStrF(yVolt,ffGeneral,4,5);
-
-  Xnm:=xVolt*CalX;
-  Ynm:=yVolt*CalY;
-  Label20.Caption:=FloattoStrF(Xnm,ffGeneral,4,5);
-  Label19.Caption:=FloattoStrF(Ynm,ffGeneral,4,5);
-
-  CrossposX:=X;
-  CrossposY:=Y;
-end;
-end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
