@@ -230,7 +230,7 @@ end;
 
 procedure TForm3.FormShow(Sender: TObject);
 begin
-  ChartLine.LeftAxis.AxisValuesFormat := '0.0E+##';
+  ChartLine.LeftAxis.AxisValuesFormat := '0.##E+###';
   Button7Click(nil);
 end;
 

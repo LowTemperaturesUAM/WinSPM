@@ -126,6 +126,7 @@ type
     function StringToLengthNm(strValue: String):Single;
     procedure btnMarkNowClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure SetNewOffset(pntClickedFloat: TPointFloat);
 
   private
     { Private declarations }
@@ -176,7 +177,6 @@ uses Config1, Scanning, Liner, Trip, HeaderImg, FileNames, DataAdcquisition,
 
 
 var
-  CrossposX,CrossposY,Xpos,Ypos: Integer;
   F: TFileStream;
 
 {$R *.DFM}
@@ -210,8 +210,6 @@ ReadCurrent:=Form2.Checkbox2.checked;
 
 
 //Form2.Hide;
-Xpos:=200;
-Ypos:=200;
 XOffset := 0;
 YOffset := 0;
 PosXSTM:=0;
@@ -253,23 +251,21 @@ end;
 
 procedure TForm1.PaintBox1DblClick(Sender: TObject);
 var
-i,j,total: Integer;
-Princ,Fin,Step: Integer;
-xvolt,yvolt: single;
-c : integer ;
-bmp, bmp2 : TBitmap ;
-ptr : PByteArray ;
-rect : TRect;
 pntClicked: TPoint;
 pntClickedFloat: TPointFloat;
-relativeX, relativeY: Double; // Posición relativa del punto donde se ha pulsado, entre -1 y 1
-centerX, centerY, zoomFactor: Double; // Posición absoluta del centro de la ventana, entre -1 y 1
 
 begin
   // Calculo la posición donde se ha pulsado, referida al tamaño máximo de barrido (entre +/-1)
-  pntClicked.X := CrossposX;
-  pntClicked.Y := CrossposY;
+  pntClicked := PaintBox1.ScreenToClient(Mouse.CursorPos);
   pntClickedFloat := PointCanvasToGlobal(pntClicked, SizeOfWindow);
+  SetNewOffset(pntClickedFloat);
+end;
+
+procedure TForm1.SetNewOffset(pntClickedFloat: TPointFloat);
+var
+Princ,Fin: Integer;
+
+begin
   XOffset := pntClickedFloat.x;
   YOffset := pntClickedFloat.y;
 
@@ -292,9 +288,6 @@ begin
   MoveDac(nil, YDAC_Pos, Princ, Fin, P_Scan_Jump, nil);
 
   DacvalY:=Fin;
-  Xpos:=CrossposX;
-  Ypos:=CrossposY;
-
   Update(nil);
 end;
 
@@ -331,17 +324,14 @@ end;
 
 procedure TForm1.Button9Click(Sender: TObject);
 var
-bmp: TBitmap;
-ptr : PByteArray ;
-rect : TRect ;
-i,j,c: Integer;
+pointCenter: TPointFloat;
 
 begin
   ScrollBar2.Position:=Round(ScrollBar2.max/2);
   ScrollBar3.Position:=Round(ScrollBar3.max/2);
-  CrossposX:=200; CrossposY:=200;
-  Xpos:=200; Ypos:=200;
-  Form1.PaintBox1DblClick(nil);
+  pointCenter.x := 0;
+  pointCenter.y := 0;
+  Form1.SetNewOffset(pointCenter);
 end;
 
 procedure TForm1.Button10Click(Sender: TObject);
@@ -435,9 +425,9 @@ MoveDac(nil, XDAC, FinY, 0, P_Scan_Jump, nil);
 MoveDac(nil, YDAC, FinY, 0, P_Scan_Jump, nil);
 
 Button10.Enabled:=False;
-CrossPosX:=Round(DacValX/32768*200+200);
-CrossPosY:=Round(-DacValY/32768*200+200);
-//Form1.PaintBox1DblClick(nil);
+//CrossPosX:=Round(DacValX/32768*200+200);
+//CrossPosY:=Round(-DacValY/32768*200+200);
+//Form1.PaintBox1DblClick(nil);  No descomentar estas línea tal cual. En lugar de eso usar la función SetNewOffset calculando previamente el punto. (0, 0) si es ir al centro.
 Form3.Close;
 if A=True then CheckBox2.Checked:=True;
 end;
@@ -1169,35 +1159,35 @@ xamp,yamp: LongInt;
 DataWsxmtoPlotinFile: Array [0..512,0..512] of Double;
 
 begin
-       Form8.Button1.Click; // Rellena la cabecera de la imagen
+  Form8.Button1.Click; // Rellena la cabecera de la imagen
 
-       // Asume que las imágenes son cuadradas (mismo número de filas y columnas)
-       // Reordeno los datos para salgan bien colocados en WSxM.
-       for l:=0 to h.yn-1 do
-         begin
-         for k:=0 to h.yn-1 do
-          begin
-          DataWsxmtoPlotinFile[k,l]:=OneImg[h.yn-l-1,h.yn-k-1]*factorZ;
-          end;
-         end;
+  // Asume que las imágenes son cuadradas (mismo número de filas y columnas)
+  // Reordeno los datos para salgan bien colocados en WSxM.
+  for l:=0 to h.yn-1 do
+  begin
+    for k:=0 to h.yn-1 do
+    begin
+      DataWsxmtoPlotinFile[k,l]:=OneImg[h.yn-l-1,h.yn-k-1]*factorZ;
+    end;
+  end;
 
-        MiFile:=Form9.Label5.Caption; //Here is directory
-        if MiFile='Label5' then Button3Click(nil);
+  if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
+  MiFile:=Form9.Label5.Caption; //Here is directory
 
-        FileNumber := Format('%.3d', [SpinEdit1.Value]);
-        MiFile:=MiFile+'\'+Edit1.Text+Suffix+FileNumber+'.stp';
+  FileNumber := Format('%.3d', [SpinEdit1.Value]);
+  MiFile:=MiFile+'\'+Edit1.Text+Suffix+FileNumber+'.stp';
 
-        F:=TFileStream.Create(MiFile,fmCreate) ;
-        F.WriteBuffer(Form8.WSxMHeader[1], Length(Form8.WSxMHeader));
+  F:=TFileStream.Create(MiFile,fmCreate) ;
+  F.WriteBuffer(Form8.WSxMHeader[1], Length(Form8.WSxMHeader));
 
-        for l:=0 to h.yn-1 do
-         begin
-         for k:=0 to h.yn-1 do
-          begin
-            F.WriteBuffer(DataWsxmtoPlotinFile[k,l],SizeOf(Double));
-          end;
-         end;
-         F.Destroy;
+  for l:=0 to h.yn-1 do
+  begin
+    for k:=0 to h.yn-1 do
+    begin
+      F.WriteBuffer(DataWsxmtoPlotinFile[k,l],SizeOf(Double));
+    end;
+  end;
+  F.Destroy;
 end;
 
 // Guarda las curvas IV en el formato General Spectroscopy Imaging de WSxM
@@ -1213,8 +1203,8 @@ var
 
 begin
   DecimalSeparator := '.';
+  if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
-  if MiFile='Label5' then Button3Click(nil);
 
   case dataSet of
     0:

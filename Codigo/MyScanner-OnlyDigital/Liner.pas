@@ -174,7 +174,7 @@ Size_xAxis:=scrollSizeBias.Position/100;
 
 Temperature:=StrtoFloat(Edit5.Text);
 MagField:=StrtoFloat(Edit6.Text);
-ChartLine.LeftAxis.AxisValuesFormat := '0.0E+##';
+ChartLine.LeftAxis.AxisValuesFormat := '0.##E+###';
 StopIt:=True;
 end;
 

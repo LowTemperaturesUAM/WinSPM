@@ -44,29 +44,29 @@ object Form9: TForm9
   object Label5: TLabel
     Left = 112
     Top = 16
-    Width = 32
+    Width = 29
     Height = 13
-    Caption = 'Label5'
+    Caption = '.\data'
   end
   object Label6: TLabel
     Left = 112
     Top = 32
-    Width = 32
+    Width = 29
     Height = 13
-    Caption = 'Label6'
+    Caption = '.\data'
   end
   object Label7: TLabel
     Left = 112
     Top = 48
-    Width = 32
+    Width = 29
     Height = 13
-    Caption = 'Label7'
+    Caption = '.\data'
   end
   object Label8: TLabel
     Left = 112
     Top = 64
-    Width = 32
+    Width = 29
     Height = 13
-    Caption = 'Label8'
+    Caption = '.\data'
   end
 end
