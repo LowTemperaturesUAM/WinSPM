@@ -436,7 +436,7 @@ procedure TForm1.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
 var
 i,j,k,total,OldX,OldY, channelToPlot, flatten: Integer;
 Princ,Princ2,Fin,Step: Integer;
-xvolt,yvolt: single;
+xvolt,yvolt,yFactor: single;
 MakeX,MakeY: Boolean;
 interv, zeroSingle: Single;
 Data:HImg;
@@ -458,7 +458,7 @@ begin
   Form3.ChartLine.AddSeries(ChartLineSerie1);
 
   MakeX:=False;
-MakeY:=False;
+  MakeY:=False;
 
 OldX:=0;
 OldY:=0;
@@ -502,9 +502,15 @@ end;
 Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Princ, Fin)/32768*AmpX*10*CalX);
 
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
-  channelToPlot := 1
+begin
+  channelToPlot := 1;
+  yFactor := Form1.CalTopo*Form1.AmpTopo;
+end
 else // Current
+begin
   channelToPlot := 2;
+  yFactor := Form1.MultI*Form1.AmpI;
+end;
 
 //Forth
 i:=0;
@@ -581,7 +587,7 @@ begin
         Dat_Image_Forth[2,LineNr,i]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,LineNr,i],Dat_Image_Forth[channelToPlot,LineNr,i]);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,LineNr,i],Dat_Image_Forth[channelToPlot,LineNr,i]*yFactor);
   end
   else   // Scan in Y
   begin
@@ -639,7 +645,7 @@ begin
       if ReadCurrent=True then Dat_Image_Forth[2,i,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,i,LineNr],Dat_Image_Forth[channelToPlot,i,LineNr]);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,i,LineNr],Dat_Image_Forth[channelToPlot,i,LineNr]*yFactor);
   end;
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
@@ -730,7 +736,7 @@ begin
       if ReadCurrent=True then Dat_Image_Back[2,LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,LineNr,P_Scan_Lines-i-1],Dat_Image_Back[channelToPlot,LineNr,P_Scan_Lines-i-1]);
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,LineNr,P_Scan_Lines-i-1],Dat_Image_Back[channelToPlot,LineNr,P_Scan_Lines-i-1]*yFactor);
   end
   else
   begin
@@ -791,7 +797,7 @@ begin
       if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]);
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]*yFactor);
 
   end;
 
