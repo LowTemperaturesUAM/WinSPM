@@ -1016,9 +1016,9 @@ repeat
   TiempoMedio:=0;
   TiempoInicial:=0;
 
-  h.xstart:=DacValX/32768*AmpX*10*1e-9;
+  h.xstart:=DacValX/32768*Form10.attenuator*AmpX*10*1e-9;
   h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*Form10.attenuator*10*1e-9;
-  h.ystart:=DacValY/32768*AmpX*10*1e-9;
+  h.ystart:=DacValY/32768*Form10.attenuator*AmpX*10*1e-9;
   h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*Form10.attenuator*10*1e-9;
   h.xn:=P_Scan_Lines;
   h.yn:=P_Scan_Lines;

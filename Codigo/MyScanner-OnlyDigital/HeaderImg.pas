@@ -83,13 +83,13 @@ begin
   strLine := Format('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*Form1.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Offset: %f nm', [Form1.h.xstart*1e9*Form1.CalX]);
+  strLine := Format('    X Offset: %f nm', [Form1.XOffset*10*Form1.AmpX*Form1.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   strLine := Format('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*Form1.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Offset: %f nm', [Form1.h.ystart*1e9*Form1.CalY]);
+  strLine := Format('    Y Offset: %f nm', [Form1.YOffset*10*Form1.AmpY*Form1.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+#13#10+
