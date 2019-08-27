@@ -150,7 +150,7 @@ object Form2: TForm2
       Height = 22
       MaxValue = 7
       MinValue = 0
-      TabOrder = 5
+      TabOrder = 3
       Value = 2
     end
     object Edit1: TEdit
@@ -158,7 +158,7 @@ object Form2: TForm2
       Top = 16
       Width = 41
       Height = 21
-      TabOrder = 1
+      TabOrder = 2
       Text = '5'
     end
     object ComboBox1: TComboBox
@@ -167,7 +167,7 @@ object Form2: TForm2
       Width = 41
       Height = 21
       ItemHeight = 13
-      TabOrder = 2
+      TabOrder = 1
       Text = '13'
       Items.Strings = (
         '13'
@@ -180,7 +180,7 @@ object Form2: TForm2
       Height = 22
       MaxValue = 7
       MinValue = 0
-      TabOrder = 3
+      TabOrder = 7
       Value = 1
     end
     object SpinEdit7: TSpinEdit
@@ -190,7 +190,7 @@ object Form2: TForm2
       Height = 22
       MaxValue = 7
       MinValue = 0
-      TabOrder = 4
+      TabOrder = 9
       Value = 3
     end
     object chkAttenuator: TCheckBox
@@ -207,7 +207,7 @@ object Form2: TForm2
       Width = 41
       Height = 21
       ItemHeight = 13
-      TabOrder = 7
+      TabOrder = 8
       Text = '13'
       Items.Strings = (
         '13'
@@ -219,39 +219,39 @@ object Form2: TForm2
       Width = 41
       Height = 21
       ItemHeight = 13
-      TabOrder = 8
+      TabOrder = 10
       Text = '13'
       Items.Strings = (
         '13'
         '1.3')
     end
-  end
-  object ComboBox2: TComboBox
-    Left = 168
-    Top = 48
-    Width = 41
-    Height = 21
-    ItemHeight = 13
-    TabOrder = 1
-    Text = '13'
-    Items.Strings = (
-      '13'
-      '1.3')
-  end
-  object Edit2: TEdit
-    Left = 312
-    Top = 48
-    Width = 41
-    Height = 21
-    TabOrder = 2
-    Text = '5'
+    object ComboBox2: TComboBox
+      Left = 152
+      Top = 40
+      Width = 41
+      Height = 21
+      ItemHeight = 13
+      TabOrder = 4
+      Text = '13'
+      Items.Strings = (
+        '13'
+        '1.3')
+    end
+    object Edit2: TEdit
+      Left = 296
+      Top = 40
+      Width = 41
+      Height = 21
+      TabOrder = 5
+      Text = '5'
+    end
   end
   object Panel2: TPanel
     Left = 16
     Top = 160
     Width = 361
     Height = 161
-    TabOrder = 3
+    TabOrder = 1
     object Label12: TLabel
       Left = 8
       Top = 8
@@ -329,7 +329,7 @@ object Form2: TForm2
       Height = 22
       MaxValue = 5
       MinValue = 0
-      TabOrder = 0
+      TabOrder = 1
       Value = 2
     end
     object ComboBox3: TComboBox
@@ -338,7 +338,7 @@ object Form2: TForm2
       Width = 41
       Height = 21
       ItemHeight = 13
-      TabOrder = 1
+      TabOrder = 2
       Text = '13'
       Items.Strings = (
         '13'
@@ -352,7 +352,7 @@ object Form2: TForm2
       Caption = 'Topo'
       Checked = True
       State = cbChecked
-      TabOrder = 2
+      TabOrder = 0
     end
     object Edit3: TEdit
       Left = 320

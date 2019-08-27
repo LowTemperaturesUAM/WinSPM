@@ -18,8 +18,6 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Button5: TButton;
-    ScrollBar3: TScrollBar;
-    Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
@@ -30,7 +28,6 @@ type
     procedure Button5Click(Sender: TObject);
     procedure ScrollBar2Change(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
-    procedure ScrollBar3Change(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Spinedit1Change(Sender: TObject);
@@ -40,12 +37,14 @@ type
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
+    procedure SetMoving(moving: Boolean);
+    procedure MakeSteps(numSteps, direction: Integer);
   private
     { Private declarations }
   public
     { Public declarations }
-  Speed, Size, times, Strom_Stop, ZPDac, IADC, Mult, MultI: Integer;
-  Kontakt,StopTrip: Boolean;
+  Speed, Size, times, ZPDac, IADC, Mult, MultI: Integer;
+  StopTrip: Boolean; // Cuidado con StopTrip, se está asignando varias veces en la aproximación automática. Es poco probable pero podría darse el caso que una de estas asignaciones coincidiera con la pulsación del usuario para parar, lo machacase y no parara.
   end;
 
 var
@@ -84,18 +83,11 @@ Speed:=ScrollBar1.Position;
 Label5.Caption:=InttoStr(Speed);
 end;
 
-procedure TForm5.ScrollBar3Change(Sender: TObject);
-begin
-Strom_Stop:=ScrollBar3.Position;
-Label4.Caption:= InttoStr(Strom_Stop);
-end;
-
 procedure TForm5.FormShow(Sender: TObject);
 begin
 Form6.Show;
 Size:=ScrollBar2.Position;
 Speed:=ScrollBar1.Position;
-Strom_Stop:=ScrollBar3.Position;
 times:=SpinEdit1.Value;
 Form6.Show;
 ZPDAC:=Form6.SpinEdit1.Value;
@@ -106,33 +98,10 @@ Form6.Hide;
 end;
 
 procedure TForm5.Button1Click(Sender: TObject);
-var
-i,j: LongInt;
-k,l,m: LongInt;
-enviaZ: SmallInt;
-x: Single;
-
 begin
-
-StopTrip:=False;
-i:=0;
-
-while (i<times) and (StopTrip=False) do
-begin
-  for j:=-32767 to 32767 do
-  begin
-   if Frac(j/Speed)=0 then begin
-
-   enviaZ:=Mult*Round(j*Size/10);
-   x:=(j+32767)/32767+i;
-   //Label7.Caption:=InttoStr(enviaZ);
-   Form10.dac_set(ZPDac,enviaZ, nil);
-   end;
-  end;
-  Application.ProcessMessages;
-i:=i+1;
-end;
-   Form10.dac_set(ZPDac,0, nil);
+  SetMoving(true);
+  MakeSteps(times, 1);
+  SetMoving(false);
 end;
 
 procedure TForm5.Spinedit1Change(Sender: TObject);
@@ -141,60 +110,17 @@ times:=SpinEdit1.Value;
 end;
 
 procedure TForm5.Button2Click(Sender: TObject);
-var
-i,j: LongInt;
-k,l,m: LongInt;
-enviaZ: SmallInt;
-x: Single;
-
 begin
-StopTrip:=False;
-i:=0;
-
-while (i<times) and (StopTrip=False) do
-begin
-  for j:=-32767 to 32767 do
-  begin
-   if Frac(j/Speed)=0 then begin
-
-   enviaZ:=-1*Mult*Round(j*Size/10);
-   x:=(j+32767)/32767+i;
-   //Label7.Caption:=InttoStr(enviaZ);
-   Form10.dac_set(ZPDac,enviaZ, nil);
-   end;
-  end;
-  Application.ProcessMessages;
-i:=i+1;
-end;
-    Form10.dac_set(ZPDac,0, nil);
+  SetMoving(true);
+  MakeSteps(times, -1);
+  SetMoving(false);
 end;
 
 procedure TForm5.Button3Click(Sender: TObject);
-var
-i,j: Integer;
-k: LongInt;
-enviaZ: Integer;
-x: Single;
-
 begin
-  StopTrip:=False;
-  i:=0;
-while (i<100) and (StopTrip=False) do
-begin
-  for j:=-32767 to 32767 do
-  begin
-   if Frac(j/Speed)=0 then begin
-
-   enviaZ:=-1*Mult*Round(j*Size/10);
-   x:=(j+32767)/32767+i;
-   //Label7.Caption:=InttoStr(enviaZ);
-   Form10.dac_set(ZPDac,enviaZ, nil);
-   end;
-  end;
-  Application.ProcessMessages;
-i:=i+1;
-end;
-    Form10.dac_set(ZPDac,0, nil);
+  SetMoving(true);
+  MakeSteps(100, -1);
+  SetMoving(false);
 end;
 
 procedure TForm5.Button4Click(Sender: TObject);
@@ -206,40 +132,81 @@ begin
 //Esta para probar hay que asignarle un valor minimo de corriente a aprtir de la cual pare de moverse
 //Strom_jetzt:=9;//adc_take(0,ADCI,Form1.P_Scan_Mean))
 //StopTrip:=False;
-StopTrip:=False;
-punto_salida:=false;
-while (punto_salida=false) do
-begin
-Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,Form1.P_Scan_Mean);
-//Label7.caption:=Floattostr(Strom_jetzt);
-//times:=1000;
-//while (abs(Strom_jetzt)<(Strom_Stop/10)) and (StopTrip=False) do Button1Click(nil);
-Label7.Caption:='Moving';
-while (abs(Strom_jetzt)<(Form6.spinCurrentLimit.Value/100)) and (StopTrip=False) do
-begin
-Button1Click(nil);
-Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,Form1.P_Scan_Mean);
-end;
-punto_salida:=True;
-Label7.Caption:='Not Moving';
-//times:=Spinedit1.Value;
-end
+  SetMoving(true);
+  StopTrip:=False;
+  punto_salida:=false;
+  while (punto_salida=false) do
+  begin
+    Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,Form1.P_Scan_Mean);
+    //Label7.caption:=Floattostr(Strom_jetzt);
+    //times:=1000;
+    while (abs(Strom_jetzt)<(Form6.spinCurrentLimit.Value/100)) and (StopTrip=False) do
+    begin
+      MakeSteps(times, 1);
+      Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,Form1.P_Scan_Mean);
+    end;
+    punto_salida:=True;
+    //times:=Spinedit1.Value;
+  end;
+  SetMoving(false);
 end;
 
 procedure TForm5.Button6Click(Sender: TObject);
 begin
-if (StopTrip=False) then StopTrip:=True;
+  StopTrip:=True;
 end;
 
 procedure TForm5.Button7Click(Sender: TObject);
 begin
-if (Round(SpinEdit1.Value/10)>0) then SpinEdit1.Value:=Round(SpinEdit1.Value/10)
-else SpinEdit1.Value:=1;
+  if (Round(SpinEdit1.Value/10)>0) then
+    SpinEdit1.Value:=Round(SpinEdit1.Value/10)
+  else
+    SpinEdit1.Value:=1;
 end;
 
 procedure TForm5.Button8Click(Sender: TObject);
 begin
-SpinEdit1.Value:=SpinEdit1.Value*10;
+  SpinEdit1.Value:=SpinEdit1.Value*10;
+end;
+
+procedure TForm5.SetMoving(moving: Boolean);
+begin
+  if moving then
+    Label7.Caption:='Moving'
+  else
+    Label7.Caption:='Not moving';
+
+  // Habilitamos o deshabilitamos los botones de movimiento que correspondan
+  Button1.Enabled := not moving;
+  Button2.Enabled := not moving;
+  Button3.Enabled := not moving;
+  Button4.Enabled := not moving;
+  Button6.Enabled := moving; // Stop
+end;
+
+
+procedure TForm5.MakeSteps(numSteps, direction: Integer);
+var
+i,j: Integer;
+enviaZ: Integer;
+
+begin
+  StopTrip:=False;
+  i:=0;
+  while (i<numSteps) and (StopTrip=False) do
+  begin
+    for j:=-32767 to 32767 do
+    begin
+      if Frac(j/Speed)=0 then
+      begin
+        enviaZ:=direction*Mult*Round(j*Size/10);
+        Form10.dac_set(ZPDac,enviaZ, nil);
+      end;
+    end;
+    Application.ProcessMessages;
+    i:=i+1;
+  end;
+  Form10.dac_set(ZPDac,0, nil);
 end;
 
 end.

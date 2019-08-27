@@ -133,7 +133,7 @@ type
   public
     { Public declarations }
   XDAC,YDAC,XDAC_Pos,YDAC_Pos, ADCTopo, ADCI, MultI: Integer;
-  AmpTopo, AmpI, AmpX,Ampy,AmpX_Pos,AmpY_Pos,CalTopo, CalX,CalY: Single;
+  AmpTopo, AmpI, AmpX,Ampy,AmpX_Pos,AmpY_Pos,CalTopo,CalX,CalY: Single;
   BiasDAC: Integer;
   MultBias: Single;
   ReadTopo, ReadCurrent: Boolean;
@@ -1160,8 +1160,7 @@ end;
 procedure TForm1.SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
 var
 MiFile,FileNumber : string;
-i,k,l: Integer;
-xamp,yamp: LongInt;
+k,l: Integer;
 DataWsxmtoPlotinFile: Array [0..512,0..512] of Double;
 
 begin
@@ -1607,8 +1606,6 @@ var
   value: Single;
   i: integer;
 begin
-  value := NaN;
-
   try
     strValue := Trim(strValue);
     i := LastDelimiter(' ', strValue);
@@ -1668,7 +1665,6 @@ end;
 procedure TForm1.Update(Sender:TObject);
 var
   i:Integer;
-  Bitmap2:TBitmap;
   bottomLeft, topRight: TPoint;
   bottomLeftFloat, topRightFloat: TPointFloat;
 begin
@@ -1748,7 +1744,6 @@ procedure TForm1.Button17Click(Sender: TObject);
 var
   bmp: TBitmap;
   uiClipboardID, hData: Cardinal;
-  bOK: LongBool;
   clipboardPointer: ^TWSxMClipboardHeader;
   szPathName: array[0..MAX_PATH-1] of Char;
   szFileName: array[0..MAX_PATH-1] of Char;
@@ -1782,7 +1777,7 @@ begin
   end;
 
   try
-    bOK := OpenClipboard(0);
+    OpenClipboard(0);
 
     // Obtenemos el manejador del portapapeles para el formato WSxM, si lo hubiera
     hData := GetClipboardData(uiClipboardID);

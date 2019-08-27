@@ -151,7 +151,6 @@ Function TForm10.InitDataAcq : boolean  ;
 
  var BytesToWrite: Integer;
  var BytesWritten:Integer;
- var novalido:Double;
 
  var miestructura2:FtcChipSelectPins;
  var entradassalidas:FtcInputOutputPins;
@@ -262,11 +261,11 @@ begin
 
 // Realizar lecturas ADC para estabilizar datos
 
-  novalido:= adc_take(0,1,5);    // 5 es experimental
+   adc_take(0,1,5);    // 5 es experimental
 
 // Purgar lectura y escritura en el buffer
 
-   SPI_Ret:=FT_Purge(   SupraSPI_Hdl,1);
+   FT_Purge(   SupraSPI_Hdl,1);
    SPI_Ret:=FT_Purge(   SupraSPI_Hdl,2);
    If SPI_Ret <> 0  then
    begin

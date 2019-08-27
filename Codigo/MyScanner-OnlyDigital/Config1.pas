@@ -23,7 +23,6 @@ type
     Label8: TLabel;
     ComboBox2: TComboBox;
     Label9: TLabel;
-    Edit2: TEdit;
     Label10: TLabel;
     Label11: TLabel;
     Panel2: TPanel;
@@ -60,6 +59,7 @@ type
     ComboBox6: TComboBox;
     Label26: TLabel;
     ComboBox7: TComboBox;
+    Edit2: TEdit;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
@@ -95,7 +95,7 @@ Form1.ADCTopo:=SpinEdit3.Value;
 Form1.ADCI:=SpinEdit4.Value;
 Form1.AmpTopo:=StrtoFloat(Combobox3.Text);
 Form1.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1)); //Le resto 1 a mano porque hay un factor 10 colgando por cómo se interpreta la lectura del adc
-Form1.CalTopo:=StrtoInt(Edit3.Text);
+Form1.CalTopo:=StrtoFloat(Edit3.Text);
 Form1.MultI:=StrtoInt(Edit4.Text);
 Form1.ReadTopo:=Checkbox1.checked;
 Form1.ReadCurrent:=Checkbox2.checked;
