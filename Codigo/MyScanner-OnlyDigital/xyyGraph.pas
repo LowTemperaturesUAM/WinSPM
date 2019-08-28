@@ -225,8 +225,6 @@ begin
 end ;
 
 destructor TxyyGraph.Destroy ;
-var
-  i : integer ;
 begin
 
   //for i:=0 to MAXSERIES-1 do Fseries[i].Free ; //???
@@ -268,7 +266,7 @@ end ;
 
 procedure TxyyGraph.RescaleAll ;
 var
-  i,j,k : integer ;
+  i,k : integer ;
   found : integer ;
   xmin,xmax,ymin,ymax : double ;
 begin
@@ -437,7 +435,6 @@ begin
       MoveTo(GetXpixel(f),GetYPixel(FYAxis.FMax)) ;
       //LineTo(GetXpixel(f),GetYPixel(FYAxis.FMax)+FXAxis.FTicksLength) ;
       s:=FloatToStrF(f,ffGeneral,FXAxis.GetDivisionDigits,2) ;
-      yy:=Round(0.66*Fyy1+TextHeight(FXAxis.FTitle)/2);
       TextOut(GetXpixel(f)-Round(TextWidth(s)/2),hh-Fyy1,s) ;
       f:=f+fxw ;
     end ;
@@ -604,8 +601,6 @@ begin
 end ;
 
 function TxyyGraph.GetSeries(i:integer):TxyyGraphSeries;
-var
-  j : integer ;
 begin
   if (i<0) or (i>=MAXSERIES) then begin  // FATAL ERROR ???
     MessageDlg('xyyGraph FATAL ERROR accesing nonexisting series',mtInformation,
@@ -656,7 +651,7 @@ end ;
 
 procedure TxyyGraph.PMouseUp(Sender:TObject;Button:TMouseButton;Shift:TShiftState;X,Y:Integer);
 var
-  i,k : integer ;
+  k : integer ;
   x1,x2,y1,y2 : double ;
 begin
   if (FZooming) and (Button=mbRight) then begin
@@ -802,10 +797,7 @@ end ;
 
 function TxyyGraphAxis.GetDivisionStart : double ;
 var
-  ndiv : integer ;
-  ff : double ;
   fw,f1 : double ;
-  signif : integer ;
 begin
   fw:=GetDivisionSize ;
   if FMin>=0.0 then begin
@@ -824,7 +816,7 @@ function TxyyGraphAxis.GetDivisionSize : double ;
 var
   ndiv : integer ;
   ff : double ;
-  fw,f1 : double ;
+  fw : double ;
   signif : integer ;
 begin
   ndiv:=FTicksNumber ;

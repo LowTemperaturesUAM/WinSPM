@@ -1000,10 +1000,7 @@ var
 i,p: Integer;
 j,k,total: Integer;
 PrincX,PrincY,FinX, FinY,Step: Integer;
-xvolt,yvolt: single;
-MakeX,MakeY,PaintLines: Boolean;
-interv: Single;
-Bitmap, Bitmap2: TBitmap;
+PaintLines: Boolean;
 Source: TRect;
 Dest: TRect;
 

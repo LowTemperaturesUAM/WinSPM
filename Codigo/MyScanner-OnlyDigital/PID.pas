@@ -293,12 +293,14 @@ end;
 
 procedure TFormPID.Gain_IChange(Sender: TObject);
 begin
-Gain_of_I:=power(10,Gain_I.Value);
+  TryStrToFloat(Gain_I.Text, Gain_of_I);
+  Gain_of_I:=power(10,Gain_of_I);
 end;
 
 procedure TFormPID.Gain_DChange(Sender: TObject);
 begin
-Gain_of_D:=power(10,Gain_D.Value);
+  TryStrToFloat(Gain_D.Text, Gain_of_D);
+  Gain_of_D:=power(10,Gain_of_D);
 end;
 
 procedure TFormPID.thrdtmr1Timer(Sender: TObject);
@@ -307,9 +309,11 @@ begin
 end;
 
 procedure TFormPID.se1Change(Sender: TObject);
+  var temp64 : Int64; // Temporalmente 64 bits para no perder precisión
 begin
-thrdtmr1.Interval:=se1.Value;
-Application.ProcessMessages;
+  TryStrToInt64(se1.Text, temp64);
+  thrdtmr1.Interval := temp64;
+  Application.ProcessMessages;
 end;
 
 end.
