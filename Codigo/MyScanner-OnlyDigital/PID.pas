@@ -98,7 +98,8 @@ uses DataAdcquisition, Scanner1, Config1;
 
 procedure TFormPID.SpinEdit3Change(Sender: TObject);
 begin
-Gain:=power(10,SpinEdit3.Value);
+  TryStrToFloat(SpinEdit3.Text, Gain);
+  Gain:=power(10,Gain);
 end;
 
 procedure TFormPID.ScrollBar1Change(Sender: TObject);
@@ -158,18 +159,17 @@ end;
 
 procedure TFormPID.SpinEdit1Change(Sender: TObject);
 begin
-InPID_ADC:=SpinEdit1.Value;
+  TryStrToInt(SpinEdit1.Text, InPID_ADC);
 end;
 
 procedure TFormPID.SpinEdit2Change(Sender: TObject);
 begin
-OutPID_DAC:=SpinEdit2.Value;
+  TryStrToInt(SpinEdit2.Text, OutPID_DAC);
 end;
-
 
 procedure TFormPID.SpinEdit4Change(Sender: TObject);
 begin
-Count_Live:=SpinEdit4.Value;
+  TryStrToInt(SpinEdit4.Text, Count_Live);
 end;
 
 procedure TFormPID.CheckBox2Click(Sender: TObject);
@@ -184,7 +184,7 @@ end;
 
 procedure TFormPID.SpinEdit5Change(Sender: TObject);
 begin
-MeanReadI:=SpinEdit5.Value;
+  TryStrToInt(SpinEdit5.Text, MeanReadI);
 end;
 
 procedure TFormPID.Button4Click(Sender: TObject);

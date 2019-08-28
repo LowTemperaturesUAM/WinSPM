@@ -409,7 +409,7 @@ Form3.Show;
 while (StopAction<>True) do
  begin
    k:=k+1;
-    EraseLines:=Form3.SpinEdit1.Value;
+   TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
  MakeLine(nil, False, 0);
  Application.ProcessMessages;
  if (k>=EraseLines) then
@@ -1028,7 +1028,7 @@ repeat
   if CheckBox2.Checked then form4.show;
   Form3.Show;
   Form3.FreeScans(nil);
-  EraseLines:=Form3.SpinEdit1.Value;
+  TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
 
   PaintLines:=Checkbox6.checked;
 
@@ -1054,7 +1054,7 @@ repeat
        while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en Y
         begin
           p:=p+1;
-          EraseLines:=Form3.SpinEdit1.Value;
+          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
           DacvalY:=PrincY+Step*i;
           MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY, P_Scan_Jump, nil);
@@ -1082,7 +1082,7 @@ repeat
        while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en X
         begin
           p:=p+1;
-          EraseLines:=Form3.SpinEdit1.Value;
+          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
           DacvalX:=PrincX+Step*i;
           MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX, P_Scan_Jump, nil);

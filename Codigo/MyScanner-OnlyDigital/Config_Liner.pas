@@ -70,7 +70,7 @@ end;
 
 procedure TForm7.SpinEdit1Change(Sender: TObject);
 begin
-Form4.x_axisDac:=SpinEdit1.Value;
+  TryStrToInt(SpinEdit1.Text, Form4.x_axisDac);
 end;
 
 procedure TForm7.RadioGroup1Click(Sender: TObject);
@@ -81,7 +81,7 @@ end;
 
 procedure TForm7.SpinEdit2Change(Sender: TObject);
 begin
-Form4.x_axisADC:=SpinEdit2.Value;
+  TryStrToInt(SpinEdit2.Text, Form4.x_axisADC);
 end;
 
 procedure TForm7.Edit1Change(Sender: TObject);

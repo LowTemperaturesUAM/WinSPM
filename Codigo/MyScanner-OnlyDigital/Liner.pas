@@ -362,13 +362,13 @@ end;
 //Cambio en Mean
 procedure TForm4.SpinEdit3Change(Sender: TObject);
 begin
-LinerMean:=SpinEdit3.Value;
+  TryStrToInt(SpinEdit3.Text, LinerMean);
 end;
 
 //Cambio en Jump
 procedure TForm4.SpinEdit4Change(Sender: TObject);
 begin
-Jump_xAxis:=SpinEdit4.Value;
+  TryStrToInt(SpinEdit4.Text, Jump_xAxis);
 end;
 
 //Pintar las curvas

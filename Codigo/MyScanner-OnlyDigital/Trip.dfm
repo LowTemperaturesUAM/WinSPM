@@ -43,13 +43,6 @@ object Form5: TForm5
     Height = 13
     Caption = '1'
   end
-  object Label7: TLabel
-    Left = 264
-    Top = 120
-    Width = 6
-    Height = 13
-    Caption = '0'
-  end
   object Label8: TLabel
     Left = 16
     Top = 88

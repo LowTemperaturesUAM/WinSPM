@@ -20,7 +20,6 @@ type
     Button5: TButton;
     Label5: TLabel;
     Label6: TLabel;
-    Label7: TLabel;
     Button6: TButton;
     Label8: TLabel;
     Button7: TButton;
@@ -106,7 +105,7 @@ end;
 
 procedure TForm5.Spinedit1Change(Sender: TObject);
 begin
-times:=SpinEdit1.Value;
+  TryStrToInt(SpinEdit1.Text, times);
 end;
 
 procedure TForm5.Button2Click(Sender: TObject);
@@ -171,11 +170,6 @@ end;
 
 procedure TForm5.SetMoving(moving: Boolean);
 begin
-  if moving then
-    Label7.Caption:='Moving'
-  else
-    Label7.Caption:='Not moving';
-
   // Habilitamos o deshabilitamos los botones de movimiento que correspondan
   Button1.Enabled := not moving;
   Button2.Enabled := not moving;
