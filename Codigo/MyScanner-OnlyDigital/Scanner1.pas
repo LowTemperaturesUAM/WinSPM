@@ -46,7 +46,6 @@ type
     Button7: TButton;
     CheckBox2: TCheckBox;
     Button8: TButton;
-    Button9: TButton;
     ScrollBox1: TScrollBox;
     PaintBox1: TPaintBox;
     Button10: TButton;
@@ -75,6 +74,8 @@ type
     Button18: TButton;
     ScrollBar2: TScrollBar;
     ScrollBar3: TScrollBar;
+    btnCenterAtTip: TButton;
+    Button9: TButton;
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -127,6 +128,7 @@ type
     procedure btnMarkNowClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
+    procedure btnCenterAtTipClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -384,7 +386,40 @@ Update(nil);
 end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
+var
+  halfScrollSize, oldPosX, oldPosY: Single;
+const
+  zoomFactor: Integer = 1;
 begin
+  // Para que los pasos sean más suaves ajusto el número de pasos permitidos en
+  // las barras de desplazamiento.
+
+  // Intento mantener sin moverse el punto central del cuadro que se pinta
+  halfScrollSize := ScrollBar2.Max/2;
+  oldPosX := (ScrollBar3.Position-halfScrollSize)/halfScrollSize;
+  oldPosY := (ScrollBar2.Position-halfScrollSize)/halfScrollSize;
+
+  // Corrijo el efecto de que el zoom se ajusta para que no se salga del área de barrido
+  oldPosX := oldPosX*(zoomFactor-1)/zoomFactor;
+  oldPosY := oldPosY*(zoomFactor-1)/zoomFactor;
+
+  zoomFactor := StrToInt(ComboBox1.Text);
+  halfScrollSize := 50*zoomFactor;
+  ScrollBar2.Max := Round(2*halfScrollSize);
+  ScrollBar3.Max := ScrollBar2.Max; // Muy importante que sea el mismo valor
+
+  // Restauro las posiciones relativas
+  if zoomFactor = 1 then
+  begin
+    ScrollBar3.Position := Round(halfScrollSize);
+    ScrollBar2.Position := Round(halfScrollSize);
+  end
+  else
+  begin
+    ScrollBar3.Position := Round((oldPosX*zoomFactor/(zoomFactor-1)+1)*halfScrollSize);
+    ScrollBar2.Position := Round((oldPosY*zoomFactor/(zoomFactor-1)+1)*halfScrollSize)
+  end;
+
   Update(nil);
 end;
 
@@ -1570,11 +1605,12 @@ end;
 
 function TForm1.PointGlobalToCanvas(pntGlobal: TPointFloat; canvasSize: Integer):TPoint;
 var
-  zoomFactor, scrollX, scrollY, tempX, tempY: Double;
+  zoomFactor, scrollX, scrollY, tempX, tempY, halfScollRange: Double;
 begin
+  halfScollRange := ScrollBar2.Max/2; // Asumo que empieza en cero
   zoomFactor := StrToFloat(ComboBox1.Text);
-  scrollX := -(ScrollBar3.Position-50)/50; // Lo normalizo a [-1, +1]
-  scrollY := (ScrollBar2.Position-50)/50; // Lo normalizo a [-1, +1]
+  scrollX := -(ScrollBar3.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
+  scrollY := (ScrollBar2.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
 
   // Asigno los valores iniciales a las variables temporales que usaré
   tempX := pntGlobal.x;
@@ -1633,11 +1669,12 @@ end;
 
 function TForm1.PointCanvasToGlobal(pntCanvas: TPoint; canvasSize: Integer):TPointFloat;
 var
-  zoomFactor, scrollX, scrollY, tempX, tempY: Double;
+  zoomFactor, scrollX, scrollY, tempX, tempY, halfScollRange: Double;
 begin
+  halfScollRange := ScrollBar2.Max/2; // Asumo que empieza en cero
   zoomFactor := StrToFloat(ComboBox1.Text);
-  scrollX := -(ScrollBar3.Position-50)/50; // Lo normalizo a [-1, +1]
-  scrollY := (ScrollBar2.Position-50)/50; // Lo normalizo a [-1, +1]
+  scrollX := -(ScrollBar3.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
+  scrollY := (ScrollBar2.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
 
   // Asigno los valores iniciales a las variables temporales que usaré
   tempX := pntCanvas.x;
@@ -1942,12 +1979,12 @@ end;
 
 procedure TForm1.ScrollBar2Change(Sender: TObject);
 begin
- ComboBox1Change(nil)
+  Update(nil)
 end;
 
 procedure TForm1.ScrollBar3Change(Sender: TObject);
 begin
-   ComboBox1Change(nil)
+  Update(nil)
 end;
 
 procedure TForm1.btnMarkNowClick(Sender: TObject);
@@ -1981,6 +2018,34 @@ end;
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   DestroyCitsTempFiles();
+end;
+
+// Cálculos extraidos de TForm1.PointCanvasToGlobal, igualando el punto del canvas
+// a cero (una vez normalizado entre +/-1) y despejando scrollX o scrollY
+procedure TForm1.btnCenterAtTipClick(Sender: TObject);
+var
+  zoomFactor, scrollX, scrollY, halfScollRange: Double;
+begin
+  halfScollRange := ScrollBar2.Max/2; // Asumo que empieza en cero
+  zoomFactor := StrToFloat(ComboBox1.Text);
+
+  // Scroll entre +/-1
+  if (zoomFactor = 1) then
+  begin
+    scrollX := 0;
+    scrollY := 0;
+  end
+  else
+  begin
+    scrollX :=  XOffset*zoomFactor/(zoomFactor-1);
+    scrollY := -YOffset*zoomFactor/(zoomFactor-1);
+  end;
+
+  // Scroll entre 0 y el máximo de las barras
+  ScrollBar3.Position := Round((scrollX+1)*halfScollRange);
+  ScrollBar2.Position := Round((scrollY+1)*halfScollRange);
+
+  Update(nil);
 end;
 
 end.
