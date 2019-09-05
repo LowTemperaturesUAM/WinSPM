@@ -1466,8 +1466,8 @@ begin
   Form8.RadioGroup2.ItemIndex:=1;
   SaveSTP(nil,OneImg,'_vc_', factorZ);
 
-// Se usa la misma condición que controla si se hacen IVs
-if (CheckBox2.Checked) and (Form11.CheckBox1.Checked) then
+// Se usa la misma condición que controla si se hacen IVs y aparte, que se quieran guardar los datos en este formato
+if (CheckBox2.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
   for i := 0 to 3 do
     SaveCits(i);
 end;

@@ -2,7 +2,7 @@ object Form11: TForm11
   Left = 551
   Top = 739
   Width = 212
-  Height = 93
+  Height = 120
   Caption = 'IV config'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -58,5 +58,13 @@ object Form11: TForm11
       '128'
       '256'
       '512')
+  end
+  object chkSaveAsWSxM: TCheckBox
+    Left = 8
+    Top = 56
+    Width = 157
+    Height = 17
+    Caption = 'Save in WSxM format'
+    TabOrder = 3
   end
 end
