@@ -76,6 +76,7 @@ type
     ScrollBar3: TScrollBar;
     btnCenterAtTip: TButton;
     Button9: TButton;
+    Button15: TButton;
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -129,6 +130,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
     procedure btnCenterAtTipClick(Sender: TObject);
+    procedure Button15Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -160,6 +162,7 @@ type
   Limpiar: Boolean;
   P_Scan_Size_Old:Single;
   bitmapPasteList: array of TScanBitmap;
+  bitmapPasteList2: array of TScanBitmap;
   contadorIV:Integer;
   PuntosTotales: Integer;
   PuntosMedidos: Integer;
@@ -1153,7 +1156,7 @@ repeat
          with Form3.PaintBox1 do
            Source := Rect(0, 0, Width, Height);
            bitmapPasteList[i].bitmap.Canvas.CopyRect(Dest, Form3.PaintBox1.Canvas, Source);
-       finally
+        finally
        end;
        Update(self);
      end;
@@ -1585,6 +1588,12 @@ begin
       bitmapPasteList[i].bitmap.Free;
 
     SetLength(bitmapPasteList, 0);
+
+    for i := 0 to Length(bitmapPasteList2)-1 do
+      bitmapPasteList2[i].bitmap.Free;
+
+    SetLength(bitmapPasteList2, 0);
+
     PaintBox1.Invalidate;
   end;
 end;
@@ -1714,7 +1723,7 @@ begin
     // Si todo está bien hecho, este fondo gris no se debería ver nunca
     FillRect(Rect(0,0,Form1.PaintBox1.Width,Form1.PaintBox1.Height));
 
-    Pen.Color:= clred;
+    Pen.Color:= clred;//clred;
     Brush.Color:=0;
 
     // Rectánculo de todo el área de barrido que admite el piezo
@@ -1749,6 +1758,31 @@ begin
     else
       PaintBox1.Canvas.StretchDraw(Rect(bottomLeft.X, topRight.Y, topRight.X, bottomLeft.Y), bitmapPasteList[i].bitmap);
   end;
+
+
+  PaintBox1.Canvas.Pen.Color:= clred;
+  PaintBox1.Canvas.Brush.Style:=bsClear;
+
+
+  for i := 0 to length(bitmapPasteList2)-1 do
+  begin
+    // Calculo el rectángulo donde habrá que dibujar el bitmap
+    bottomLeftFloat.X := bitmapPasteList2[i].x-bitmapPasteList2[i].sizeX/2;
+    bottomLeftFloat.Y := bitmapPasteList2[i].y-bitmapPasteList2[i].sizeY/2;
+    topRightFloat.X   :=  bitmapPasteList2[i].x+bitmapPasteList2[i].sizeX/2;;
+    topRightFloat.Y   :=  bitmapPasteList2[i].y+bitmapPasteList2[i].sizeY/2;;
+    bottomLeft := PointGlobalToCanvas(bottomLeftFloat, SizeOfWindow);
+    topRight := PointGlobalToCanvas(topRightFloat, SizeOfWindow);
+
+    // Pinto el bitmap que toque dentro del rectángulo o el rectángulo solo si no hay bitmap
+    if bitmapPasteList2[i].bitmap = nil then
+      PaintBox1.Canvas.Rectangle(Rect(bottomLeft.X, topRight.Y, topRight.X, bottomLeft.Y))
+    else
+      PaintBox1.Canvas.StretchDraw(Rect(bottomLeft.X, topRight.Y, topRight.X, bottomLeft.Y), bitmapPasteList[i].bitmap);
+  end;
+
+
+
 
   //Cuadrado de posición de la punta
   with Form1.PaintBox1.Canvas do
@@ -2004,7 +2038,6 @@ begin
   // En el caso de mark now no habrá bitmap, sólo un recuadro
   bitmapPasteList[i].bitmap := nil;
 
-
   // En el caso de mark now el bitmap será un color sólido. Me vale con un punto del color adecuado
 {  bitmapPasteList[i].bitmap := TBitmap.Create;
   bitmapPasteList[i].bitmap.Width := 1;
@@ -2046,6 +2079,34 @@ begin
   ScrollBar2.Position := Round((scrollY+1)*halfScollRange);
 
   Update(nil);
+end;
+
+procedure TForm1.Button15Click(Sender: TObject);
+
+ var
+  i: Integer;
+begin
+  // Añado un elemento a la lista de bitmaps a dibujar en el área de barrido del piezo
+  // Será un color sólido
+  i := Length(bitmapPasteList2);
+  SetLength(bitmapPasteList2, i+1);
+
+  bitmapPasteList2[i].x := XOffset;
+  bitmapPasteList2[i].y := YOffset;
+  bitmapPasteList2[i].sizeX := 2*P_Scan_Size*Form10.attenuator;
+  bitmapPasteList2[i].sizeY := 2*P_Scan_Size*Form10.attenuator;
+
+  // En el caso de mark now no habrá bitmap, sólo un recuadro
+  bitmapPasteList2[i].bitmap := nil;
+
+  // En el caso de mark now el bitmap será un color sólido. Me vale con un punto del color adecuado
+{  bitmapPasteList[i].bitmap := TBitmap.Create;
+  bitmapPasteList[i].bitmap.Width := 1;
+  bitmapPasteList[i].bitmap.Height := 1;
+  bitmapPasteList[i].bitmap.Canvas.Brush.Color := $00C0C0;
+  bitmapPasteList[i].bitmap.Canvas.FillRect(Rect(0, 0, 1, 1));}
+
+  Update(self);
 end;
 
 end.

@@ -244,7 +244,7 @@ begin
     Application.ProcessMessages();
 
     Read_PID := abs(Round(Form10.adc_take(InPID_ADC,InPID_ADC,MeanReadI)*32768));
-    thisError := (Set_PID/100*32768)-Read_PID;
+    thisError := (Set_PID/500*32768)-Read_PID;
     lastIntegral := lastIntegral+thisError; // Siendo formales, habría que multiplicar thisError por dt. Hermann prefiere no hacerlo.
     Action_PID := Action_PID+reverse*Round((Gain*P_PID/100)*thisError + (Gain*Gain_of_I*I_PID/100)*(lastIntegral) + (Gain*Gain_of_D*D_PID/100)*(thisError-prevError));
     if (Action_PID>32768) then

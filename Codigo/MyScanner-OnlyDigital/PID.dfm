@@ -228,6 +228,8 @@ object FormPID: TFormPID
     Width = 17
     Height = 121
     Kind = sbVertical
+    LargeChange = 10
+    Max = 500
     PageSize = 0
     Position = 6
     TabOrder = 7
