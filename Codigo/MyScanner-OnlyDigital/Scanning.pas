@@ -61,7 +61,7 @@ var
 
 implementation
 
-uses Scanner1;
+uses Scanner1, PID;
 
 {$R *.DFM}
 
@@ -69,6 +69,7 @@ procedure TForm3.Button1Click(Sender: TObject);
 begin
 CheckBox1.Checked:=False;
 Form1.StopAction:=True;
+FormPID.se1.Text:='1';
 end;
 
 procedure TForm3.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -76,6 +77,7 @@ begin
 //xyyGraph1.Clear;
 ClearChart();
 Form1.StopAction:=True;
+FormPID.se1.Text:='1';
 end;
 
 procedure TForm3.Button2Click(Sender: TObject);
@@ -118,6 +120,7 @@ for i:=0 to Size-1 do
 begin
 for j:=0 to Size-1 do
  begin
+ //DatatoPaint[Size-1-i,j]:=Round((Data[i,j]-DataMin)*DataTo0_255);
  DatatoPaint[i,j]:=Round((Data[i,j]-DataMin)*DataTo0_255);
  // Quitadas las comprobaciones por eficiencia. Si las cuentas están bien hechas son innecesarias (Nacho Horcas, octubre de 2018).
 { if(DatatoPaint[i,j]>255) then

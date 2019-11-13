@@ -77,6 +77,9 @@ type
     btnCenterAtTip: TButton;
     Button9: TButton;
     Button15: TButton;
+    lbl1: TLabel;
+    Label9: TLabel;
+    SpinEdit3: TSpinEdit;
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -131,6 +134,8 @@ type
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
     procedure btnCenterAtTipClick(Sender: TObject);
     procedure Button15Click(Sender: TObject);
+    procedure SpinEdit3Change(Sender: TObject);
+
 
   private
     { Private declarations }
@@ -138,6 +143,7 @@ type
     { Public declarations }
   XDAC,YDAC,XDAC_Pos,YDAC_Pos, ADCTopo, ADCI, MultI: Integer;
   AmpTopo, AmpI, AmpX,Ampy,AmpX_Pos,AmpY_Pos,CalTopo,CalX,CalY: Single;
+  SleepDo: Integer;
   BiasDAC: Integer;
   MultBias: Single;
   ReadTopo, ReadCurrent: Boolean;
@@ -437,6 +443,8 @@ k, FinY: Integer;
 A:Boolean;
 begin
 
+FormPID.se1.Text:='0';
+
 A:=False;
 if CheckBox2.Checked=True then A:=True;
 CheckBox2.Checked:=False;
@@ -603,11 +611,11 @@ begin
     end;
 
     xVolt:=OldX/32768*AmpX*10;
-    Dat_Image_Forth[0,LineNr,i]:=xVolt*CalX;
+    Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]:=xVolt*CalX;
     if StopAction then
     begin
-      Dat_Image_Forth[1,LineNr,i]:=0;
-      Dat_Image_Forth[2,LineNr,i]:=0;
+      Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
+      Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
     end
     else
     begin
@@ -618,14 +626,14 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Forth[1,LineNr,i]:=Action_PID/32768
         //else
-          Dat_Image_Forth[1,LineNr,i]:=adcRead[ADCTopo];
+          Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCTopo];
       end;
 
       if ReadCurrent=True then
-        Dat_Image_Forth[2,LineNr,i]:=adcRead[ADCI];
+        Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,LineNr,i],Dat_Image_Forth[channelToPlot,LineNr,i]*yFactor);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]*yFactor);
   end
   else   // Scan in Y
   begin
@@ -663,12 +671,12 @@ begin
     end;
 
     yVolt:=OldY/32768*AmpY*10;
-    Dat_Image_Forth[0,i,LineNr]:=yVolt*CalY;
+    Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]:=yVolt*CalY;
 
     if StopAction then
     begin
-      Dat_Image_Forth[1,i,LineNr]:=0;
-      Dat_Image_Forth[2,i,LineNr]:=0;
+      Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=0;
+      Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=0;
     end
     else
     begin
@@ -678,12 +686,12 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Forth[1,i,LineNr]:=Action_PID/32768
         //else
-          Dat_Image_Forth[1,i,LineNr]:=adcRead[ADCTopo];
+          Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
       end;
-      if ReadCurrent=True then Dat_Image_Forth[2,i,LineNr]:=adcRead[ADCI];
+      if ReadCurrent=True then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,i,LineNr],Dat_Image_Forth[channelToPlot,i,LineNr]*yFactor);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr],Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]*yFactor);
   end;
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
@@ -753,12 +761,12 @@ begin
     // Nacho Horcas, diciembre de 2017. Cambio el orden en el que se guardan los
     // datos para que la izquierda sea la misma posición X tanto en la ida como
     // en la vuelta, en lugar de que sea el punto que se adquirió primero
-    Dat_Image_Back[0,LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
+    Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
 
     if StopAction then
     begin
-      Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=0;
-      Dat_Image_Back[2,LineNr,P_Scan_Lines-i-1]:=0;
+      Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+      Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
     end
     else
     begin
@@ -768,13 +776,13 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=Action_PID/32768
         //else
-          Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
+          Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
       end;
 
-      if ReadCurrent=True then Dat_Image_Back[2,LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
+      if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,LineNr,P_Scan_Lines-i-1],Dat_Image_Back[channelToPlot,LineNr,P_Scan_Lines-i-1]*yFactor);
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1],Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]*yFactor);
   end
   else
   begin
@@ -1042,6 +1050,7 @@ PaintLines: Boolean;
 Source: TRect;
 Dest: TRect;
 
+
 begin
 
 repeat
@@ -1076,6 +1085,16 @@ repeat
         Dat_Image_Back[i][j][k] := 0;
       end;
 
+
+   PrincY:=Round(-int(32767*P_Scan_Size));
+   PrincX:=Round(-int(32767*P_Scan_Size));
+   MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
+   MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
+   sleep(500*StrToInt(SpinEdit3.Text));
+   FormPID.se1.Text:='0';
+   sleep(500*StrToInt(SpinEdit3.Text));
+
+
    i:=0;
    if (RadioGroup1.ItemIndex=0) then // Scan in X
       begin
@@ -1090,9 +1109,10 @@ repeat
         begin
           p:=p+1;
           TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
-          MakeLine(nil,PaintLines,i); //Save the line and send line number
           DacvalY:=PrincY+Step*i;
           MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY, P_Scan_Jump, nil);
+          MakeLine(nil,PaintLines,i); //Save the line and send line number
+
           if (p>=EraseLines) then
             begin
   //            Form3.xyyGraph1.Clear;
@@ -1118,9 +1138,10 @@ repeat
         begin
           p:=p+1;
           TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
-          MakeLine(nil,PaintLines,i); //Save the line and send line number
           DacvalX:=PrincX+Step*i;
           MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX, P_Scan_Jump, nil);
+          MakeLine(nil,PaintLines,i); //Save the line and send line number
+
            if (p>=EraseLines) then
             begin
   //            Form3.xyyGraph1.Clear;
@@ -2107,6 +2128,11 @@ begin
   bitmapPasteList[i].bitmap.Canvas.FillRect(Rect(0, 0, 1, 1));}
 
   Update(self);
+end;
+
+procedure TForm1.SpinEdit3Change(Sender: TObject);
+begin
+SleepDo := StrtoInt(SpinEdit3.Text);
 end;
 
 end.

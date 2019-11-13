@@ -229,6 +229,10 @@ Fin:=-Princ;
     //Lectura de UNA rampa de vuelta
     Form10.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
 
+    FormPID.Button8Click(nil);
+    sleep(20);
+    FormPID.Button9Click(nil);
+
     {// Vamos a dejar funcionar el control durante 10 ms
     if (j>0) then
     begin
