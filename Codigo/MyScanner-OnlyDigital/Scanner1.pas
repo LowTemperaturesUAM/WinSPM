@@ -550,7 +550,7 @@ Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Pri
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
 begin
   channelToPlot := 1;
-  yFactor := Form1.CalTopo*Form1.AmpTopo;
+  yFactor := StrtoFloat(Form2.Edit3.Text)*StrtoFloat(Form2.Combobox3.Text);//Form1.CalTopo*Form1.AmpTopo;
 end
 else // Current
 begin
@@ -633,7 +633,7 @@ begin
         Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]*yFactor);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
   end
   else   // Scan in Y
   begin
@@ -691,7 +691,7 @@ begin
       if ReadCurrent=True then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr],Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]*yFactor);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
   end;
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
@@ -782,7 +782,7 @@ begin
       if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1],Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]*yFactor);
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
   end
   else
   begin
@@ -843,7 +843,7 @@ begin
       if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]*yFactor);
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]);
 
   end;
 
