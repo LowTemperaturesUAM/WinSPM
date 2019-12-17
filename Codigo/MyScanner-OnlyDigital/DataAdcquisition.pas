@@ -355,7 +355,7 @@ begin
    begin
        BytesToWrite:= i;
        SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
-       Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque
+       //Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque //Hermann
        If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
            MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
    end;
@@ -720,7 +720,7 @@ begin
       DacVal := DacVal+Step;
       Inc(j);
       if blockAcq then
-        Application.ProcessMessages; // Para que pueda hacer el feedback digital
+        //Application.ProcessMessages; // Para que pueda hacer el feedback digital //Hermann
     end;
 
     if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
@@ -828,7 +828,7 @@ begin
     end;
     MessageDlg(Format('No se ha podido enviar todo el buffer de la rampa. Enviados %d de %d', [BytesWritten, bytesToSend]), mtError, [mbOk], 0);
     SPI_Ret :=  FT_Write(SupraSPI_Hdl, bufferToSend, bytesToSend, @BytesWritten);
-    Application.ProcessMessages();
+    //Application.ProcessMessages(); //Hermann
   end;
 
   If SPI_Ret <> 0 then
@@ -992,7 +992,7 @@ begin
   //Writeln(myFile,DateUtils.MilliSecondsBetween(startTime, currentTime),' ',adc_take(0,0,1):2:6,' ',adc_take(0,1,1):2:6);
   //Writeln(myFile,currentTime-startTime,' ',adc_take(0,0,1):2:6,' ',adc_take(0,1,1):2:6);
   Writeln(myFile,elapsedSeconds,' ',10*adc_take(0,0,16),' ',10*adc_take(2,2,16));
-  Application.ProcessMessages;
+  //Application.ProcessMessages; //Hermann
   end  ;
 
   // Write a couple of well known words to this file

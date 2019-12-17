@@ -241,7 +241,7 @@ begin
       PIDReset:=False;
     end;
 
-    Application.ProcessMessages();
+    //Application.ProcessMessages(); //Hermann
 
     Read_PID := abs(Round(Form10.adc_take(InPID_ADC,InPID_ADC,MeanReadI)*32768));
     thisError := (Set_PID/500*32768)-Read_PID;

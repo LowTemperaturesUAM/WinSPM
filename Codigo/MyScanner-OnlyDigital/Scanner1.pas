@@ -443,7 +443,7 @@ k, FinY: Integer;
 A:Boolean;
 begin
 
-FormPID.se1.Text:='0';
+//FormPID.se1.Text:='0';    //Comentado por Fran
 
 A:=False;
 if CheckBox2.Checked=True then A:=True;
@@ -1090,9 +1090,9 @@ repeat
    PrincX:=Round(-int(32767*P_Scan_Size));
    MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
    MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
-   sleep(500*StrToInt(SpinEdit3.Text));
-   FormPID.se1.Text:='0';
-   sleep(500*StrToInt(SpinEdit3.Text));
+   //sleep(500*StrToInt(SpinEdit3.Text));
+   //FormPID.se1.Text:='0';
+   //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
 
 
    i:=0;

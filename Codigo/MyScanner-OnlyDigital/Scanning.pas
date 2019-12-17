@@ -69,7 +69,7 @@ procedure TForm3.Button1Click(Sender: TObject);
 begin
 CheckBox1.Checked:=False;
 Form1.StopAction:=True;
-FormPID.se1.Text:='1';
+//FormPID.se1.Text:='1'; //Comentado por Fran
 end;
 
 procedure TForm3.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -77,7 +77,7 @@ begin
 //xyyGraph1.Clear;
 ClearChart();
 Form1.StopAction:=True;
-FormPID.se1.Text:='1';
+//FormPID.se1.Text:='1'; //Comentado por Fran
 end;
 
 procedure TForm3.Button2Click(Sender: TObject);
