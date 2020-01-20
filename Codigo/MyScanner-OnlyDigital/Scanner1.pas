@@ -214,7 +214,7 @@ ADCTopo:=Form2.SpinEdit3.Value;
 ADCI:=Form2.SpinEdit4.Value;
 AmpTopo:=StrtoFloat(Form2.Combobox3.Text);
 AmpI:=power(10,-1*StrtoFloat(Form2.Combobox4.Text));
-CalTopo:=StrtoInt(Form2.Edit3.Text);
+CalTopo:=StrtoFloat(Form2.Edit3.Text);
 MultI:=StrtoInt(Form2.Edit4.Text);
 ReadTopo:=Form2.Checkbox1.checked;
 ReadCurrent:=Form2.Checkbox2.checked;
@@ -1514,8 +1514,9 @@ Edit1.Text:=S;
 
 Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
 Form4.Edit1.Text:=Edit1.Text;
-CreateDir(Form9.Label5.Caption+'\IV');
-Form9.Label6.Caption:=Form9.Label5.Caption+'\IV';
+Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
+//CreateDir(Form9.Label5.Caption+'\IV');
+Form9.Label6.Caption:=Form9.Label5.Caption;
 end;
 
 end;
