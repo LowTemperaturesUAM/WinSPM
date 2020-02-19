@@ -838,9 +838,9 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=Action_PID/32768
         //else
-          Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=adcRead[ADCTopo];
+          Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
       end;
-      if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=adcRead[ADCI];
+      if ReadCurrent=True then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
     end;
 
     ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]);

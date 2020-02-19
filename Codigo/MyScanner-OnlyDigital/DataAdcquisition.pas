@@ -174,7 +174,7 @@ begin
  end ;
  // else  MessageDlg('Abierto correctamente', mtError, [mbOk], 0);
 
- SPI_Ret :=  SPI_InitDevice(SPI_Hdl,0); // Con los retardos que hay ahora en los ADCs podría funcionar con 0 e ir más rápido
+ SPI_Ret :=  SPI_InitDevice(SPI_Hdl, 2); // Con los retardos que hay ahora en los ADCs podría funcionar con 0 e ir más rápido
  Str( SPI_Ret, sTexto );
 
  If SPI_Ret <> 0  then
