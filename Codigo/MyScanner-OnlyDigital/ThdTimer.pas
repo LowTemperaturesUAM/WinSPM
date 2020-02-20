@@ -18,7 +18,7 @@ unit ThdTimer;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, MMSystem;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs;
 
 const
   DEFAULT_INTERVAL = 1000;
@@ -64,31 +64,21 @@ type
 procedure Register;
 
 implementation
-  Function NtSetTimerResolution(RequestedResolution: longword; flagSet: boolean; var ActualResolution: longword): integer ; stdcall ; External 'NTDLL.DLL' name 'NtSetTimerResolution';
-  Function NtQueryTimerResolution(var MinimumResolution: longword; var MaximumResolutionlongword: longword; var ActualResolution: longword): integer ; stdcall ; External 'NTDLL.DLL' name 'NtQueryTimerResolution';
 
 { TTimerThread }
 
 procedure TTimerThread.Execute;
 begin
   repeat
-//    if WaitForSingleObject(FStop, FInterval) = WAIT_TIMEOUT then
+    if WaitForSingleObject(FStop, FInterval) = WAIT_TIMEOUT then
       Synchronize(FOwner.DoTimer);
-      Sleep(FInterval);
   until Terminated;
 end;
 
 { TThreadedTimer }
 
 constructor TThreadedTimer.Create(AOwner: TComponent);
-var
-  MinimumResolution, MaximumResolution, ActualResolution: longword;
-
 begin
-  // Ponemos la resolución del temporizador de Windows al menor tiempo posible (0.5ms para el ordenador de Nacho). Para pasar a tiempo hay que multiplicar por 100 ns el valor devuelto
-  NtQueryTimerResolution (MinimumResolution, MaximumResolution, ActualResolution);
-  NtSetTimerResolution (MaximumResolution, true, ActualResolution);
-
   inherited Create(AOwner);
   FTimerThread := TTimerThread.Create(True);
   with FTimerThread do

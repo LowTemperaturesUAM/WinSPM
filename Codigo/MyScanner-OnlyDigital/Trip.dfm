@@ -1,8 +1,8 @@
 object Form5: TForm5
-  Left = 57
-  Top = 673
+  Left = 243
+  Top = 684
   Width = 350
-  Height = 214
+  Height = 251
   Caption = 'Trip'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -29,6 +29,13 @@ object Form5: TForm5
     Height = 13
     Caption = 'Size'
   end
+  object Label4: TLabel
+    Left = 200
+    Top = 184
+    Width = 6
+    Height = 13
+    Caption = '1'
+  end
   object Label5: TLabel
     Left = 200
     Top = 120
@@ -42,6 +49,13 @@ object Form5: TForm5
     Width = 6
     Height = 13
     Caption = '1'
+  end
+  object Label7: TLabel
+    Left = 264
+    Top = 120
+    Width = 6
+    Height = 13
+    Caption = '0'
   end
   object Label8: TLabel
     Left = 16
@@ -167,20 +181,30 @@ object Form5: TForm5
     TabOrder = 7
     OnClick = Button5Click
   end
+  object ScrollBar3: TScrollBar
+    Left = 24
+    Top = 184
+    Width = 169
+    Height = 17
+    Min = 1
+    PageSize = 0
+    Position = 1
+    TabOrder = 8
+    OnChange = ScrollBar3Change
+  end
   object Button6: TButton
     Left = 128
     Top = 16
     Width = 97
     Height = 57
     Caption = 'STOP IT'
-    Enabled = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clFuchsia
     Font.Height = -16
     Font.Name = 'Microsoft Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 8
+    TabOrder = 9
     OnClick = Button6Click
   end
   object Button7: TButton
@@ -189,7 +213,7 @@ object Form5: TForm5
     Width = 33
     Height = 22
     Caption = '/10'
-    TabOrder = 9
+    TabOrder = 10
     OnClick = Button7Click
   end
   object Button8: TButton
@@ -198,7 +222,7 @@ object Form5: TForm5
     Width = 33
     Height = 22
     Caption = 'x10'
-    TabOrder = 10
+    TabOrder = 11
     OnClick = Button8Click
   end
 end

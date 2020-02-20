@@ -1,6 +1,6 @@
 object FormPID: TFormPID
-  Left = 1567
-  Top = 229
+  Left = 1248
+  Top = 284
   Width = 352
   Height = 475
   Caption = 'FormPID'
@@ -188,7 +188,7 @@ object FormPID: TFormPID
     MaxValue = 0
     MinValue = 0
     TabOrder = 3
-    Value = -1
+    Value = 0
     OnChange = SpinEdit3Change
   end
   object ScrollBar1: TScrollBar
@@ -198,7 +198,7 @@ object FormPID: TFormPID
     Height = 121
     Kind = sbVertical
     PageSize = 0
-    Position = 31
+    Position = 10
     TabOrder = 4
     OnChange = ScrollBar1Change
   end
@@ -228,8 +228,6 @@ object FormPID: TFormPID
     Width = 17
     Height = 121
     Kind = sbVertical
-    LargeChange = 10
-    Max = 500
     PageSize = 0
     Position = 6
     TabOrder = 7
@@ -241,8 +239,6 @@ object FormPID: TFormPID
     Width = 65
     Height = 17
     Caption = 'Reverse'
-    Checked = True
-    State = cbChecked
     TabOrder = 8
     OnClick = CheckBox2Click
   end

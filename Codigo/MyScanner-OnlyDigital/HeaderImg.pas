@@ -46,8 +46,6 @@ var
 MyComments, strLine, strUnit: string;
 
 begin
-  DecimalSeparator := '.';
-
   if RadioGroup1.ItemIndex=0 then MyComments:='Forth'
   else MyComments:='Back';
 
@@ -83,13 +81,13 @@ begin
   strLine := Format('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*Form1.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Offset: %f nm', [Form1.XOffset*10*Form1.AmpX*Form1.CalX]);
+  strLine := Format('    X Offset: %f nm', [Form1.h.xstart*1e9*Form1.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   strLine := Format('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*Form1.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Offset: %f nm', [Form1.YOffset*10*Form1.AmpY*Form1.CalY]);
+  strLine := Format('    Y Offset: %f nm', [Form1.h.ystart*1e9*Form1.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+#13#10+
@@ -111,7 +109,7 @@ begin
         '[Miscellaneous]'#13#10+
         #13#10+
         '    Comments: '+Edit1.Text+MyComments+#13#10+
-        '    Saved with version: MyScanner 1.302'#13#10+
+        '    Saved with version: MyScanner 1.301'#13#10+
         '    Version: 1.0 (August 2005)'#13#10+
         '    Z Scale Factor: 1'#13#10+
         '    Z Scale Offset: 0'#13#10+

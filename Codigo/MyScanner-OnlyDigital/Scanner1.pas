@@ -1,12 +1,5 @@
 {
-Cosas que faltan al 07 de 09 de 06:-------[16/02/2017]                                             
-Salvar el DO y que funcione-----[Hecho]
-Hacer DODO-----[Hecho]
-Programar el plot de la derivada en el IV-----[Hecho]
-Probar que las imágenes salvadas salen bien
-Verificar funcionamiento en STM
-Quitar plano al tomar imagenes
-programar IVs al mismo tiempo que imagen-----[Hecho]
+
 }
 
 unit Scanner1;
@@ -46,6 +39,23 @@ type
     Button7: TButton;
     CheckBox2: TCheckBox;
     Button8: TButton;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
+    Button9: TButton;
+    Label21: TLabel;
+    Label22: TLabel;
+    Label23: TLabel;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    Label27: TLabel;
+    Label28: TLabel;
     ScrollBox1: TScrollBox;
     PaintBox1: TPaintBox;
     Button10: TButton;
@@ -74,12 +84,8 @@ type
     Button18: TButton;
     ScrollBar2: TScrollBar;
     ScrollBar3: TScrollBar;
-    btnCenterAtTip: TButton;
-    Button9: TButton;
-    Button15: TButton;
-    lbl1: TLabel;
-    Label9: TLabel;
-    SpinEdit3: TSpinEdit;
+    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -131,19 +137,13 @@ type
     function StringToLengthNm(strValue: String):Single;
     procedure btnMarkNowClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure SetNewOffset(pntClickedFloat: TPointFloat);
-    procedure btnCenterAtTipClick(Sender: TObject);
-    procedure Button15Click(Sender: TObject);
-    procedure SpinEdit3Change(Sender: TObject);
-
 
   private
     { Private declarations }
   public
     { Public declarations }
   XDAC,YDAC,XDAC_Pos,YDAC_Pos, ADCTopo, ADCI, MultI: Integer;
-  AmpTopo, AmpI, AmpX,Ampy,AmpX_Pos,AmpY_Pos,CalTopo,CalX,CalY: Single;
-  SleepDo: Integer;
+  AmpTopo, AmpI, AmpX,Ampy,AmpX_Pos,AmpY_Pos,CalTopo, CalX,CalY: Single;
   BiasDAC: Integer;
   MultBias: Single;
   ReadTopo, ReadCurrent: Boolean;
@@ -168,14 +168,12 @@ type
   Limpiar: Boolean;
   P_Scan_Size_Old:Single;
   bitmapPasteList: array of TScanBitmap;
-  bitmapPasteList2: array of TScanBitmap;
   contadorIV:Integer;
   PuntosTotales: Integer;
   PuntosMedidos: Integer;
   PuntosPonderados: Integer;
   TiempoMedio: Single;
   TiempoInicial: Int64;
-  XOffset, YOffset: Double; // Posición central del área de barrido entre -1 y 1
   end;
 
 var
@@ -188,9 +186,40 @@ uses Config1, Scanning, Liner, Trip, HeaderImg, FileNames, DataAdcquisition,
 
 
 var
+  XOffset, YOffset: Double; // Posición central del área de barrido entre -1 y 1
+  CrossposX,CrossposY,Xpos,Ypos: Integer;
   F: TFileStream;
 
 {$R *.DFM}
+
+procedure TForm1.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+  var
+  xVolt, YVolt, Xnm,Ynm: Single;
+  pntCursor: TPoint;
+  pntCursorGlobal: TPointFloat;
+
+begin
+if (StopAction=True) then
+begin
+  pntCursor.X := X;
+  pntCursor.Y := Y;
+  pntCursorGlobal := PointCanvasToGlobal(pntCursor, SizeOfWindow);
+
+  xVolt := pntCursorGlobal.x*10*AmpX;
+  yVolt := pntCursorGlobal.y*10*AmpY;
+  Label15.Caption:=FloattoStrF(xVolt,ffGeneral,4,5);
+  Label16.Caption:=FloattoStrF(yVolt,ffGeneral,4,5);
+
+  Xnm:=xVolt*CalX;
+  Ynm:=yVolt*CalY;
+  Label20.Caption:=FloattoStrF(Xnm,ffGeneral,4,5);
+  Label19.Caption:=FloattoStrF(Ynm,ffGeneral,4,5);
+
+  CrossposX:=X;
+  CrossposY:=Y;
+end;
+end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
@@ -221,6 +250,8 @@ ReadCurrent:=Form2.Checkbox2.checked;
 
 
 //Form2.Hide;
+Xpos:=200;
+Ypos:=200;
 XOffset := 0;
 YOffset := 0;
 PosXSTM:=0;
@@ -262,21 +293,23 @@ end;
 
 procedure TForm1.PaintBox1DblClick(Sender: TObject);
 var
+i,j,total: Integer;
+Princ,Fin,Step: Integer;
+xvolt,yvolt: single;
+c : integer ;
+bmp, bmp2 : TBitmap ;
+ptr : PByteArray ;
+rect : TRect;
 pntClicked: TPoint;
 pntClickedFloat: TPointFloat;
+relativeX, relativeY: Double; // Posición relativa del punto donde se ha pulsado, entre -1 y 1
+centerX, centerY, zoomFactor: Double; // Posición absoluta del centro de la ventana, entre -1 y 1
 
 begin
   // Calculo la posición donde se ha pulsado, referida al tamaño máximo de barrido (entre +/-1)
-  pntClicked := PaintBox1.ScreenToClient(Mouse.CursorPos);
+  pntClicked.X := CrossposX;
+  pntClicked.Y := CrossposY;
   pntClickedFloat := PointCanvasToGlobal(pntClicked, SizeOfWindow);
-  SetNewOffset(pntClickedFloat);
-end;
-
-procedure TForm1.SetNewOffset(pntClickedFloat: TPointFloat);
-var
-Princ,Fin: Integer;
-
-begin
   XOffset := pntClickedFloat.x;
   YOffset := pntClickedFloat.y;
 
@@ -299,6 +332,9 @@ begin
   MoveDac(nil, YDAC_Pos, Princ, Fin, P_Scan_Jump, nil);
 
   DacvalY:=Fin;
+  Xpos:=CrossposX;
+  Ypos:=CrossposY;
+
   Update(nil);
 end;
 
@@ -335,14 +371,17 @@ end;
 
 procedure TForm1.Button9Click(Sender: TObject);
 var
-pointCenter: TPointFloat;
+bmp: TBitmap;
+ptr : PByteArray ;
+rect : TRect ;
+i,j,c: Integer;
 
 begin
   ScrollBar2.Position:=Round(ScrollBar2.max/2);
   ScrollBar3.Position:=Round(ScrollBar3.max/2);
-  pointCenter.x := 0;
-  pointCenter.y := 0;
-  Form1.SetNewOffset(pointCenter);
+  CrossposX:=200; CrossposY:=200;
+  Xpos:=200; Ypos:=200;
+  Form1.PaintBox1DblClick(nil);
 end;
 
 procedure TForm1.Button10Click(Sender: TObject);
@@ -395,40 +434,7 @@ Update(nil);
 end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
-var
-  halfScrollSize, oldPosX, oldPosY: Single;
-const
-  zoomFactor: Integer = 1;
 begin
-  // Para que los pasos sean más suaves ajusto el número de pasos permitidos en
-  // las barras de desplazamiento.
-
-  // Intento mantener sin moverse el punto central del cuadro que se pinta
-  halfScrollSize := ScrollBar2.Max/2;
-  oldPosX := (ScrollBar3.Position-halfScrollSize)/halfScrollSize;
-  oldPosY := (ScrollBar2.Position-halfScrollSize)/halfScrollSize;
-
-  // Corrijo el efecto de que el zoom se ajusta para que no se salga del área de barrido
-  oldPosX := oldPosX*(zoomFactor-1)/zoomFactor;
-  oldPosY := oldPosY*(zoomFactor-1)/zoomFactor;
-
-  zoomFactor := StrToInt(ComboBox1.Text);
-  halfScrollSize := 50*zoomFactor;
-  ScrollBar2.Max := Round(2*halfScrollSize);
-  ScrollBar3.Max := ScrollBar2.Max; // Muy importante que sea el mismo valor
-
-  // Restauro las posiciones relativas
-  if zoomFactor = 1 then
-  begin
-    ScrollBar3.Position := Round(halfScrollSize);
-    ScrollBar2.Position := Round(halfScrollSize);
-  end
-  else
-  begin
-    ScrollBar3.Position := Round((oldPosX*zoomFactor/(zoomFactor-1)+1)*halfScrollSize);
-    ScrollBar2.Position := Round((oldPosY*zoomFactor/(zoomFactor-1)+1)*halfScrollSize)
-  end;
-
   Update(nil);
 end;
 
@@ -443,8 +449,6 @@ k, FinY: Integer;
 A:Boolean;
 begin
 
-//FormPID.se1.Text:='0';    //Comentado por Fran
-
 A:=False;
 if CheckBox2.Checked=True then A:=True;
 CheckBox2.Checked:=False;
@@ -455,7 +459,7 @@ Form3.Show;
 while (StopAction<>True) do
  begin
    k:=k+1;
-   TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+    EraseLines:=Form3.SpinEdit1.Value;
  MakeLine(nil, False, 0);
  Application.ProcessMessages;
  if (k>=EraseLines) then
@@ -471,9 +475,9 @@ MoveDac(nil, XDAC, FinY, 0, P_Scan_Jump, nil);
 MoveDac(nil, YDAC, FinY, 0, P_Scan_Jump, nil);
 
 Button10.Enabled:=False;
-//CrossPosX:=Round(DacValX/32768*200+200);
-//CrossPosY:=Round(-DacValY/32768*200+200);
-//Form1.PaintBox1DblClick(nil);  No descomentar estas línea tal cual. En lugar de eso usar la función SetNewOffset calculando previamente el punto. (0, 0) si es ir al centro.
+CrossPosX:=Round(DacValX/32768*200+200);
+CrossPosY:=Round(-DacValY/32768*200+200);
+//Form1.PaintBox1DblClick(nil);
 Form3.Close;
 if A=True then CheckBox2.Checked:=True;
 end;
@@ -482,7 +486,7 @@ procedure TForm1.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
 var
 i,j,k,total,OldX,OldY, channelToPlot, flatten: Integer;
 Princ,Princ2,Fin,Step: Integer;
-xvolt,yvolt,yFactor: single;
+xvolt,yvolt: single;
 MakeX,MakeY: Boolean;
 interv, zeroSingle: Single;
 Data:HImg;
@@ -504,7 +508,7 @@ begin
   Form3.ChartLine.AddSeries(ChartLineSerie1);
 
   MakeX:=False;
-  MakeY:=False;
+MakeY:=False;
 
 OldX:=0;
 OldY:=0;
@@ -548,15 +552,11 @@ end;
 Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Princ, Fin)/32768*AmpX*10*CalX);
 
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
-begin
-  channelToPlot := 1;
-  yFactor := StrtoFloat(Form2.Edit3.Text)*StrtoFloat(Form2.Combobox3.Text);//Form1.CalTopo*Form1.AmpTopo;
-end
+  channelToPlot := 1
 else // Current
-begin
   channelToPlot := 2;
-  yFactor := Form1.MultI*Form1.AmpI;
-end;
+
+
 
 //Forth
 i:=0;
@@ -611,11 +611,11 @@ begin
     end;
 
     xVolt:=OldX/32768*AmpX*10;
-    Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]:=xVolt*CalX;
+    Dat_Image_Forth[0,LineNr,i]:=xVolt*CalX;
     if StopAction then
     begin
-      Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
-      Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
+      Dat_Image_Forth[1,LineNr,i]:=0;
+      Dat_Image_Forth[2,LineNr,i]:=0;
     end
     else
     begin
@@ -626,14 +626,14 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Forth[1,LineNr,i]:=Action_PID/32768
         //else
-          Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCTopo];
+          Dat_Image_Forth[1,LineNr,i]:=adcRead[ADCTopo];
       end;
 
       if ReadCurrent=True then
-        Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
+        Dat_Image_Forth[2,LineNr,i]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,LineNr,i],Dat_Image_Forth[channelToPlot,LineNr,i]);
   end
   else   // Scan in Y
   begin
@@ -671,12 +671,12 @@ begin
     end;
 
     yVolt:=OldY/32768*AmpY*10;
-    Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]:=yVolt*CalY;
+    Dat_Image_Forth[0,i,LineNr]:=yVolt*CalY;
 
     if StopAction then
     begin
-      Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=0;
-      Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=0;
+      Dat_Image_Forth[1,i,LineNr]:=0;
+      Dat_Image_Forth[2,i,LineNr]:=0;
     end
     else
     begin
@@ -686,17 +686,17 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Forth[1,i,LineNr]:=Action_PID/32768
         //else
-          Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
+          Dat_Image_Forth[1,i,LineNr]:=adcRead[ADCTopo];
       end;
-      if ReadCurrent=True then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
+      if ReadCurrent=True then Dat_Image_Forth[2,i,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
+    ChartLineSerie0.AddXY(Dat_Image_Forth[0,i,LineNr],Dat_Image_Forth[channelToPlot,i,LineNr]);
   end;
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
   TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-  if Form3.CheckBox3.Checked then Form3.Label6.Caption:=FloatToStr(RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1));
+  Form3.Label6.Caption:=FloatToStr(RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1));
 
   Application.ProcessMessages;
   i:=i+1;
@@ -761,12 +761,12 @@ begin
     // Nacho Horcas, diciembre de 2017. Cambio el orden en el que se guardan los
     // datos para que la izquierda sea la misma posición X tanto en la ida como
     // en la vuelta, en lugar de que sea el punto que se adquirió primero
-    Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
+    Dat_Image_Back[0,LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
 
     if StopAction then
     begin
-      Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
-      Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+      Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=0;
+      Dat_Image_Back[2,LineNr,P_Scan_Lines-i-1]:=0;
     end
     else
     begin
@@ -776,13 +776,13 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=Action_PID/32768
         //else
-          Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
+          Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
       end;
 
-      if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
+      if ReadCurrent=True then Dat_Image_Back[2,LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,LineNr,P_Scan_Lines-i-1],Dat_Image_Back[channelToPlot,LineNr,P_Scan_Lines-i-1]);
   end
   else
   begin
@@ -838,18 +838,18 @@ begin
         //if (DigitalPID) then
         //  Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=Action_PID/32768
         //else
-          Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
+          Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=adcRead[ADCTopo];
       end;
-      if ReadCurrent=True then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
+      if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]);
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]);
 
   end;
 
     QueryPerformanceCounter(C2); // Lectura del cronómetro
     TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-    if Form3.CheckBox3.Checked then Form3.Label6.Caption:=FloatToStr(RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1));
+    Form3.Label6.Caption:=FloatToStr(RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1));
 
     Application.ProcessMessages;
     i:=i+1;
@@ -1044,151 +1044,139 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var
 i,p: Integer;
-j,k,total: Integer;
+j,k,total, ik, ki: Integer;
 PrincX,PrincY,FinX, FinY,Step: Integer;
-PaintLines: Boolean;
+xvolt,yvolt: single;
+MakeX,MakeY,PaintLines: Boolean;
+interv: Single;
+Bitmap, Bitmap2: TBitmap;
 Source: TRect;
 Dest: TRect;
 
-
 begin
 
-repeat
-  PuntosTotales:=P_Scan_Lines*P_Scan_Lines*2;
-  PuntosMedidos:=0;
-  PuntosPonderados:=0;
-  TiempoMedio:=0;
-  TiempoInicial:=0;
+PuntosTotales:=P_Scan_Lines*P_Scan_Lines*2;
+PuntosMedidos:=0;
+PuntosPonderados:=0;
+TiempoMedio:=0;
+TiempoInicial:=0;
 
-  h.xstart:=DacValX/32768*Form10.attenuator*AmpX*10*1e-9;
-  h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*Form10.attenuator*10*1e-9;
-  h.ystart:=DacValY/32768*Form10.attenuator*AmpX*10*1e-9;
-  h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*Form10.attenuator*10*1e-9;
-  h.xn:=P_Scan_Lines;
-  h.yn:=P_Scan_Lines;
+h.xstart:=DacValX/32768*AmpX*10*1e-9;
+h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*Form10.attenuator*10*1e-9;
+h.ystart:=DacValY/32768*AmpX*10*1e-9;
+h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*Form10.attenuator*10*1e-9;
+h.xn:=P_Scan_Lines;
+h.yn:=P_Scan_Lines;
 
-  StopAction:=False;
-  Button10.Enabled:=True;
-  if CheckBox2.Checked then form4.show;
-  Form3.Show;
-  Form3.FreeScans(nil);
-  TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+StopAction:=False;
+Button10.Enabled:=True;
+if CheckBox2.Checked then form4.show;
+Form3.Show;
+Form3.FreeScans(nil);
+EraseLines:=Form3.SpinEdit1.Value;
 
-  PaintLines:=Checkbox6.checked;
 
-  // Borramos las imágenes antes de adquirir líneas nuevas
-  for i := 1 to 2 do
-    for j := 0 to P_Scan_Lines-1 do
-      for k := 0 to P_Scan_Lines-1 do
+for ik:= 1 to P_Scan_Lines do
+begin
+  for ki:= 1 to P_Scan_Lines do
+  begin
+    Dat_Image_Forth[1,ik,ki]:=0;
+    Dat_Image_Back[1,ik,ki]:=0;
+  end;
+end;  
+
+PaintLines:=Checkbox6.checked;
+
+ i:=0;
+ if (RadioGroup1.ItemIndex=0) then // Scan in X
+    begin
+      PrincY:=Round(-int(32767*P_Scan_Size)); //Punto inicial en Y
+      if (P_Scan_Size=0) then P_Scan_Size:=1;
+      FinY:=Round(int(32767*P_Scan_Size));   //Punto final en Y
+      total:=Round(abs(PrincY-FinY));
+      if FinY>PrincY then Step:=Round(total/P_Scan_Lines);
+      if (Step=0) then Step:=100;
+     p:=0;
+     while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en Y
       begin
-        Dat_Image_Forth[i][j][k] := 0;
-        Dat_Image_Back[i][j][k] := 0;
+        p:=p+1;
+        EraseLines:=Form3.SpinEdit1.Value;
+        MakeLine(nil,PaintLines,i); //Save the line and send line number
+        DacvalY:=PrincY+Step*i;
+        MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY, P_Scan_Jump, nil);
+        if (p>=EraseLines) then
+          begin
+//            Form3.xyyGraph1.Clear;
+            Form3.ClearChart();
+            p:=0;
+          end;
+        i:=i+1;
       end;
-
-
-   PrincY:=Round(-int(32767*P_Scan_Size));
-   PrincX:=Round(-int(32767*P_Scan_Size));
-   MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
-   MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
-   //sleep(500*StrToInt(SpinEdit3.Text));
-   //FormPID.se1.Text:='0';
-   //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
-
-
-   i:=0;
-   if (RadioGroup1.ItemIndex=0) then // Scan in X
+      // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
+      MoveDac(nil, XDAC, FinY, 0, P_Scan_Jump, nil);
+      MoveDac(nil, YDAC, FinY, 0, P_Scan_Jump, nil);
+    end
+    else //Now scan in Y
+    begin
+      PrincX:=Round(-int(32767*P_Scan_Size)); //Punto inicial en X
+      if (P_Scan_Size=0) then P_Scan_Size:=1;
+      FinX:=Round(int(32767*P_Scan_Size));   //Punto final en X
+      total:=Round(abs(PrincX-FinX));
+      if FinX>PrincX then Step:=Round(total/P_Scan_Lines);
+      if (Step=0) then Step:=100;
+      p:=0;
+     while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en X
       begin
-        PrincY:=Round(-int(32767*P_Scan_Size)); //Punto inicial en Y
-        if (P_Scan_Size=0) then P_Scan_Size:=1;
-        FinY:=Round(int(32767*P_Scan_Size));   //Punto final en Y
-        total:=Round(abs(PrincY-FinY));
-        if FinY>PrincY then Step:=Round(total/P_Scan_Lines);
-        if (Step=0) then Step:=100;
-       p:=0;
-       while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en Y
-        begin
-          p:=p+1;
-          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
-          DacvalY:=PrincY+Step*i;
-          MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY, P_Scan_Jump, nil);
-          MakeLine(nil,PaintLines,i); //Save the line and send line number
-
-          if (p>=EraseLines) then
-            begin
-  //            Form3.xyyGraph1.Clear;
-              Form3.ClearChart();
-              p:=0;
-            end;
-          i:=i+1;
-        end;
-        // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        MoveDac(nil, XDAC, FinY, 0, P_Scan_Jump, nil);
-        MoveDac(nil, YDAC, FinY, 0, P_Scan_Jump, nil);
-      end
-      else //Now scan in Y
-      begin
-        PrincX:=Round(-int(32767*P_Scan_Size)); //Punto inicial en X
-        if (P_Scan_Size=0) then P_Scan_Size:=1;
-        FinX:=Round(int(32767*P_Scan_Size));   //Punto final en X
-        total:=Round(abs(PrincX-FinX));
-        if FinX>PrincX then Step:=Round(total/P_Scan_Lines);
-        if (Step=0) then Step:=100;
-        p:=0;
-       while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en X
-        begin
-          p:=p+1;
-          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
-          DacvalX:=PrincX+Step*i;
-          MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX, P_Scan_Jump, nil);
-          MakeLine(nil,PaintLines,i); //Save the line and send line number
-
-           if (p>=EraseLines) then
-            begin
-  //            Form3.xyyGraph1.Clear;
-              Form3.ClearChart();
-              p:=0;
-            end;
-          i:=i+1;
-        end;
-        // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        MoveDac(nil, XDAC, FinX, 0, P_Scan_Jump, nil);
-        MoveDac(nil, YDAC, FinX, 0, P_Scan_Jump, nil);
+        p:=p+1;
+        EraseLines:=Form3.SpinEdit1.Value;
+        MakeLine(nil,PaintLines,i); //Save the line and send line number
+        DacvalX:=PrincX+Step*i;
+        MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX, P_Scan_Jump, nil);
+         if (p>=EraseLines) then
+          begin
+//            Form3.xyyGraph1.Clear;
+            Form3.ClearChart();
+            p:=0;
+          end;
+        i:=i+1;
       end;
+      // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
+      MoveDac(nil, XDAC, FinX, 0, P_Scan_Jump, nil);
+      MoveDac(nil, YDAC, FinX, 0, P_Scan_Jump, nil);
+    end;
 
-      Button10.Enabled:=False;
+    Button10.Enabled:=False;
 
-     if checkbox3.checked then // Hay que dejar dibujada la última imagen adquirida en esa posición
-     begin
-       i := Length(bitmapPasteList);
-       SetLength(bitmapPasteList, i+1);
+   if checkbox3.checked then // Hay que dejar dibujada la última imagen adquirida en esa posición
+   begin
+     i := Length(bitmapPasteList);
+     SetLength(bitmapPasteList, i+1);
 
-       bitmapPasteList[i].x := XOffset;
-       bitmapPasteList[i].y := YOffset;
-       bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.attenuator;
-       bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.attenuator;
-       bitmapPasteList[i].bitmap := TBitmap.Create;
-       try
-         with bitmapPasteList[i].bitmap do
-         begin
-           Width := Form3.PaintBox1.Width;
-           Height := Form3.PaintBox1.Height;
-           Dest := Rect(0, 0, Width, Height);
-         end;
-         with Form3.PaintBox1 do
-           Source := Rect(0, 0, Width, Height);
-           bitmapPasteList[i].bitmap.Canvas.CopyRect(Dest, Form3.PaintBox1.Canvas, Source);
-        finally
+     bitmapPasteList[i].x := XOffset;
+     bitmapPasteList[i].y := YOffset;
+     bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.attenuator;
+     bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.attenuator;
+     bitmapPasteList[i].bitmap := TBitmap.Create;
+     try
+       with bitmapPasteList[i].bitmap do
+       begin
+         Width := Form3.PaintBox1.Width;
+         Height := Form3.PaintBox1.Height;
+         Dest := Rect(0, 0, Width, Height);
        end;
-       Update(self);
+       with Form3.PaintBox1 do
+         Source := Rect(0, 0, Width, Height);
+         bitmapPasteList[i].bitmap.Canvas.CopyRect(Dest, Form3.PaintBox1.Canvas, Source);
+     finally
      end;
+     Update(self);
+   end;
 
 
-  Form3.Close;
+Form3.Close;
 
-  if (checkbox1.checked) then Button8Click(nil);
-until not Form3.CheckBox1.Checked;
-//if (Form3.CheckBox1.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
-
+if (checkbox1.checked) then Button8Click(nil);
+if (Form3.CheckBox1.Checked) then Button1Click(nil);
 if (Form3.CheckBox2.Checked)then
 begin
   Form5.Button3Click(nil);
@@ -1216,39 +1204,40 @@ end;
 procedure TForm1.SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
 var
 MiFile,FileNumber : string;
-k,l: Integer;
+i,k,l: Integer;
+xamp,yamp: LongInt;
 DataWsxmtoPlotinFile: Array [0..512,0..512] of Double;
 
 begin
-  Form8.Button1.Click; // Rellena la cabecera de la imagen
+       Form8.Button1.Click; // Rellena la cabecera de la imagen
 
-  // Asume que las imágenes son cuadradas (mismo número de filas y columnas)
-  // Reordeno los datos para salgan bien colocados en WSxM.
-  for l:=0 to h.yn-1 do
-  begin
-    for k:=0 to h.yn-1 do
-    begin
-      DataWsxmtoPlotinFile[k,l]:=OneImg[h.yn-l-1,h.yn-k-1]*factorZ;
-    end;
-  end;
+       // Asume que las imágenes son cuadradas (mismo número de filas y columnas)
+       // Reordeno los datos para salgan bien colocados en WSxM.
+       for l:=0 to h.yn-1 do
+         begin
+         for k:=0 to h.yn-1 do
+          begin
+          DataWsxmtoPlotinFile[k,l]:=OneImg[h.yn-l-1,h.yn-k-1]*factorZ;
+          end;
+         end;
 
-  if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
-  MiFile:=Form9.Label5.Caption; //Here is directory
+        MiFile:=Form9.Label5.Caption; //Here is directory
+        if MiFile='Label5' then Button3Click(nil);
 
-  FileNumber := Format('%.3d', [SpinEdit1.Value]);
-  MiFile:=MiFile+'\'+Edit1.Text+Suffix+FileNumber+'.stp';
+        FileNumber := Format('%.3d', [SpinEdit1.Value]);
+        MiFile:=MiFile+'\'+Edit1.Text+Suffix+FileNumber+'.stp';
 
-  F:=TFileStream.Create(MiFile,fmCreate) ;
-  F.WriteBuffer(Form8.WSxMHeader[1], Length(Form8.WSxMHeader));
+        F:=TFileStream.Create(MiFile,fmCreate) ;
+        F.WriteBuffer(Form8.WSxMHeader[1], Length(Form8.WSxMHeader));
 
-  for l:=0 to h.yn-1 do
-  begin
-    for k:=0 to h.yn-1 do
-    begin
-      F.WriteBuffer(DataWsxmtoPlotinFile[k,l],SizeOf(Double));
-    end;
-  end;
-  F.Destroy;
+        for l:=0 to h.yn-1 do
+         begin
+         for k:=0 to h.yn-1 do
+          begin
+            F.WriteBuffer(DataWsxmtoPlotinFile[k,l],SizeOf(Double));
+          end;
+         end;
+         F.Destroy;
 end;
 
 // Guarda las curvas IV en el formato General Spectroscopy Imaging de WSxM
@@ -1263,9 +1252,8 @@ var
   ImageTopo: ^TImageSingle;
 
 begin
-  DecimalSeparator := '.';
-  if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
+  if MiFile='Label5' then Button3Click(nil);
 
   case dataSet of
     0:
@@ -1347,7 +1335,7 @@ begin
 
   F.Write('[Miscellaneous]'#13#10, 2+Length('[Miscellaneous]'));
   F.Write(''#13#10, 2+Length(''));
-  F.Write('    Saved with version: MyScanner 1.301'#13#10, 2+Length('    Saved with version: MyScanner 1.302'));
+  F.Write('    Saved with version: MyScanner 1.301'#13#10, 2+Length('    Saved with version: MyScanner 1.301'));
   F.Write('    Version: 1.0 (August 2005)'#13#10, 2+Length('    Version: 1.0 (August 2005)'));
   F.Write('    Z Scale Factor: 1'#13#10, 2+Length('    Z Scale Factor: 1'));
   F.Write('    Z Scale Offset: 0'#13#10, 2+Length('    Z Scale Offset: 0'));
@@ -1490,8 +1478,8 @@ begin
   Form8.RadioGroup2.ItemIndex:=1;
   SaveSTP(nil,OneImg,'_vc_', factorZ);
 
-// Se usa la misma condición que controla si se hacen IVs y aparte, que se quieran guardar los datos en este formato
-if (CheckBox2.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
+// Se usa la misma condición que controla si se hacen IVs
+if (CheckBox2.Checked) and (Form11.CheckBox1.Checked) then
   for i := 0 to 3 do
     SaveCits(i);
 end;
@@ -1514,9 +1502,8 @@ Edit1.Text:=S;
 
 Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
 Form4.Edit1.Text:=Edit1.Text;
-Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
-//CreateDir(Form9.Label5.Caption+'\IV');
-Form9.Label6.Caption:=Form9.Label5.Caption;
+CreateDir(Form9.Label5.Caption+'\IV');
+Form9.Label6.Caption:=Form9.Label5.Caption+'\IV';
 end;
 
 end;
@@ -1610,12 +1597,6 @@ begin
       bitmapPasteList[i].bitmap.Free;
 
     SetLength(bitmapPasteList, 0);
-
-    for i := 0 to Length(bitmapPasteList2)-1 do
-      bitmapPasteList2[i].bitmap.Free;
-
-    SetLength(bitmapPasteList2, 0);
-
     PaintBox1.Invalidate;
   end;
 end;
@@ -1636,12 +1617,11 @@ end;
 
 function TForm1.PointGlobalToCanvas(pntGlobal: TPointFloat; canvasSize: Integer):TPoint;
 var
-  zoomFactor, scrollX, scrollY, tempX, tempY, halfScollRange: Double;
+  zoomFactor, scrollX, scrollY, tempX, tempY: Double;
 begin
-  halfScollRange := ScrollBar2.Max/2; // Asumo que empieza en cero
   zoomFactor := StrToFloat(ComboBox1.Text);
-  scrollX := -(ScrollBar3.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
-  scrollY := (ScrollBar2.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
+  scrollX := -(ScrollBar3.Position-50)/50; // Lo normalizo a [-1, +1]
+  scrollY := (ScrollBar2.Position-50)/50; // Lo normalizo a [-1, +1]
 
   // Asigno los valores iniciales a las variables temporales que usaré
   tempX := pntGlobal.x;
@@ -1670,6 +1650,8 @@ var
   value: Single;
   i: integer;
 begin
+  value := NaN;
+
   try
     strValue := Trim(strValue);
     i := LastDelimiter(' ', strValue);
@@ -1700,12 +1682,11 @@ end;
 
 function TForm1.PointCanvasToGlobal(pntCanvas: TPoint; canvasSize: Integer):TPointFloat;
 var
-  zoomFactor, scrollX, scrollY, tempX, tempY, halfScollRange: Double;
+  zoomFactor, scrollX, scrollY, tempX, tempY: Double;
 begin
-  halfScollRange := ScrollBar2.Max/2; // Asumo que empieza en cero
   zoomFactor := StrToFloat(ComboBox1.Text);
-  scrollX := -(ScrollBar3.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
-  scrollY := (ScrollBar2.Position-halfScollRange)/halfScollRange; // Lo normalizo a [-1, +1]
+  scrollX := -(ScrollBar3.Position-50)/50; // Lo normalizo a [-1, +1]
+  scrollY := (ScrollBar2.Position-50)/50; // Lo normalizo a [-1, +1]
 
   // Asigno los valores iniciales a las variables temporales que usaré
   tempX := pntCanvas.x;
@@ -1730,6 +1711,7 @@ end;
 procedure TForm1.Update(Sender:TObject);
 var
   i:Integer;
+  Bitmap2:TBitmap;
   bottomLeft, topRight: TPoint;
   bottomLeftFloat, topRightFloat: TPointFloat;
 begin
@@ -1745,7 +1727,7 @@ begin
     // Si todo está bien hecho, este fondo gris no se debería ver nunca
     FillRect(Rect(0,0,Form1.PaintBox1.Width,Form1.PaintBox1.Height));
 
-    Pen.Color:= clred;//clred;
+    Pen.Color:= clred;
     Brush.Color:=0;
 
     // Rectánculo de todo el área de barrido que admite el piezo
@@ -1781,31 +1763,6 @@ begin
       PaintBox1.Canvas.StretchDraw(Rect(bottomLeft.X, topRight.Y, topRight.X, bottomLeft.Y), bitmapPasteList[i].bitmap);
   end;
 
-
-  PaintBox1.Canvas.Pen.Color:= clred;
-  PaintBox1.Canvas.Brush.Style:=bsClear;
-
-
-  for i := 0 to length(bitmapPasteList2)-1 do
-  begin
-    // Calculo el rectángulo donde habrá que dibujar el bitmap
-    bottomLeftFloat.X := bitmapPasteList2[i].x-bitmapPasteList2[i].sizeX/2;
-    bottomLeftFloat.Y := bitmapPasteList2[i].y-bitmapPasteList2[i].sizeY/2;
-    topRightFloat.X   :=  bitmapPasteList2[i].x+bitmapPasteList2[i].sizeX/2;;
-    topRightFloat.Y   :=  bitmapPasteList2[i].y+bitmapPasteList2[i].sizeY/2;;
-    bottomLeft := PointGlobalToCanvas(bottomLeftFloat, SizeOfWindow);
-    topRight := PointGlobalToCanvas(topRightFloat, SizeOfWindow);
-
-    // Pinto el bitmap que toque dentro del rectángulo o el rectángulo solo si no hay bitmap
-    if bitmapPasteList2[i].bitmap = nil then
-      PaintBox1.Canvas.Rectangle(Rect(bottomLeft.X, topRight.Y, topRight.X, bottomLeft.Y))
-    else
-      PaintBox1.Canvas.StretchDraw(Rect(bottomLeft.X, topRight.Y, topRight.X, bottomLeft.Y), bitmapPasteList[i].bitmap);
-  end;
-
-
-
-
   //Cuadrado de posición de la punta
   with Form1.PaintBox1.Canvas do
   begin
@@ -1834,6 +1791,7 @@ procedure TForm1.Button17Click(Sender: TObject);
 var
   bmp: TBitmap;
   uiClipboardID, hData: Cardinal;
+  bOK: LongBool;
   clipboardPointer: ^TWSxMClipboardHeader;
   szPathName: array[0..MAX_PATH-1] of Char;
   szFileName: array[0..MAX_PATH-1] of Char;
@@ -1867,7 +1825,7 @@ begin
   end;
 
   try
-    OpenClipboard(0);
+    bOK := OpenClipboard(0);
 
     // Obtenemos el manejador del portapapeles para el formato WSxM, si lo hubiera
     hData := GetClipboardData(uiClipboardID);
@@ -2035,12 +1993,12 @@ end;
 
 procedure TForm1.ScrollBar2Change(Sender: TObject);
 begin
-  Update(nil)
+ ComboBox1Change(nil)
 end;
 
 procedure TForm1.ScrollBar3Change(Sender: TObject);
 begin
-  Update(nil)
+   ComboBox1Change(nil)
 end;
 
 procedure TForm1.btnMarkNowClick(Sender: TObject);
@@ -2060,6 +2018,7 @@ begin
   // En el caso de mark now no habrá bitmap, sólo un recuadro
   bitmapPasteList[i].bitmap := nil;
 
+
   // En el caso de mark now el bitmap será un color sólido. Me vale con un punto del color adecuado
 {  bitmapPasteList[i].bitmap := TBitmap.Create;
   bitmapPasteList[i].bitmap.Width := 1;
@@ -2073,67 +2032,6 @@ end;
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   DestroyCitsTempFiles();
-end;
-
-// Cálculos extraidos de TForm1.PointCanvasToGlobal, igualando el punto del canvas
-// a cero (una vez normalizado entre +/-1) y despejando scrollX o scrollY
-procedure TForm1.btnCenterAtTipClick(Sender: TObject);
-var
-  zoomFactor, scrollX, scrollY, halfScollRange: Double;
-begin
-  halfScollRange := ScrollBar2.Max/2; // Asumo que empieza en cero
-  zoomFactor := StrToFloat(ComboBox1.Text);
-
-  // Scroll entre +/-1
-  if (zoomFactor = 1) then
-  begin
-    scrollX := 0;
-    scrollY := 0;
-  end
-  else
-  begin
-    scrollX :=  XOffset*zoomFactor/(zoomFactor-1);
-    scrollY := -YOffset*zoomFactor/(zoomFactor-1);
-  end;
-
-  // Scroll entre 0 y el máximo de las barras
-  ScrollBar3.Position := Round((scrollX+1)*halfScollRange);
-  ScrollBar2.Position := Round((scrollY+1)*halfScollRange);
-
-  Update(nil);
-end;
-
-procedure TForm1.Button15Click(Sender: TObject);
-
- var
-  i: Integer;
-begin
-  // Añado un elemento a la lista de bitmaps a dibujar en el área de barrido del piezo
-  // Será un color sólido
-  i := Length(bitmapPasteList2);
-  SetLength(bitmapPasteList2, i+1);
-
-  bitmapPasteList2[i].x := XOffset;
-  bitmapPasteList2[i].y := YOffset;
-  bitmapPasteList2[i].sizeX := 2*P_Scan_Size*Form10.attenuator;
-  bitmapPasteList2[i].sizeY := 2*P_Scan_Size*Form10.attenuator;
-
-  // En el caso de mark now no habrá bitmap, sólo un recuadro
-  bitmapPasteList2[i].bitmap := nil;
-
-  // En el caso de mark now el bitmap será un color sólido. Me vale con un punto del color adecuado
-{  bitmapPasteList[i].bitmap := TBitmap.Create;
-  bitmapPasteList[i].bitmap.Width := 1;
-  bitmapPasteList[i].bitmap.Height := 1;
-  bitmapPasteList[i].bitmap.Canvas.Brush.Color := $00C0C0;
-  bitmapPasteList[i].bitmap.Canvas.FillRect(Rect(0, 0, 1, 1));}
-
-  Update(self);
-end;
-
-procedure TForm1.SpinEdit3Change(Sender: TObject);
-begin
-SleepDo := StrtoInt(SpinEdit3.Text);
 end;
 
 end.

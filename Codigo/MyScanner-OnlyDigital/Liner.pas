@@ -65,7 +65,6 @@ type
     ChartLineSerie0: TFastLineSeries;
     ChartLineSerie1: TFastLineSeries;
     chkAcquireBlock: TCheckBox;
-    lblAccumulate: TLabel;
     procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -90,7 +89,6 @@ type
     procedure SaveIV(fileName: string; dataSet: Integer; comments: String);
     procedure Button6Click(Sender: TObject);
     procedure ClearChart();
-    procedure chkAcquireBlockClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -174,7 +172,7 @@ Size_xAxis:=scrollSizeBias.Position/100;
 
 Temperature:=StrtoFloat(Edit5.Text);
 MagField:=StrtoFloat(Edit6.Text);
-ChartLine.LeftAxis.AxisValuesFormat := '0.##E+###';
+ChartLine.LeftAxis.AxisValuesFormat := '0.0E+##';
 StopIt:=True;
 end;
 
@@ -192,7 +190,7 @@ j,h,k,Princ,Fin: Integer;
 DataCurrentOld: Array [0..1,0..2048] of single;
 adcRead: TVectorDouble;
 pidTimer: Boolean;
-//  here_previous_ctrl:  Double;
+  here_previous_ctrl:  Double;
 
 begin
 if CheckBox2.Checked then FormPID.Button9Click(nil);  // desactiva el feedback
@@ -218,9 +216,6 @@ Fin:=-Princ;
   begin
   for j:=0 to SpinEdit2.Value -1 do
   begin
-    // Indicamos por qué iteracion vamos
-    lblAccumulate.Caption := format ('%d of', [j+1]);
-
     // Forth (Rampa de ida)
     // Lectura de UNA rampa de ida
     Form10.ramp_take(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
@@ -228,10 +223,6 @@ Fin:=-Princ;
     // Back (rampa de vuelta)
     //Lectura de UNA rampa de vuelta
     Form10.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
-
-    FormPID.Button8Click(nil);
-    sleep(20);
-    FormPID.Button9Click(nil);
 
     {// Vamos a dejar funcionar el control durante 10 ms
     if (j>0) then
@@ -366,13 +357,13 @@ end;
 //Cambio en Mean
 procedure TForm4.SpinEdit3Change(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit3.Text, LinerMean);
+LinerMean:=SpinEdit3.Value;
 end;
 
 //Cambio en Jump
 procedure TForm4.SpinEdit4Change(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit4.Text, Jump_xAxis);
+Jump_xAxis:=SpinEdit4.Value;
 end;
 
 //Pintar las curvas
@@ -494,9 +485,7 @@ begin
 BlockFileName:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
 TakeComment:=DateTimeToStr(Now)+#13+#10+
     'T(K)='+FloattoStr(Temperature)+#13+#10+
-    'B(T)='+FloattoStr(MagField)+#13+#10+
-    'X(nm)='+FloattoStrF(Form1.XOffset*10*Form1.AmpX*Form1.CalX, ffGeneral, 5, 4)+#13+#10+
-    'Y(nm)='+FloattoStrF(Form1.YOffset*10*Form1.AmpY*Form1.CalY, ffGeneral, 5, 4)+#13+#10;
+    'B(T)='+FloattoStr(MagField)+#13+#10;
   for k:=0 to 1 do
   begin
   BlockOffset:=k;
@@ -576,7 +565,6 @@ var
 
 begin
 
-  DecimalSeparator := '.';
   factorX := 1;
   commentsWSxM := StringReplace(comments, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]);
 
@@ -636,7 +624,7 @@ begin
   Write(myFile, '    Comments: ');
   WriteLn(myFile, commentsWSxM);
   WriteLn(myFile, '    First Forward: Yes');
-  WriteLn(myFile, '    Saved with version: MyScanner 1.302');
+  WriteLn(myFile, '    Saved with version: MyScanner 1.301');
   WriteLn(myFile, '    Version: 3.0 (July 2004)');
   WriteLn(myFile, '');
   WriteLn(myFile, '[Header end]');
@@ -767,18 +755,6 @@ procedure TForm4.ClearChart();
 begin
   ChartLineSerie0.Clear();
   ChartLineSerie1.Clear();
-end;
-
-procedure TForm4.chkAcquireBlockClick(Sender: TObject);
-begin
-  if chkAcquireBlock.Checked then
-    begin
-      SpinEdit3.MaxValue := 42;
-      if SpinEdit3.Value > SpinEdit3.MaxValue then
-        SpinEdit3.Value := SpinEdit3.MaxValue;
-    end
-  else
-    SpinEdit3.MaxValue := 999999
 end;
 
 end.
