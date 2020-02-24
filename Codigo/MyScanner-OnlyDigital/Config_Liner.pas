@@ -23,6 +23,8 @@ type
     Label5: TLabel;
     Panel2: TPanel;
     CheckBox4: TCheckBox;
+    Pane3: TPanel;
+    RadioGroup2: TRadioGroup;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SpinEdit1Change(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
@@ -32,6 +34,7 @@ type
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox3Click(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
+    procedure RadioGroup2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -67,7 +70,7 @@ end;
 
 procedure TForm7.SpinEdit1Change(Sender: TObject);
 begin
-Form4.x_axisDac:=SpinEdit1.Value;
+  TryStrToInt(SpinEdit1.Text, Form4.x_axisDac);
 end;
 
 procedure TForm7.RadioGroup1Click(Sender: TObject);
@@ -78,7 +81,7 @@ end;
 
 procedure TForm7.SpinEdit2Change(Sender: TObject);
 begin
-Form4.x_axisADC:=SpinEdit2.Value;
+  TryStrToInt(SpinEdit2.Text, Form4.x_axisADC);
 end;
 
 procedure TForm7.Edit1Change(Sender: TObject);
@@ -122,6 +125,15 @@ end;
 procedure TForm7.CheckBox4Click(Sender: TObject);
 begin
 Form4.scrollSizeBiasChange(nil);
+end;
+
+procedure TForm7.RadioGroup2Click(Sender: TObject);
+begin
+if RadioGroup2.ItemIndex = 0 then Edit1.Text:='10';
+if RadioGroup2.ItemIndex = 1 then Edit1.Text:='1';
+if RadioGroup2.ItemIndex = 2 then Edit1.Text:='0.1';
+if RadioGroup2.ItemIndex = 3 then Edit1.Text:='0.01';
+if RadioGroup2.ItemIndex = 4 then Edit1.Text:='0.001';
 end;
 
 end.

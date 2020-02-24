@@ -1,6 +1,6 @@
 object Form3: TForm3
-  Left = 303
-  Top = 274
+  Left = 79
+  Top = 210
   Width = 989
   Height = 586
   Caption = 'Form3'
@@ -122,7 +122,7 @@ object Form3: TForm3
     MaxValue = 100
     MinValue = 0
     TabOrder = 4
-    Value = 1
+    Value = 2
   end
   object Button2: TButton
     Left = 6
@@ -279,6 +279,18 @@ object Form3: TForm3
     Width = 61
     Height = 17
     Caption = 'Flatten'
+    Checked = True
+    State = cbChecked
     TabOrder = 16
+  end
+  object CheckBox3: TCheckBox
+    Left = 208
+    Top = 528
+    Width = 145
+    Height = 17
+    Caption = 'Show remaining time'
+    Checked = True
+    State = cbChecked
+    TabOrder = 17
   end
 end

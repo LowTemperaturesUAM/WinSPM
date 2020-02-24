@@ -1,6 +1,6 @@
 object Form4: TForm4
-  Left = 766
-  Top = 148
+  Left = 686
+  Top = 159
   Width = 834
   Height = 621
   Caption = 'Liner'
@@ -244,8 +244,16 @@ object Form4: TForm4
       Height = 13
       Caption = 'Accumulate'
     end
+    object lblAccumulate: TLabel
+      Left = 24
+      Top = 20
+      Width = 18
+      Height = 13
+      Alignment = taRightJustify
+      Caption = '1 of'
+    end
     object SpinEdit2: TSpinEdit
-      Left = 32
+      Left = 48
       Top = 16
       Width = 41
       Height = 22
@@ -329,7 +337,7 @@ object Form4: TForm4
     Font.Height = -9
     Font.Name = 'MS Sans Serif'
     Font.Style = []
-    MaxValue = 1000
+    MaxValue = 42
     MinValue = 1
     ParentFont = False
     TabOrder = 14
@@ -483,6 +491,7 @@ object Form4: TForm4
     Checked = True
     State = cbChecked
     TabOrder = 16
+    OnClick = chkAcquireBlockClick
   end
   object SaveDialog1: TSaveDialog
     Filter = 'Text files (*.txt)|*.txt|Data files (*.dat)|*.dat'

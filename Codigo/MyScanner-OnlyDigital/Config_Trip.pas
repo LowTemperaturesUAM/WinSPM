@@ -38,12 +38,12 @@ uses Trip;
 
 procedure TForm6.SpinEdit1Change(Sender: TObject);
 begin
-Form5.ZPDac:=SpinEdit1.Value;
+  TryStrToInt(SpinEdit1.Text, Form5.ZPDac);
 end;
 
 procedure TForm6.SpinEdit2Change(Sender: TObject);
 begin
-Form5.IADC:=SpinEdit2.Value;
+  TryStrToInt(SpinEdit2.Text, Form5.IADC);
 end;
 
 procedure TForm6.CheckBox1Click(Sender: TObject);

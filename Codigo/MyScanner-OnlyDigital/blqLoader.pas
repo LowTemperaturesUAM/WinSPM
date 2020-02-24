@@ -250,7 +250,6 @@ end ;
 
 
 function TblqLoader.SelectEntriesDialog : Boolean ;
-var d : TBlockEntry ;
 begin
   Result:=False ;
   if nnn=0 then Exit ;

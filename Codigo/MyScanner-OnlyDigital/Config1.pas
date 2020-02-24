@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, Spin, Math;
+  StdCtrls, ExtCtrls, Spin, Math, IniFiles;
 
 type
   TForm2 = class(TForm)
@@ -23,7 +23,6 @@ type
     Label8: TLabel;
     ComboBox2: TComboBox;
     Label9: TLabel;
-    Edit2: TEdit;
     Label10: TLabel;
     Label11: TLabel;
     Panel2: TPanel;
@@ -60,11 +59,15 @@ type
     ComboBox6: TComboBox;
     Label26: TLabel;
     ComboBox7: TComboBox;
+    Edit2: TEdit;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
   private
     { Private declarations }
+    IniFile: TIniFile;
+    iniTitle: String;
+//    const string iniTitle := 'Channels';
   public
     { Public declarations }
   end;
@@ -109,10 +112,33 @@ else
 
 Form1.TrackBar3Change(self);
 
+// Guardamos los datos en el fichero de configuración
+// Leemos los datos del fichero de configuración
+IniFile := TIniFile.Create(GetCurrentDir+'\Config.ini');
+try
+  IniFile.WriteInteger(iniTitle, 'XScanDac', SpinEdit1.Value);
+  IniFile.WriteInteger(iniTitle, 'YScanDac', SpinEdit2.Value);
+  IniFile.WriteString(iniTitle, 'XAmplifier', Combobox1.Text);
+finally
+  IniFile.Free;
+end;
+
 end;
 
 procedure TForm2.FormCreate(Sender: TObject);
 begin
+// Leemos los datos del fichero de configuración
+iniTitle := 'Channels';
+IniFile := TIniFile.Create(GetCurrentDir+'\Config.ini');
+try
+  SpinEdit1.Value := IniFile.ReadInteger(iniTitle, 'XScanDac', 0);
+  SpinEdit2.Value := IniFile.ReadInteger(iniTitle, 'YScanDac', 5);
+  Combobox1.Text := IniFile.ReadString(iniTitle, 'XAmplifier', '13');
+finally
+  IniFile.Free;
+end;
+
+
 Form1.XDAC:=SpinEdit1.Value;
 Form1.YDAC:=SpinEdit2.Value;
 Form1.AmpX:=StrtoFloat(Combobox1.Text);

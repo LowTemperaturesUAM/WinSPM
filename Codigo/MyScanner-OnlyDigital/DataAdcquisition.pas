@@ -151,7 +151,6 @@ Function TForm10.InitDataAcq : boolean  ;
 
  var BytesToWrite: Integer;
  var BytesWritten:Integer;
- var novalido:Double;
 
  var miestructura2:FtcChipSelectPins;
  var entradassalidas:FtcInputOutputPins;
@@ -175,8 +174,7 @@ begin
  end ;
  // else  MessageDlg('Abierto correctamente', mtError, [mbOk], 0);
 
- SPI_Ret :=  SPI_InitDevice(SPI_Hdl,2);
- //SPI_Ret :=  SPI_InitDevice(SPI_Hdl, 2000000); // Con los retardos que hay ahora en los ADCs podría funcionar con 0 e ir más rápido
+ SPI_Ret :=  SPI_InitDevice(SPI_Hdl, 2); // Con los retardos que hay ahora en los ADCs podría funcionar con 0 e ir más rápido
  Str( SPI_Ret, sTexto );
 
  If SPI_Ret <> 0  then
@@ -263,11 +261,11 @@ begin
 
 // Realizar lecturas ADC para estabilizar datos
 
-  novalido:= adc_take(0,1,5);    // 5 es experimental
+   adc_take(0,1,5);    // 5 es experimental
 
 // Purgar lectura y escritura en el buffer
 
-   SPI_Ret:=FT_Purge(   SupraSPI_Hdl,1);
+   FT_Purge(   SupraSPI_Hdl,1);
    SPI_Ret:=FT_Purge(   SupraSPI_Hdl,2);
    If SPI_Ret <> 0  then
    begin
@@ -357,7 +355,7 @@ begin
    begin
        BytesToWrite:= i;
        SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
-       Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque
+       //Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque //Hermann
        If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
            MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
    end;
@@ -440,7 +438,7 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
   Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK)  ;
 
   If SPI_Ret <> 0
-   then MessageDlg('error al leer ', mtError, [mbOk], 0);
+   then MessageDlg(Format('TForm10.adc_take. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
 
   BytesReturned:=0;
 
@@ -459,8 +457,8 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
 
 
    numres:=ord(FT_In_Buffer[(chn*2)])*256 +  ( ord(FT_In_Buffer[(chn*2+1)]));
-   if  numres > 32768             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
-   resultadoooo:=numres/32768;
+   if  numres > $7FFF             then    numres:=numres - $10000;      //Conversión (condicional) a nºs negativos
+   resultadoooo:=numres/$10000;
 
   Str( resultadoooo, sTexto2 );
   Str( n, sTexto3 );
@@ -599,7 +597,7 @@ begin
       Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK) or (intentos > 10000);
 
       If SPI_Ret <> FT_OK then
-        MessageDlg('error al leer ', mtError, [mbOk], 0);
+        MessageDlg(Format('TForm10.adc_take_all. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
 
       if (ReceivesBytes < BytesToReceive) then // No nos han llegado los datos en un tiempo prudencial. Intentamos salvar los muebles
       begin
@@ -634,7 +632,7 @@ begin
       for j := 0 to NUM_ADCs-1 do
       begin
         numres := ord(FT_In_Buffer[(j*2)])*256 +  ( ord(FT_In_Buffer[(j*2+1)]));
-        if  numres > 32768             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
+        if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
         resultadoooo:=numres/32768;
         datosum[j] := datosum[j] + resultadoooo ;
       end;
@@ -722,7 +720,7 @@ begin
       DacVal := DacVal+Step;
       Inc(j);
       if blockAcq then
-        Application.ProcessMessages; // Para que pueda hacer el feedback digital
+        //Application.ProcessMessages; // Para que pueda hacer el feedback digital //Hermann
     end;
 
     if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
@@ -830,7 +828,7 @@ begin
     end;
     MessageDlg(Format('No se ha podido enviar todo el buffer de la rampa. Enviados %d de %d', [BytesWritten, bytesToSend]), mtError, [mbOk], 0);
     SPI_Ret :=  FT_Write(SupraSPI_Hdl, bufferToSend, bytesToSend, @BytesWritten);
-    Application.ProcessMessages();
+    //Application.ProcessMessages(); //Hermann
   end;
 
   If SPI_Ret <> 0 then
@@ -986,15 +984,15 @@ begin
 
   while  StopAction=False do
   begin
-   //Sleep(1);
+  //Sleep(1);
   //currentTime:=Now;
   QueryPerformanceCounter(endTime);
   elapsedSeconds := (endTime - startTime) / frequency;
   //currentTime:=MilliSecondOfTheYear(currentTime);
   //Writeln(myFile,DateUtils.MilliSecondsBetween(startTime, currentTime),' ',adc_take(0,0,1):2:6,' ',adc_take(0,1,1):2:6);
   //Writeln(myFile,currentTime-startTime,' ',adc_take(0,0,1):2:6,' ',adc_take(0,1,1):2:6);
-  Writeln(myFile,elapsedSeconds,' ',10*adc_take(0,0,1),' ',10*adc_take(2,2,1));
-  Application.ProcessMessages;
+  Writeln(myFile,elapsedSeconds,' ',10*adc_take(0,0,16),' ',10*adc_take(2,2,16));
+  //Application.ProcessMessages; //Hermann
   end  ;
 
   // Write a couple of well known words to this file

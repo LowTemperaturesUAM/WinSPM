@@ -98,7 +98,8 @@ uses DataAdcquisition, Scanner1, Config1;
 
 procedure TFormPID.SpinEdit3Change(Sender: TObject);
 begin
-Gain:=power(10,SpinEdit3.Value);
+  TryStrToFloat(SpinEdit3.Text, Gain);
+  Gain:=power(10,Gain);
 end;
 
 procedure TFormPID.ScrollBar1Change(Sender: TObject);
@@ -151,22 +152,24 @@ if checkbox2.checked then reverse:=1 else reverse:=-1;
 MeanReadI:=SpinEdit5.Value;
 //previous_ctrl:=0;
 Count_Live:= FormPID.SpinEdit4.Value;
+
+// Activamos el hilo que hará el control cuando se habilite su flag
+thrdtmr1.Enabled:=True;
 end;
 
 procedure TFormPID.SpinEdit1Change(Sender: TObject);
 begin
-InPID_ADC:=SpinEdit1.Value;
+  TryStrToInt(SpinEdit1.Text, InPID_ADC);
 end;
 
 procedure TFormPID.SpinEdit2Change(Sender: TObject);
 begin
-OutPID_DAC:=SpinEdit2.Value;
+  TryStrToInt(SpinEdit2.Text, OutPID_DAC);
 end;
-
 
 procedure TFormPID.SpinEdit4Change(Sender: TObject);
 begin
-Count_Live:=SpinEdit4.Value;
+  TryStrToInt(SpinEdit4.Text, Count_Live);
 end;
 
 procedure TFormPID.CheckBox2Click(Sender: TObject);
@@ -181,7 +184,7 @@ end;
 
 procedure TFormPID.SpinEdit5Change(Sender: TObject);
 begin
-MeanReadI:=SpinEdit5.Value;
+  TryStrToInt(SpinEdit5.Text, MeanReadI);
 end;
 
 procedure TFormPID.Button4Click(Sender: TObject);
@@ -217,6 +220,12 @@ thisError: Double;
 
 begin
 
+  if (Flag_PIDisworking = False) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
   //if Timer1.Enabled = False then // No debería pasar, pero por si acaso
 //    if thrdtmr1.Enabled = False then // No debería pasar, pero por si acaso
 //    Exit;
@@ -232,10 +241,10 @@ begin
       PIDReset:=False;
     end;
 
-    Application.ProcessMessages();
+    //Application.ProcessMessages(); //Hermann
 
     Read_PID := abs(Round(Form10.adc_take(InPID_ADC,InPID_ADC,MeanReadI)*32768));
-    thisError := (Set_PID/100*32768)-Read_PID;
+    thisError := (Set_PID/500*32768)-Read_PID;
     lastIntegral := lastIntegral+thisError; // Siendo formales, habría que multiplicar thisError por dt. Hermann prefiere no hacerlo.
     Action_PID := Action_PID+reverse*Round((Gain*P_PID/100)*thisError + (Gain*Gain_of_I*I_PID/100)*(lastIntegral) + (Gain*Gain_of_D*D_PID/100)*(thisError-prevError));
     if (Action_PID>32768) then
@@ -266,13 +275,15 @@ end;
 procedure TFormPID.Button8Click(Sender: TObject);
 begin
 //Timer1.Enabled:=True;
-thrdtmr1.Enabled:=True;
+//thrdtmr1.Enabled:=True;
+Flag_PIDisworking := True;
 end;
 
 procedure TFormPID.Button9Click(Sender: TObject);
 begin
 //Timer1.Enabled:=False;
-thrdtmr1.Enabled:=False;
+//thrdtmr1.Enabled:=False;
+Flag_PIDisworking := False;
 end;
 
 procedure TFormPID.Timer1Timer(Sender: TObject);
@@ -282,12 +293,14 @@ end;
 
 procedure TFormPID.Gain_IChange(Sender: TObject);
 begin
-Gain_of_I:=power(10,Gain_I.Value);
+  TryStrToFloat(Gain_I.Text, Gain_of_I);
+  Gain_of_I:=power(10,Gain_of_I);
 end;
 
 procedure TFormPID.Gain_DChange(Sender: TObject);
 begin
-Gain_of_D:=power(10,Gain_D.Value);
+  TryStrToFloat(Gain_D.Text, Gain_of_D);
+  Gain_of_D:=power(10,Gain_of_D);
 end;
 
 procedure TFormPID.thrdtmr1Timer(Sender: TObject);
@@ -296,9 +309,11 @@ begin
 end;
 
 procedure TFormPID.se1Change(Sender: TObject);
+  var temp64 : Int64; // Temporalmente 64 bits para no perder precisión
 begin
-thrdtmr1.Interval:=se1.Value;
-Application.ProcessMessages;
+  TryStrToInt64(se1.Text, temp64);
+  thrdtmr1.Interval := temp64;
+  Application.ProcessMessages;
 end;
 
 end.

@@ -12,6 +12,7 @@ type
     CheckBox2: TCheckBox;
     ComboBox1: TComboBox;
     Label1: TLabel;
+    chkSaveAsWSxM: TCheckBox;
     procedure ComboBox1Change(Sender: TObject);
   private
     { Private declarations }
