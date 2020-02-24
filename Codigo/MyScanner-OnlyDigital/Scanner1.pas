@@ -1,12 +1,5 @@
 {
-Cosas que faltan al 07 de 09 de 06:-------[16/02/2017]                                             
-Salvar el DO y que funcione-----[Hecho]
-Hacer DODO-----[Hecho]
-Programar el plot de la derivada en el IV-----[Hecho]
-Probar que las imágenes salvadas salen bien
-Verificar funcionamiento en STM
-Quitar plano al tomar imagenes
-programar IVs al mismo tiempo que imagen-----[Hecho]
+
 }
 
 unit Scanner1;
