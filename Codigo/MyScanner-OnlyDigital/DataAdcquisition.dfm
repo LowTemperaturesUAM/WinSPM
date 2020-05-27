@@ -1,7 +1,7 @@
 object Form10: TForm10
   Left = -7
   Top = 867
-  Width = 1857
+  Width = 1556
   Height = 171
   Caption = 'DAC and ADC handling'
   Color = clBtnFace

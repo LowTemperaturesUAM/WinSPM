@@ -36,10 +36,16 @@ type
     CheckBox2: TCheckBox;
     chkFlatten: TCheckBox;
     CheckBox3: TCheckBox;
+    trckbrZoom: TTrackBar;
+    lblZoom: TLabel;
+    lblOffset: TLabel;
+    trckbrOffset: TTrackBar;
+    btnResetZoomOffset: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
     procedure FillImg(Sender: TObject; Data: HImg; Size: Integer; Sens: Integer);
+    procedure UpdateBitmaps(Sender: TObject);
     procedure FreeScans(Sender:TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -50,6 +56,9 @@ type
     procedure TrackBar1Change(Sender: TObject);
     procedure TrackBar2Change(Sender: TObject);
     procedure ClearChart();
+    procedure btnResetZoomOffsetClick(Sender: TObject);
+    procedure trckbrZoomChange(Sender: TObject);
+    procedure trckbrOffsetChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -88,11 +97,40 @@ else
 begin Button2.Caption:='CONTINUE'; Form1.PauseAction:=True; end;
 end;
 
+procedure TForm3.UpdateBitmaps(Sender: TObject);
+var
+  flatten: Integer;
+  MakeX: Boolean;
+  Data:HImg;
+
+begin
+    flatten := 0;
+    if chkFlatten.Checked then
+      flatten := 1;
+
+    MakeX := (Form1.RadioGroup1.ItemIndex=0);
+
+    if Form3.RadioGroup1.ItemIndex=0 then
+    begin
+      Data := Form1.FilterImage(Form1.Dat_Image_Forth[1], MakeX, Form1.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,Form1.P_Scan_Lines,1);
+      Data := Form1.FilterImage(Form1.Dat_Image_Back[1], MakeX, Form1.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,Form1.P_Scan_Lines,2);
+    end
+    else
+    begin
+      Data := Form1.FilterImage(Form1.Dat_Image_Forth[2], MakeX, Form1.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,Form1.P_Scan_Lines,1);
+      Data := Form1.FilterImage(Form1.Dat_Image_Back[2], MakeX, Form1.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,Form1.P_Scan_Lines,2);
+    end;
+end;
+
 procedure TForm3.FillImg(Sender: TObject; Data: HImg; Size: Integer; Sens: Integer);
 var
 i,j,SizeofPixel,SepPixel: Integer;
 DatatoPaint: Array[0..512,0..512] of Integer;
-DataMax, DataMin, DataTo0_255: Double;
+DataMax, DataMin, DataTo0_255, DataTo0_255Offset, BrightnessOffset: Double;
 RectBitmap: TRect;
 Bitmap: TBitmap;
 
@@ -114,19 +152,22 @@ if ((DataMax-DataMin)=0) then begin DataMax:=1;DataMin:=0;end;
 
 // Lo pone dentro de la escala [0,255] donde max=255 y min=0
 // Es más eficiente multiplicar que divir, y es más eficiente hacer la resta y demás una sola vez que todas las del bucle
-DataTo0_255 := 1/(DataMax-DataMin)*255;
+DataTo0_255 := 255*trckbrZoom.Position/(DataMax-DataMin);
+//DataTo0_255Offset := -(DataMax+DataMin)/2;
+DataTo0_255Offset := -(DataMax+DataMin)/2;
+BrightnessOffset := 255*(trckbrZoom.Position+1)*trckbrOffset.Position/(200);
 
 for i:=0 to Size-1 do
 begin
 for j:=0 to Size-1 do
  begin
- //DatatoPaint[Size-1-i,j]:=Round((Data[i,j]-DataMin)*DataTo0_255);
- DatatoPaint[i,j]:=Round((Data[i,j]-DataMin)*DataTo0_255);
- // Quitadas las comprobaciones por eficiencia. Si las cuentas están bien hechas son innecesarias (Nacho Horcas, octubre de 2018).
-{ if(DatatoPaint[i,j]>255) then
+ DatatoPaint[i,j]:=Round(((Data[i,j]+DataTo0_255Offset)*DataTo0_255)+255/2+BrightnessOffset);
+ // Comprobamos que el dato cae dentro de los limites. Como ahora hay un offset, es posible que caiga fueraç
+
+ if(DatatoPaint[i,j]>255) then
    DatatoPaint[i,j]:=255;
  if(DatatoPaint[i,j]<0) then
-   DatatoPaint[i,j]:=0;}
+   DatatoPaint[i,j]:=0;
  end;
 end;
 
@@ -265,6 +306,23 @@ end;
 procedure TForm3.ClearChart();
 begin
   ChartLine.RemoveAllSeries();
+end;
+
+procedure TForm3.btnResetZoomOffsetClick(Sender: TObject);
+begin
+  trckbrZoom.Position := 1;
+  trckbrOffset.Position := 0;
+  UpdateBitmaps(nil);
+end;
+
+procedure TForm3.trckbrZoomChange(Sender: TObject);
+begin
+  UpdateBitmaps(nil);
+end;
+
+procedure TForm3.trckbrOffsetChange(Sender: TObject);
+begin
+  UpdateBitmaps(nil);
 end;
 
 end.

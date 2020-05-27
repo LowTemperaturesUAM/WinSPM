@@ -856,24 +856,7 @@ begin
 
   if Saveit then
   begin
-    flatten := 0;
-    if Form3.chkFlatten.Checked then
-      flatten := 1;
-
-    if Form3.RadioGroup1.ItemIndex=0 then
-    begin
-      Data := FilterImage(Dat_Image_Forth[1], MakeX, P_Scan_Lines, flatten);
-      Form3.FillImg(nil,Data,P_Scan_Lines,1);
-      Data := FilterImage(Dat_Image_Back[1], MakeX, P_Scan_Lines, flatten);
-      Form3.FillImg(nil,Data,P_Scan_Lines,2);
-    end
-    else
-    begin
-      Data := FilterImage(Dat_Image_Forth[2], MakeX, P_Scan_Lines, flatten);
-      Form3.FillImg(nil,Data,P_Scan_Lines,1);
-      Data := FilterImage(Dat_Image_Back[2], MakeX, P_Scan_Lines, flatten);
-      Form3.FillImg(nil,Data,P_Scan_Lines,2);
-    end;
+    Form3.UpdateBitmaps(nil);
   end;
 end;
 

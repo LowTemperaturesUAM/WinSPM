@@ -1,8 +1,8 @@
 object Form3: TForm3
-  Left = 79
-  Top = 210
+  Left = 214
+  Top = 135
   Width = 989
-  Height = 586
+  Height = 639
   Caption = 'Form3'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -52,10 +52,24 @@ object Form3: TForm3
   end
   object Label6: TLabel
     Left = 128
-    Top = 528
+    Top = 576
     Width = 6
     Height = 13
     Caption = '0'
+  end
+  object lblZoom: TLabel
+    Left = 700
+    Top = 551
+    Width = 39
+    Height = 13
+    Caption = 'Contrast'
+  end
+  object lblOffset: TLabel
+    Left = 700
+    Top = 578
+    Width = 51
+    Height = 13
+    Caption = 'Brightness'
   end
   object ScrollBox1: TScrollBox
     Left = 696
@@ -210,7 +224,7 @@ object Form3: TForm3
     Top = 143
     Width = 33
     Height = 106
-    Max = 10000
+    Max = 500
     Min = 1
     Orientation = trVertical
     Frequency = 10
@@ -231,7 +245,7 @@ object Form3: TForm3
   end
   object CheckBox2: TCheckBox
     Left = 552
-    Top = 528
+    Top = 576
     Width = 137
     Height = 17
     Caption = 'Separate when finished'
@@ -241,7 +255,7 @@ object Form3: TForm3
     Left = 84
     Top = 8
     Width = 609
-    Height = 521
+    Height = 561
     AllowPanning = pmVertical
     AnimatedZoom = True
     BackWall.Brush.Color = clWhite
@@ -285,12 +299,50 @@ object Form3: TForm3
   end
   object CheckBox3: TCheckBox
     Left = 208
-    Top = 528
+    Top = 576
     Width = 145
     Height = 17
     Caption = 'Show remaining time'
     Checked = True
     State = cbChecked
     TabOrder = 17
+  end
+  object trckbrZoom: TTrackBar
+    Left = 752
+    Top = 549
+    Width = 177
+    Height = 20
+    Max = 100
+    Min = 1
+    PageSize = 10
+    Position = 1
+    SelEnd = 100
+    SelStart = 1
+    TabOrder = 18
+    TickStyle = tsNone
+    OnChange = trckbrZoomChange
+  end
+  object trckbrOffset: TTrackBar
+    Left = 752
+    Top = 576
+    Width = 177
+    Height = 20
+    Max = 100
+    Min = -100
+    PageSize = 10
+    SelEnd = 100
+    SelStart = -100
+    TabOrder = 19
+    TickStyle = tsNone
+    OnChange = trckbrOffsetChange
+  end
+  object btnResetZoomOffset: TButton
+    Left = 928
+    Top = 552
+    Width = 41
+    Height = 41
+    Caption = 'Reset'
+    TabOrder = 20
+    OnClick = btnResetZoomOffsetClick
   end
 end

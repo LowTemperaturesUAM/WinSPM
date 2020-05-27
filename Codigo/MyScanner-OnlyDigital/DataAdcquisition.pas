@@ -636,7 +636,7 @@ begin
         numres := ord(FT_In_Buffer[(j*2)])*256 +  ( ord(FT_In_Buffer[(j*2+1)]));
         if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
         resultadoooo:=numres/32768;
-        if simulating then resultadoooo := simulatedDac[Form1.YDAC]/$8000;//Random;
+        if simulating then resultadoooo := simulatedDac[Form1.XDAC]/$8000+Random/100;
         datosum[j] := datosum[j] + resultadoooo ;
       end;
     end;
