@@ -96,6 +96,7 @@ var
   Form10: TForm10;
   SupraSPI_Hdl:Dword;
   simulating: Boolean;
+  simulatedDac: array[0..7] of Integer;
   Buffer:String[50]; //En ppio. hay espacio de sobra con esta cantidad
 
 
@@ -329,7 +330,7 @@ begin
    begin
      BufferDest := BufferOut;
    end;
-   
+
    // Construyo la cadena que se enviará
    i := 0; // El primer caracter está reservado para la longitud, se use o no.
    (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
@@ -358,9 +359,12 @@ begin
            if not simulating then MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
    end;
 
- // El valor ya viene en formato -32768..0..32767, de modo que la conversión es al valor hex del ascii
+   // El valor ya viene en formato -32768..0..32767, de modo que la conversión es al valor hex del ascii
+   if simulating then simulatedDac[ndac] := valor;
+
 
 //////////////////////Fin normal//////////////
+
 
  Str( ndac, sTexto );
  Str( valor, sTexto2 );
@@ -632,6 +636,7 @@ begin
         numres := ord(FT_In_Buffer[(j*2)])*256 +  ( ord(FT_In_Buffer[(j*2+1)]));
         if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
         resultadoooo:=numres/32768;
+        if simulating then resultadoooo := simulatedDac[Form1.YDAC]/$8000;//Random;
         datosum[j] := datosum[j] + resultadoooo ;
       end;
     end;

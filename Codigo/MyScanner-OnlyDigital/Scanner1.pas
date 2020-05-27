@@ -836,8 +836,7 @@ begin
       if ReadCurrent=True then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-i-1,LineNr]);
-
+    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,i,LineNr]);
   end;
 
     QueryPerformanceCounter(C2); // Lectura del cronómetro
