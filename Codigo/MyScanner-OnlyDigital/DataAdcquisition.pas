@@ -95,6 +95,7 @@ type
 var
   Form10: TForm10;
   SupraSPI_Hdl:Dword;
+  simulating: Boolean;
   Buffer:String[50]; //En ppio. hay espacio de sobra con esta cantidad
 
 
@@ -157,8 +158,8 @@ Function TForm10.InitDataAcq : boolean  ;
 
 
 begin
-
-  SPI_Ret :=0    ;
+  simulating := false;
+  SPI_Ret :=0;
  Result:=False;
 
  SPI_GetHiSpeedDeviceNameLocIDChannel(0, @nameBuffer, 50, @LocationID, @channelBuffer, 50, @DeviceType);
@@ -169,7 +170,7 @@ begin
 
  If SPI_Ret <> 0  then
  begin
- MessageDlg('No se puede abrir: ' +Stexto, mtError, [mbOk], 0);
+ if not simulating then MessageDlg('No se puede abrir: ' +Stexto, mtError, [mbOk], 0);
  exit;
  end ;
  // else  MessageDlg('Abierto correctamente', mtError, [mbOk], 0);
@@ -194,8 +195,8 @@ begin
 
  If SPI_Ret <> 0 then
  begin
- MessageDlg('No se puede configurar la latencia: ' + Stexto, mtError, [mbOk], 0) ;
- exit;
+  if not simulating then MessageDlg('No se puede configurar la latencia: ' + Stexto, mtError, [mbOk], 0) ;
+  exit;
  end;
   // else  MessageDlg('Latencia correcta', mtError, [mbOk], 0);
 
@@ -225,8 +226,8 @@ begin
 
  If SPI_Ret <> 0 then
  begin
- MessageDlg('No se pueden configurar las E/S: '+Stexto, mtError, [mbOk], 0);
- exit;
+  if not simulating then MessageDlg('No se pueden configurar las E/S: '+Stexto, mtError, [mbOk], 0);
+  exit;
  end;
  //  else  MessageDlg('Puertos correctos', mtError, [mbOk], 0);         // Da error, ignoro el motivo
 
@@ -255,8 +256,8 @@ begin
  SPI_Ret :=  FT_Write(SPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten) ;
  If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
  begin
- MessageDlg  ('error al configurar las DIO: ', mtError, [mbOk], 0);
- exit;
+  if not simulating then MessageDlg  ('error al configurar las DIO: ', mtError, [mbOk], 0);
+  exit;
  end;
 
 // Realizar lecturas ADC para estabilizar datos
@@ -269,12 +270,9 @@ begin
    SPI_Ret:=FT_Purge(   SupraSPI_Hdl,2);
    If SPI_Ret <> 0  then
    begin
-   MessageDlg  ('error al purgar el buffer: ', mtError, [mbOk], 0);
-   exit;
+    if not simulating then MessageDlg  ('error al purgar el buffer: ', mtError, [mbOk], 0);
+    exit;
    end;
-
-
-
 
 if (TRAZAS) then MessageDlg('take_initialize', mtError, [mbOk], 0);
 
@@ -357,7 +355,7 @@ begin
        SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
        //Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque //Hermann
        If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
-           MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
+           if not simulating then MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
    end;
 
  // El valor ya viene en formato -32768..0..32767, de modo que la conversión es al valor hex del ascii
@@ -425,7 +423,7 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
   BytesToWrite:= Length (Buffer);
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten) ;
   If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
-   MessageDlg('Error al preparar los datos para escribir ', mtError, [mbOk], 0);
+   if not simulating then MessageDlg('Error al preparar los datos para escribir ', mtError, [mbOk], 0);
 
 
   numADCChannels:=6;
@@ -437,8 +435,8 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
         SPI_Ret:=  FT_GetQueueStatus(SupraSPI_Hdl, @ReceivesBytes);
   Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK)  ;
 
-  If SPI_Ret <> 0
-   then MessageDlg(Format('TForm10.adc_take. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
+  If SPI_Ret <> 0 then
+    if not simulating then MessageDlg(Format('TForm10.adc_take. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
 
   BytesReturned:=0;
 
@@ -452,8 +450,8 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
 
    SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, ReceivesBytes, @BytesReturned);
 
-   If SPI_Ret <> 0
-        then MessageDlg(Format('error al leer los datos ADC (%d)', [SPI_Ret]), mtError, [mbOk], 0);
+   If SPI_Ret <> 0 then
+      if not simulating then MessageDlg(Format('error al leer los datos ADC (%d)', [SPI_Ret]), mtError, [mbOk], 0);
 
 
    numres:=ord(FT_In_Buffer[(chn*2)])*256 +  ( ord(FT_In_Buffer[(chn*2+1)]));
@@ -578,7 +576,7 @@ begin
        begin
          SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
          If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
-             MessageDlg('error al pedir los datos de los ADCs', mtError, [mbOk], 0);
+             if not simulating then MessageDlg('error al pedir los datos de los ADCs', mtError, [mbOk], 0);
        end
        else
          CopyMemory(BufferOut+i*BytesToWrite, Addr(Buffer[1]), BytesToWrite);
@@ -597,7 +595,7 @@ begin
       Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK) or (intentos > 10000);
 
       If SPI_Ret <> FT_OK then
-        MessageDlg(Format('TForm10.adc_take_all. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
+        if not simulating then MessageDlg(Format('TForm10.adc_take_all. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
 
       if (ReceivesBytes < BytesToReceive) then // No nos han llegado los datos en un tiempo prudencial. Intentamos salvar los muebles
       begin
@@ -627,7 +625,7 @@ begin
         SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, BytesToReceive, @BytesReturned);
 
       If SPI_Ret <> 0 then
-        MessageDlg('error al leer los datos ADC ', mtError, [mbOk], 0);
+        if not simulating then MessageDlg('error al leer los datos ADC ', mtError, [mbOk], 0);
 
       for j := 0 to NUM_ADCs-1 do
       begin
@@ -652,7 +650,7 @@ begin
       f:=datosum[j]/n ;
       Str( j, sTexto );
       Str( f, sTexto2 );
-      if TRAZAS then   MessageDlg('El valor medio del canal '+Stexto+' es :'+Stexto2, mtError, [mbOk], 0);
+      if TRAZAS then MessageDlg('El valor medio del canal '+Stexto+' es :'+Stexto2, mtError, [mbOk], 0);
       Result[j]:=f;
     end;
   end
@@ -826,13 +824,13 @@ begin
       bufferToSend := bufferToSend+BytesWritten;
       bytesToSend := bytesToSend-BytesWritten;
     end;
-    MessageDlg(Format('No se ha podido enviar todo el buffer de la rampa. Enviados %d de %d', [BytesWritten, bytesToSend]), mtError, [mbOk], 0);
+    if not simulating then MessageDlg(Format('No se ha podido enviar todo el buffer de la rampa. Enviados %d de %d', [BytesWritten, bytesToSend]), mtError, [mbOk], 0);
     SPI_Ret :=  FT_Write(SupraSPI_Hdl, bufferToSend, bytesToSend, @BytesWritten);
     //Application.ProcessMessages(); //Hermann
   end;
 
   If SPI_Ret <> 0 then
-      MessageDlg('error al enviar el buffer de la rampa', mtError, [mbOk], 0);
+      if not simulating then MessageDlg('error al enviar el buffer de la rampa', mtError, [mbOk], 0);
 
    Result := SPI_Ret;
 end;
@@ -868,7 +866,7 @@ begin
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
-     MessageDlg('error al escribir el puerto digital', mtError, [mbOk], 0);
+     if not simulating then MessageDlg('error al escribir el puerto digital', mtError, [mbOk], 0);
 end;
 
 procedure TForm10.set_attenuator(value: double);
@@ -904,7 +902,7 @@ begin
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
-     MessageDlg('error al escribir el atenuador', mtError, [mbOk], 0);
+     if not simulating then MessageDlg('error al escribir el atenuador', mtError, [mbOk], 0);
 
   attenuator := value;
 end;
