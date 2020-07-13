@@ -226,7 +226,7 @@ P_Scan_Lines:=StrtoInt(ComboBox2.Text);
 IV_Scan_Lines:=StrToInt(Form11.ComboBox1.Text);
 P_Scan_Mean:=Trackbar1.Position;
 P_Scan_Jump:= Trackbar2.Position;
-P_Scan_Size:=Trackbar3.Position/100;
+P_Scan_Size:=Trackbar3.Position/1000;
 
 // Preparamos el fichero o los ficheros temporales para manejar los CITs en formato WSxM
 CreateCitsTempFiles();
@@ -300,7 +300,7 @@ procedure TForm1.TrackBar3Change(Sender: TObject);
 begin
 P_Scan_Size_Old:=P_Scan_Size;
 Label8.Caption:=InttoStr(Trackbar3.Position);
-P_Scan_Size:=Trackbar3.Position/100;
+P_Scan_Size:=Trackbar3.Position/1000;
 Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10,ffFixed,3,1);
 Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10*CalX,ffFixed,3,1);
 Update(nil);

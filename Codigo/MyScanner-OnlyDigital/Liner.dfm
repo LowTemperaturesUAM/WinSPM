@@ -1,6 +1,6 @@
 object Form4: TForm4
-  Left = 686
-  Top = 159
+  Left = 685
+  Top = 163
   Width = 834
   Height = 621
   Caption = 'Liner'
@@ -16,7 +16,7 @@ object Form4: TForm4
   TextHeight = 13
   object Mean: TLabel
     Left = 704
-    Top = 416
+    Top = 464
     Width = 27
     Height = 13
     Caption = 'Mean'
@@ -29,14 +29,14 @@ object Form4: TForm4
   end
   object Jump: TLabel
     Left = 704
-    Top = 442
+    Top = 490
     Width = 25
     Height = 13
     Caption = 'Jump'
   end
   object Label4: TLabel
     Left = 752
-    Top = 296
+    Top = 352
     Width = 52
     Height = 13
     Caption = 'Der. Points'
@@ -233,9 +233,9 @@ object Form4: TForm4
   end
   object Panel1: TPanel
     Left = 704
-    Top = 160
+    Top = 152
     Width = 105
-    Height = 73
+    Height = 121
     TabOrder = 9
     object Label1: TLabel
       Left = 24
@@ -251,6 +251,14 @@ object Form4: TForm4
       Height = 13
       Alignment = taRightJustify
       Caption = '1 of'
+    end
+    object Label2: TLabel
+      Left = 24
+      Top = 76
+      Width = 57
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Time for Ctrl'
     end
     object SpinEdit2: TSpinEdit
       Left = 48
@@ -271,10 +279,20 @@ object Form4: TForm4
       TabOrder = 1
       OnClick = Button6Click
     end
+    object SpinEdit6: TSpinEdit
+      Left = 32
+      Top = 88
+      Width = 41
+      Height = 22
+      MaxValue = 1000
+      MinValue = 0
+      TabOrder = 2
+      Value = 0
+    end
   end
   object RadioGroup1: TRadioGroup
     Left = 704
-    Top = 240
+    Top = 288
     Width = 105
     Height = 49
     Caption = 'Plot'
@@ -306,7 +324,7 @@ object Form4: TForm4
   end
   object RadioGroup2: TRadioGroup
     Left = 704
-    Top = 328
+    Top = 376
     Width = 105
     Height = 81
     Hint = 'Show in Graph'
@@ -329,7 +347,7 @@ object Form4: TForm4
   end
   object SpinEdit3: TSpinEdit
     Left = 744
-    Top = 412
+    Top = 460
     Width = 49
     Height = 22
     Font.Charset = DEFAULT_CHARSET
@@ -346,7 +364,7 @@ object Form4: TForm4
   end
   object SpinEdit4: TSpinEdit
     Left = 744
-    Top = 438
+    Top = 486
     Width = 49
     Height = 22
     MaxValue = 100
@@ -357,7 +375,7 @@ object Form4: TForm4
   end
   object SpinEdit5: TSpinEdit
     Left = 704
-    Top = 292
+    Top = 348
     Width = 41
     Height = 22
     MaxValue = 100
@@ -368,7 +386,7 @@ object Form4: TForm4
   end
   object Button8: TButton
     Left = 704
-    Top = 496
+    Top = 544
     Width = 75
     Height = 17
     Caption = 'Delete Graph'
@@ -484,7 +502,7 @@ object Form4: TForm4
   end
   object chkAcquireBlock: TCheckBox
     Left = 704
-    Top = 464
+    Top = 512
     Width = 113
     Height = 17
     Caption = 'Buffered acquisition'

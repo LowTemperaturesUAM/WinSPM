@@ -66,6 +66,8 @@ type
     ChartLineSerie1: TFastLineSeries;
     chkAcquireBlock: TCheckBox;
     lblAccumulate: TLabel;
+    SpinEdit6: TSpinEdit;
+    Label2: TLabel;
     procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -192,19 +194,28 @@ j,h,k,Princ,Fin: Integer;
 DataCurrentOld: Array [0..1,0..2048] of single;
 adcRead: TVectorDouble;
 pidTimer: Boolean;
-//  here_previous_ctrl:  Double;
+  here_previous_ctrl:  Double;
+NumberControl: Integer;
 
 begin
-if CheckBox2.Checked then FormPID.Button9Click(nil);  // desactiva el feedback
-
 // Le decimos a la aplicación que procese los mensajes por si aún queda algún evento del temporizador, que no interfiera con la adquisición de la rampa
 Application.ProcessMessages();
+NumberControl:=SpinEdit6.Value;
+
+if CheckBox2.Checked then
+   begin
+    FormPID.Button9Click(nil);  // desactiva el feedback
+    FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
+   end;
+
 
 if Form7.CheckBox4.Checked then
 Princ:=Round(-32768*Size_xAxis)
 else
 Princ:=Round(32768*Size_xAxis);
 Fin:=-Princ;
+
+here_previous_ctrl:=0;
 
   // Creamos los vectores DataCurrentOld que usaremos para el accumulate
   for h:=0 to PointNumber -1 do
@@ -229,21 +240,11 @@ Fin:=-Princ;
     //Lectura de UNA rampa de vuelta
     Form10.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
 
-    FormPID.Button8Click(nil);
+    {FormPID.Button8Click(nil);
     sleep(20);
     FormPID.Button9Click(nil);
-
-    {// Vamos a dejar funcionar el control durante 10 ms
-    if (j>0) then
-    begin
-    k:=0;
-    while (k<10000000)  do
-      begin
-       k:=k+1;
-         here_previous_ctrl:=FormPID.Controla(2,here_previous_ctrl, True);
-      end;
-    end;
     }
+
     for h:=0 To PointNumber - 1 do
       begin
       //Calculamos la media de la curva actual (DataCurrent) con las curvas acumuladas hasta ahora (DataCurrentOld)
@@ -257,14 +258,36 @@ Fin:=-Princ;
     RadioGroup2Click(nil); //Pintamos
     Form10.dac_set(x_axisDAC,Princ, nil);
 
+    // Vamos a dejar funcionar el control durante 2 s
+    if (j>0) then
+    begin
+    FormPID.Button8Click(nil);  // activa el feedback
+        k:=0;
+    while (k<NumberControl)  do
+      begin
+       k:=k+1;
+         here_previous_ctrl:=FormPID.Controla(1,here_previous_ctrl, True);   // controla SIN threadtimer
+         Sleep(1);
+      end;
+    FormPID.Button9Click(nil);  // desactiva el feedback
+    //Application.ProcessMessages;
+    end;
+
+    Application.ProcessMessages();
   end;
   if checkBox1.checked then Button4Click(nil); //Guardar automáticamente si está chequeado
   Abort_Measure:=True;
   end;
 
  if (Abort_Measure=True) then Abort_Measure:=False;
- if CheckBox2.Checked then FormPID.Button8Click(nil);
-Application.ProcessMessages();
+
+ if CheckBox2.Checked then
+   begin
+    FormPID.Button8Click(nil);
+    FormPID.thrdtmr1.Enabled:=True; //encendemos el timer
+   end;
+   
+ Application.ProcessMessages();
 
 end;
 
