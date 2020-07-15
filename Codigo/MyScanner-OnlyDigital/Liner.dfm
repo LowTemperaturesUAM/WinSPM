@@ -1,6 +1,6 @@
 object Form4: TForm4
-  Left = 685
-  Top = 163
+  Left = 602
+  Top = 77
   Width = 834
   Height = 621
   Caption = 'Liner'
@@ -253,9 +253,9 @@ object Form4: TForm4
       Caption = '1 of'
     end
     object Label2: TLabel
-      Left = 24
+      Left = 25
       Top = 76
-      Width = 57
+      Width = 56
       Height = 13
       Alignment = taRightJustify
       Caption = 'Time for Ctrl'
