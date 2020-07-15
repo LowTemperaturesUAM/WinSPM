@@ -1,6 +1,6 @@
 object FormPID: TFormPID
-  Left = 310
-  Top = 243
+  Left = 588
+  Top = 350
   Width = 352
   Height = 475
   Caption = 'FormPID'

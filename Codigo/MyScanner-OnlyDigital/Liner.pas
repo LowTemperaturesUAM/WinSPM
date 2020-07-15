@@ -205,7 +205,7 @@ NumberControl:=SpinEdit6.Value;
 if CheckBox2.Checked then
    begin
     FormPID.Button9Click(nil);  // desactiva el feedback
-    FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
+    //FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
    end;
 
 
@@ -261,6 +261,7 @@ here_previous_ctrl:=0;
     // Vamos a dejar funcionar el control durante 2 s
     if (j>0) then
     begin
+    FormPID.thrdtmr1.Enabled:=False;
     FormPID.Button8Click(nil);  // activa el feedback
         k:=0;
     while (k<NumberControl)  do
@@ -270,6 +271,7 @@ here_previous_ctrl:=0;
          Sleep(1);
       end;
     FormPID.Button9Click(nil);  // desactiva el feedback
+    FormPID.thrdtmr1.Enabled:=True;
     //Application.ProcessMessages;
     end;
 
@@ -284,10 +286,10 @@ here_previous_ctrl:=0;
  if CheckBox2.Checked then
    begin
     FormPID.Button8Click(nil);
-    FormPID.thrdtmr1.Enabled:=True; //encendemos el timer
+    //FormPID.thrdtmr1.Enabled:=True; //encendemos el timer
    end;
-   
- Application.ProcessMessages();
+
+ //Application.ProcessMessages();
 
 end;
 

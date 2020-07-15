@@ -46,9 +46,9 @@ object Form11: TForm11
     Width = 65
     Height = 21
     ItemHeight = 13
-    ItemIndex = 3
+    ItemIndex = 5
     TabOrder = 2
-    Text = '64'
+    Text = '256'
     OnChange = ComboBox1Change
     Items.Strings = (
       '8'
