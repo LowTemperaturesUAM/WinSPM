@@ -432,7 +432,7 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
-k, FinY: Integer;
+k, Prin, Fin: Integer;
 A:Boolean;
 begin
 
@@ -444,6 +444,12 @@ CheckBox2.Checked:=False;
 StopAction:=False;
 Button10.Enabled:=True;
 Form3.Show;
+
+//Llevar el DAC a la posición inicial
+Prin:=Round(int(32767*P_Scan_Size));
+if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, 0, -Prin, P_Scan_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+else MoveDac(nil, YDAC, 0, -Prin, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+
  k:=0;
 while (StopAction<>True) do
  begin
@@ -458,10 +464,10 @@ while (StopAction<>True) do
  end;
  end;
 
-// Devuelvo la punta a la posición central
-FinY:=Round(int(32767*P_Scan_Size)); //Vale tanto para el test en X como en Y
-MoveDac(nil, XDAC, FinY, 0, P_Scan_Jump, nil);
-MoveDac(nil, YDAC, FinY, 0, P_Scan_Jump, nil);
+// Para devolver la punta a su sitio, hace falta el último valor en el que está el DAC. Se lleva a makeline
+//Fin:=Round(int(32767*P_Scan_Size)); //Vale tanto para el test en X como en Y
+//if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, Fin, 0, P_Scan_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+//else MoveDac(nil, YDAC, Fin, 0, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 Button10.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
@@ -473,7 +479,7 @@ end;
 
 procedure TForm1.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
 var
-i,j,k,total,OldX,OldY, channelToPlot, flatten: Integer;
+i,j,k,total,OldX,OldY,LastX,LastY, channelToPlot, flatten: Integer;
 Princ,Princ2,Fin,Step: Integer;
 xvolt,yvolt,yFactor: single;
 MakeX,MakeY: Boolean;
@@ -499,26 +505,33 @@ begin
   MakeX:=False;
   MakeY:=False;
 
-OldX:=0;
+OldX:=0; // dado que son dacs diferentes, el dac del barrido está en 0
 OldY:=0;
+
+LastX:=0;
+LastY:=0;
 
 if (RadioGroup1.ItemIndex=0) then
   MakeX:=True
 else
   MakeY:=True;
 
+  //modify rounding, Hermann 22/09/2020
 if MakeX then
-  Princ:=Round(OldX-int(32768*P_Scan_Size))
+  begin
+   Princ:=OldX-Round(32768*P_Scan_Size);
+  end
 else
-  Princ:=Round(OldY-int(32768*P_Scan_Size));
-
+  begin
+  Princ:=OldY-Round(32768*P_Scan_Size);
+  end;
 if (P_Scan_Size=0) then
   P_Scan_Size:=1;
 
 if MakeX then
-  Fin:=Round(OldX+int(32768*P_Scan_Size))
+  Fin:=OldX+Round(32768*P_Scan_Size)
 else
-  Fin:=Round(OldY+int(32768*P_Scan_Size));
+  Fin:=OldY+Round(32768*P_Scan_Size);
 
 if (abs(Fin)>32768) or (Princ<-32768) then
 begin
@@ -552,7 +565,7 @@ begin
 end;
 
 //Forth
-i:=0;
+i:=1; // change to one, verify start
 
 QueryPerformanceFrequency(F);
 while (i<P_Scan_Lines) do
@@ -570,7 +583,11 @@ begin
   if MakeX then  // Scan in X
   begin
     if (not StopAction) then
+      begin
       MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);
+      LastX:=OldX; // hay que acordarse de donde se sale para volver a aparcar la punta. Esto está un poco mal
+      // lo del temporizador lo deja todo muy oscuro, no comprendo bien el resto del código. Hermann 22/09/20
+      end;
 
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
@@ -626,12 +643,16 @@ begin
         Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
   end
   else   // Scan in Y
   begin
     if (not StopAction) then
-      MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);
+      begin
+        MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);
+        LastY:=OldY; // Lo mismo que arriba.
+      end;
 
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
@@ -684,7 +705,8 @@ begin
       if ReadCurrent=True then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
   end;
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
@@ -697,7 +719,8 @@ end;
 contadorIV:=1;
 
 //Back
-i:=0;
+// change i to one
+i:=1;
 if MakeX then Princ2:=OldX else Princ2:=OldY;
 while (i<P_Scan_Lines)  do
 begin
@@ -714,8 +737,10 @@ begin
   if MakeX then
   begin
     if (not StopAction) then
-      MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);
-
+      begin
+        MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);
+        LastX:=OldX;
+      end;
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
       CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);
@@ -775,12 +800,16 @@ begin
       if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
   end
   else
   begin
     if (not StopAction) then
-      MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);
+      begin
+        MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);
+        LastY:=OldY;
+      end;
 
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
@@ -836,7 +865,8 @@ begin
       if ReadCurrent=True then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
     end;
 
-    ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,i,LineNr]);
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,i,LineNr]);
   end;
 
     QueryPerformanceCounter(C2); // Lectura del cronómetro
@@ -846,6 +876,13 @@ begin
     Application.ProcessMessages;
     i:=i+1;
   end;
+
+    if StopAction then
+    begin
+      // Si salimos, hay que llevar la punta a su sitio
+      if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Scan_Jump, nil)
+      else MoveDac(nil, YDAC, LastY, 0, P_Scan_Jump, nil);
+    end;
 
   // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
   // Form3.xyyGraph1.Update;
@@ -1097,8 +1134,8 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        MoveDac(nil, XDAC, FinY, 0, P_Scan_Jump, nil);
-        MoveDac(nil, YDAC, FinY, 0, P_Scan_Jump, nil);
+        if (StopAction=False) then MoveDac(nil, XDAC, PrincY, 0, P_Scan_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
+        MoveDac(nil, YDAC, DacvalY, 0, P_Scan_Jump, nil); //porque en la X se vuelve con makeline
       end
       else //Now scan in Y
       begin
@@ -1126,8 +1163,8 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        MoveDac(nil, XDAC, FinX, 0, P_Scan_Jump, nil);
-        MoveDac(nil, YDAC, FinX, 0, P_Scan_Jump, nil);
+        MoveDac(nil, XDAC, DacValX, 0, P_Scan_Jump, nil);
+        if (StopAction=False) then MoveDac(nil, YDAC, PrincY, 0, P_Scan_Jump, nil);
       end;
 
       Button10.Enabled:=False;
@@ -1174,18 +1211,39 @@ end;
 // Nacho, agosto de 2017. Si se pasa un buffer válido, en lugar de enviar el dato lo añade al buffer
 procedure TForm1.MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 var
-j: Integer;
-interv: Integer;
+j,StepNumr,StepSign: Integer;
+interv: Double;
+Go_jump: Integer;
 
 begin
-  j:=0;
-  interv:=Round((fin-init)/jump);
-  while (j<jump) do
+  {j:=0;
+
+  interv:=(fin-init)/jump;
+
+  while (j<jump+1) do
   begin
+  Go_jump:=Round(init+j*interv);
+  Form10.dac_set(DacNr,Go_jump, BufferOut);
   j:=j+1;
-  Form10.dac_set(DacNr,init+j*interv, BufferOut);
   Application.ProcessMessages;
   end;
+  }
+
+  j:=0;
+
+  StepNumr:=abs(Round((fin-init)/jump));
+  if (abs(fin-init)>0) then StepSign:=Round((fin-init)/abs(fin-init))
+  else StepSign:=1;
+
+  while (j<StepNumr+1) do
+  begin
+  Go_jump:=Round(init+StepSign*j*jump);
+  Form10.dac_set(DacNr,Go_jump, BufferOut);
+  j:=j+1;
+  Application.ProcessMessages;
+  end;
+  
+  Form10.dac_set(DacNr,fin, BufferOut);
 end;
 
 procedure TForm1.SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);

@@ -1,6 +1,6 @@
 object Form3: TForm3
-  Left = 214
-  Top = 135
+  Left = 238
+  Top = 156
   Width = 989
   Height = 639
   Caption = 'Form3'
@@ -32,9 +32,9 @@ object Form3: TForm3
   object Label5: TLabel
     Left = 56
     Top = 248
-    Width = 6
+    Width = 18
     Height = 13
-    Caption = '1'
+    Caption = '100'
   end
   object Label2: TLabel
     Left = 48
@@ -67,7 +67,7 @@ object Form3: TForm3
   object lblOffset: TLabel
     Left = 700
     Top = 578
-    Width = 51
+    Width = 49
     Height = 13
     Caption = 'Brightness'
   end
@@ -224,12 +224,12 @@ object Form3: TForm3
     Top = 143
     Width = 33
     Height = 106
-    Max = 500
+    Max = 100
     Min = 1
     Orientation = trVertical
     Frequency = 10
-    Position = 1
-    SelEnd = 10000
+    Position = 2
+    SelEnd = 100
     SelStart = 1
     TabOrder = 12
     TickStyle = tsNone
@@ -303,8 +303,6 @@ object Form3: TForm3
     Width = 145
     Height = 17
     Caption = 'Show remaining time'
-    Checked = True
-    State = cbChecked
     TabOrder = 17
   end
   object trckbrZoom: TTrackBar
