@@ -428,6 +428,7 @@ end;
 procedure TForm1.ComboBox2Change(Sender: TObject);
 begin
 P_Scan_Lines:=StrtoInt(ComboBox2.Text);  // Número de filas y columnas
+Form11.ComboBox1.ItemIndex := ComboBox2.ItemIndex;
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
@@ -565,7 +566,7 @@ begin
 end;
 
 //Forth
-i:=1; // change to one, verify start
+i:=0;
 
 QueryPerformanceFrequency(F);
 while (i<P_Scan_Lines) do
@@ -584,7 +585,7 @@ begin
   begin
     if (not StopAction) then
       begin
-      MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);
+      if (i<>0)then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);     // El primer paso debe de quedarse quieto !
       LastX:=OldX; // hay que acordarse de donde se sale para volver a aparcar la punta. Esto está un poco mal
       // lo del temporizador lo deja todo muy oscuro, no comprendo bien el resto del código. Hermann 22/09/20
       end;
@@ -593,7 +594,7 @@ begin
     begin
       if (CheckBox2.Checked)  and (Form11.CheckBox1.Checked) then
       begin
-        CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);
+        CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);  // el i cambiado por Hermann
 
         if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
         for k := 0 to Form4.PointNumber-1 do
@@ -650,7 +651,7 @@ begin
   begin
     if (not StopAction) then
       begin
-        MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);
+        if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
         LastY:=OldY; // Lo mismo que arriba.
       end;
 
@@ -719,8 +720,8 @@ end;
 contadorIV:=1;
 
 //Back
-// change i to one
-i:=1;
+
+i:=0;
 if MakeX then Princ2:=OldX else Princ2:=OldY;
 while (i<P_Scan_Lines)  do
 begin
@@ -738,7 +739,7 @@ begin
   begin
     if (not StopAction) then
       begin
-        MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);
+        if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
         LastX:=OldX;
       end;
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
@@ -807,7 +808,7 @@ begin
   begin
     if (not StopAction) then
       begin
-        MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);
+        if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo moverse cuando empezado
         LastY:=OldY;
       end;
 
