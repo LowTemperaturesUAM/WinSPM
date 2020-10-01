@@ -429,6 +429,7 @@ procedure TForm1.ComboBox2Change(Sender: TObject);
 begin
 P_Scan_Lines:=StrtoInt(ComboBox2.Text);  // Número de filas y columnas
 Form11.ComboBox1.ItemIndex := ComboBox2.ItemIndex;
+Form11.ComboBox1Change(nil)
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
