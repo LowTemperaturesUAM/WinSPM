@@ -1,6 +1,6 @@
 object FormPID: TFormPID
-  Left = 588
-  Top = 350
+  Left = 1050
+  Top = 195
   Width = 352
   Height = 475
   Caption = 'FormPID'
@@ -271,8 +271,8 @@ object FormPID: TFormPID
     Top = 336
     Width = 65
     Height = 22
-    MaxValue = 0
-    MinValue = 0
+    MaxValue = 100
+    MinValue = 1
     TabOrder = 11
     Value = 1
     OnChange = SpinEdit5Change
@@ -363,6 +363,25 @@ object FormPID: TFormPID
     TabOrder = 20
     Value = 1
     OnChange = se1Change
+  end
+  object Button1: TButton
+    Left = 152
+    Top = 8
+    Width = 75
+    Height = 25
+    Caption = 'SleepCtrl'
+    TabOrder = 21
+    OnClick = Button1Click
+  end
+  object SpinEdit6: TSpinEdit
+    Left = 152
+    Top = 40
+    Width = 65
+    Height = 22
+    MaxValue = 10000
+    MinValue = 1
+    TabOrder = 22
+    Value = 1
   end
   object thrdtmr1: TThreadedTimer
     AllowZero = True

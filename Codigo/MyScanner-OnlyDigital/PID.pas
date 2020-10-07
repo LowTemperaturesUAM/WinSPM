@@ -1,4 +1,4 @@
-unit PID;            
+unit PID;
 
 interface
 
@@ -49,6 +49,8 @@ type
     thrdtmr1: TThreadedTimer;
     se1: TSpinEdit;
     lbl1: TLabel;
+    Button1: TButton;
+    SpinEdit6: TSpinEdit;
     procedure SpinEdit3Change(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     procedure ScrollBar2Change(Sender: TObject);
@@ -74,6 +76,7 @@ type
     procedure Gain_DChange(Sender: TObject);
     procedure thrdtmr1Timer(Sender: TObject);
     procedure se1Change(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
  private
     { Private declarations }
   public
@@ -314,6 +317,18 @@ begin
   TryStrToInt64(se1.Text, temp64);
   thrdtmr1.Interval := temp64;
   Application.ProcessMessages;
+end;
+
+procedure TFormPID.Button1Click(Sender: TObject);
+var
+ Past,TickTime: longint;
+
+ begin
+ TickTime:=SpinEdit6.Value;
+ Past := GetTickCount;
+ repeat
+ application.ProcessMessages;
+ Until (GetTickCount - Past) >= TickTime;
 end;
 
 end.

@@ -1063,8 +1063,9 @@ PrincX,PrincY,FinX, FinY,Step: Integer;
 PaintLines: Boolean;
 Source: TRect;
 Dest: TRect;
-
-
+DacValX_Local,DacValY_Local: Integer; // estábamos usando una variable global para Escanear, eso ha dado problemas
+          // usamos pues YDAC_Pos -> DacValY
+          // y YDAC -> DacValY_Local
 begin
 
 repeat
@@ -1080,6 +1081,8 @@ repeat
   h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*Form10.attenuator*10*1e-9;
   h.xn:=P_Scan_Lines;
   h.yn:=P_Scan_Lines;
+
+
 
   StopAction:=False;
   Button10.Enabled:=True;
@@ -1107,7 +1110,7 @@ repeat
    //sleep(500*StrToInt(SpinEdit3.Text));
    //FormPID.se1.Text:='0';
    //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
-
+   FormPID.Button1Click(nil);
 
    i:=0;
    if (RadioGroup1.ItemIndex=0) then // Scan in X
@@ -1123,8 +1126,8 @@ repeat
         begin
           p:=p+1;
           TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
-          DacvalY:=PrincY+Step*i;
-          MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY, P_Scan_Jump, nil);
+          DacValY_Local:=PrincY+Step*i;
+          if (i<>0) then MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
 
           if (p>=EraseLines) then
@@ -1137,7 +1140,7 @@ repeat
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
         if (StopAction=False) then MoveDac(nil, XDAC, PrincY, 0, P_Scan_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
-        MoveDac(nil, YDAC, DacvalY, 0, P_Scan_Jump, nil); //porque en la X se vuelve con makeline
+        MoveDac(nil, YDAC, DacvalY_Local, 0, P_Scan_Jump, nil); //porque en la X se vuelve con makeline
       end
       else //Now scan in Y
       begin
@@ -1152,8 +1155,8 @@ repeat
         begin
           p:=p+1;
           TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
-          DacvalX:=PrincX+Step*i;
-          MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX, P_Scan_Jump, nil);
+          DacvalX_Local:=PrincX+Step*i;
+          if (i<>0) then MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
 
            if (p>=EraseLines) then
@@ -1165,7 +1168,7 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        MoveDac(nil, XDAC, DacValX, 0, P_Scan_Jump, nil);
+        MoveDac(nil, XDAC, DacValX_Local, 0, P_Scan_Jump, nil);
         if (StopAction=False) then MoveDac(nil, YDAC, PrincY, 0, P_Scan_Jump, nil);
       end;
 
@@ -1246,6 +1249,7 @@ begin
   end;
   
   Form10.dac_set(DacNr,fin, BufferOut);
+  Application.ProcessMessages;
 end;
 
 procedure TForm1.SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
