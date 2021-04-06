@@ -184,6 +184,7 @@ try
     begin
       Bitmap.Canvas.Pixels[i, j] := DatatoPaint[j, i]*$010101;
     end;
+    Application.ProcessMessages;
   end;
 
   RectBitmap.Top := 0;
