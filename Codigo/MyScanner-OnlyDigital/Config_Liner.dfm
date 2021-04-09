@@ -3,7 +3,7 @@ object Form7: TForm7
   Top = 583
   Width = 472
   Height = 231
-  Caption = 'Config_Liner'
+  Caption = 'BiasConfig'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

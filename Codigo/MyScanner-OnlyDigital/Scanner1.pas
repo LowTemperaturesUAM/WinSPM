@@ -70,9 +70,6 @@ type
     btnCenterAtTip: TButton;
     Button9: TButton;
     Button15: TButton;
-    lbl1: TLabel;
-    Label9: TLabel;
-    SpinEdit3: TSpinEdit;
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);

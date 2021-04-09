@@ -3,7 +3,7 @@ object Form6: TForm6
   Top = 326
   Width = 421
   Height = 212
-  Caption = 'Config_Trip'
+  Caption = 'ConfigCoarseApproach'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

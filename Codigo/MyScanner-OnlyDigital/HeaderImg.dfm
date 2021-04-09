@@ -3,7 +3,7 @@ object Form8: TForm8
   Top = 238
   Width = 422
   Height = 731
-  Caption = 'Form8'
+  Caption = 'SaveConfig'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

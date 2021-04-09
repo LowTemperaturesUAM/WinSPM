@@ -3,7 +3,7 @@ object Form2: TForm2
   Top = 230
   Width = 453
   Height = 414
-  Caption = 'Config_Scanner'
+  Caption = 'WinSPMConfig'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

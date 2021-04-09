@@ -3,7 +3,7 @@ object Form4: TForm4
   Top = 77
   Width = 834
   Height = 621
-  Caption = 'Liner'
+  Caption = 'Bias Module'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

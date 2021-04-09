@@ -3,7 +3,7 @@ object Form5: TForm5
   Top = 673
   Width = 350
   Height = 214
-  Caption = 'Trip'
+  Caption = 'Coarse Aproach'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
