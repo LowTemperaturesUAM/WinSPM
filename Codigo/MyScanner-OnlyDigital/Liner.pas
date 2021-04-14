@@ -259,7 +259,7 @@ here_previous_ctrl:=0;
     Form10.dac_set(x_axisDAC,Princ, nil);
 
     // Vamos a dejar funcionar el control durante 2 s
-    if (j>0) then
+    if (j>=0) then
     begin
     FormPID.thrdtmr1.Enabled:=False;
     FormPID.Button8Click(nil);  // activa el feedback

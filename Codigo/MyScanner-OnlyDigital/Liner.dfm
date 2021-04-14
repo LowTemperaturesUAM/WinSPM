@@ -1,6 +1,6 @@
 object Form4: TForm4
-  Left = 602
-  Top = 77
+  Left = 168
+  Top = 230
   Width = 834
   Height = 621
   Caption = 'Bias Module'

@@ -124,7 +124,7 @@ type
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
     procedure btnCenterAtTipClick(Sender: TObject);
     procedure Button15Click(Sender: TObject);
-    procedure SpinEdit3Change(Sender: TObject);
+    //procedure SpinEdit3Change(Sender: TObject);
 
 
   private
@@ -2170,10 +2170,10 @@ begin
   Update(self);
 end;
 
-procedure TForm1.SpinEdit3Change(Sender: TObject);
-begin
-SleepDo := StrtoInt(SpinEdit3.Text);
-end;
+//procedure TForm1.SpinEdit3Change(Sender: TObject);
+//begin
+//SleepDo := StrtoInt(SpinEdit3.Text);
+//end;
 
 end.
 
