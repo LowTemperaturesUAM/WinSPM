@@ -1254,6 +1254,7 @@ var
 MiFile,FileNumber : string;
 k,l: Integer;
 DataWsxmtoPlotinFile: Array [0..512,0..512] of Double;
+DataLine: Array [0..512] of Double;
 
 begin
   Form1.Button8.Enabled:=False; // se desactiva para que no se pueda grabar sobre el fichero abierto.
@@ -1282,9 +1283,10 @@ begin
   begin
     for k:=0 to h.yn-1 do
     begin
-      F.WriteBuffer(DataWsxmtoPlotinFile[k,l],SizeOf(Double));
-      Application.ProcessMessages;  // para que funcione el control mientras que graba. No comprendo bien por qué tarda tanto.
+      DataLine[k] := DataWsxmtoPlotinFile[k,l]
     end;
+    F.WriteBuffer(DataLine,SizeOf(Double)*h.yn);
+    Application.ProcessMessages;  // para que funcione el control mientras que graba. No comprendo bien por qué tarda tanto.
   end;
   F.Destroy;
   Form1.Button8.Enabled:=True; // se activa para que no se pueda grabar sobre el fichero abierto.
