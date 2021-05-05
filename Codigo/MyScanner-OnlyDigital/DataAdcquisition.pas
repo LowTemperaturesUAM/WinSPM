@@ -67,6 +67,9 @@ type
     Edit1: TEdit;
     Label8: TLabel;
     tmr55: TTimer;
+    Timer_expansion: TTimer;
+    Save_Z: TButton;
+    Stop_Z: TButton;
     procedure Button1Click(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     function InitDataAcq : boolean ;
@@ -83,6 +86,9 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
+    procedure Timer_expansionTimer(Sender: TObject);
+    procedure Save_ZClick(Sender: TObject);
+    procedure Stop_ZClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -90,6 +96,7 @@ type
     { Public declarations }
     attenuator: Double;
     StopAction: Boolean;
+    FileExpansion: TextFile;
   end;
 
 var
@@ -1025,6 +1032,31 @@ end;
 procedure TForm10.Edit1Change(Sender: TObject);
 begin
 Label8.Caption:='1';
+end;
+
+procedure TForm10.Timer_expansionTimer(Sender: TObject);
+begin
+  Writeln(FileExpansion,adc_take(Form1.ADCTopo,Form1.ADCTopo,16));
+end;
+
+procedure TForm10.Save_ZClick(Sender: TObject);
+begin
+  Label7.Font.Color :=clGreen;
+  Label7.Caption :='Saving';
+  AssignFile(FileExpansion, Concat(Edit1.Text,'_',Label8.Caption,'.txt'));
+  ReWrite(FileExpansion);
+
+  Timer_expansion.Enabled:=True;
+end;
+
+procedure TForm10.Stop_ZClick(Sender: TObject);
+begin
+  Label7.Font.Color :=clRed;
+  Label7.Caption :='Not saving';
+
+  Timer_expansion.Enabled:=False;
+  CloseFile(FileExpansion);
+  Label8.Caption:=IntToStr(StrToInt(Label8.Caption)+1);
 end;
 
 end.
