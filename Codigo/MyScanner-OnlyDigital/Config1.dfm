@@ -1,6 +1,6 @@
 object Form2: TForm2
-  Left = 257
-  Top = 230
+  Left = 119
+  Top = 228
   Width = 453
   Height = 414
   Caption = 'WinSPMConfig'
@@ -441,7 +441,11 @@ object Form2: TForm2
         '7'
         '6'
         '5'
-        '4')
+        '4'
+        '3'
+        '2'
+        '1'
+        '0')
     end
     object Edit5: TEdit
       Left = 304

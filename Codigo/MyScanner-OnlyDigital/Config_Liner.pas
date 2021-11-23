@@ -13,9 +13,7 @@ type
     Label2: TLabel;
     SpinEdit1: TSpinEdit;
     RadioGroup1: TRadioGroup;
-    Label3: TLabel;
     Label4: TLabel;
-    SpinEdit2: TSpinEdit;
     Edit1: TEdit;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
@@ -25,16 +23,21 @@ type
     CheckBox4: TCheckBox;
     Pane3: TPanel;
     RadioGroup2: TRadioGroup;
+    Label3: TLabel;
+    seADCxaxis: TSpinEdit;
+    pnl1: TPanel;
+    seReduceRampFactor: TSpinEdit;
+    chkReduceRamp: TCheckBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SpinEdit1Change(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
-    procedure SpinEdit2Change(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
     procedure CheckBox3Click(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
     procedure RadioGroup2Click(Sender: TObject);
+    procedure seADCxaxisChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -56,7 +59,7 @@ if RadioGroup1.ItemIndex=0 then Form4.ReadXfromADC:=True else
 Form4.ReadXfromADC:=False;
 
 Form4.x_axisDac:=SpinEdit1.Value;
-Form4.x_axisADC:=SpinEdit2.Value;
+Form4.x_axisADC:=seADCxaxis.Value;
 Form4.x_axisMult:=StrtoFloat(Edit1.Text);
 Form4.NumCol:=1;
 if Checkbox1.checked then Form4.NumCol:=Form4.NumCol+1;
@@ -77,11 +80,6 @@ procedure TForm7.RadioGroup1Click(Sender: TObject);
 begin
 if RadioGroup1.ItemIndex=0 then Form4.ReadXfromADC:=True else
 Form4.ReadXfromADC:=False;
-end;
-
-procedure TForm7.SpinEdit2Change(Sender: TObject);
-begin
-  TryStrToInt(SpinEdit2.Text, Form4.x_axisADC);
 end;
 
 procedure TForm7.Edit1Change(Sender: TObject);
@@ -134,6 +132,11 @@ if RadioGroup2.ItemIndex = 1 then Edit1.Text:='1';
 if RadioGroup2.ItemIndex = 2 then Edit1.Text:='0.1';
 if RadioGroup2.ItemIndex = 3 then Edit1.Text:='0.01';
 if RadioGroup2.ItemIndex = 4 then Edit1.Text:='0.001';
+end;
+
+procedure TForm7.seADCxaxisChange(Sender: TObject);
+begin
+  TryStrToInt(seADCxaxis.Text, Form4.x_axisAdc);
 end;
 
 end.

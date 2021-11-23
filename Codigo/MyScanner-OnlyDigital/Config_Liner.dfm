@@ -1,8 +1,8 @@
 object Form7: TForm7
-  Left = 190
-  Top = 583
-  Width = 472
-  Height = 231
+  Left = 278
+  Top = 411
+  Width = 490
+  Height = 298
   Caption = 'BiasConfig'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -34,19 +34,19 @@ object Form7: TForm7
       Height = 13
       Caption = 'x axis DAC'
     end
-    object Label3: TLabel
-      Left = 240
-      Top = 24
-      Width = 22
-      Height = 13
-      Caption = 'ADC'
-    end
     object Label4: TLabel
       Left = 240
-      Top = 48
+      Top = 56
       Width = 41
       Height = 13
       Caption = 'Multiplier'
+    end
+    object Label3: TLabel
+      Left = 240
+      Top = 16
+      Width = 22
+      Height = 13
+      Caption = 'ADC'
     end
     object SpinEdit1: TSpinEdit
       Left = 72
@@ -72,23 +72,12 @@ object Form7: TForm7
       TabOrder = 1
       OnClick = RadioGroup1Click
     end
-    object SpinEdit2: TSpinEdit
-      Left = 296
-      Top = 16
-      Width = 49
-      Height = 22
-      MaxValue = 5
-      MinValue = 0
-      TabOrder = 2
-      Value = 0
-      OnChange = SpinEdit2Change
-    end
     object Edit1: TEdit
       Left = 296
-      Top = 40
+      Top = 48
       Width = 49
       Height = 21
-      TabOrder = 3
+      TabOrder = 2
       Text = '10'
       OnChange = Edit1Change
     end
@@ -98,8 +87,19 @@ object Form7: TForm7
       Width = 65
       Height = 17
       Caption = 'Reverse'
-      TabOrder = 4
+      TabOrder = 3
       OnClick = CheckBox4Click
+    end
+    object seADCxaxis: TSpinEdit
+      Left = 288
+      Top = 16
+      Width = 49
+      Height = 22
+      MaxValue = 7
+      MinValue = 0
+      TabOrder = 4
+      Value = 0
+      OnChange = seADCxaxisChange
     end
   end
   object Panel2: TPanel
@@ -176,6 +176,31 @@ object Form7: TForm7
         'Other')
       TabOrder = 0
       OnClick = RadioGroup2Click
+    end
+  end
+  object pnl1: TPanel
+    Left = 8
+    Top = 192
+    Width = 441
+    Height = 57
+    TabOrder = 3
+    object seReduceRampFactor: TSpinEdit
+      Left = 200
+      Top = 8
+      Width = 49
+      Height = 22
+      MaxValue = 20
+      MinValue = 1
+      TabOrder = 0
+      Value = 0
+    end
+    object chkReduceRamp: TCheckBox
+      Left = 24
+      Top = 8
+      Width = 161
+      Height = 17
+      Caption = 'Reduce Ramp by a factor of'
+      TabOrder = 1
     end
   end
 end

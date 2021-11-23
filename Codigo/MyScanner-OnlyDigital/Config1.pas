@@ -100,6 +100,12 @@ Form1.MultI:=StrtoInt(Edit4.Text);
 Form1.ReadTopo:=Checkbox1.checked;
 Form1.ReadCurrent:=Checkbox2.checked;
 
+//añadido para poder leer other
+Form1.ReadOther:=Checkbox3.checked;
+Form1.ADCOther:=SpinEdit5.Value;
+Form1.AmpOther:=StrtoFloat(ComboBox5.Text);
+Form1.MultOther:=StrtoInt(Edit5.Text);
+
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
 begin

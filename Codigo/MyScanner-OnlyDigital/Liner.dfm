@@ -1,8 +1,8 @@
 object Form4: TForm4
-  Left = 168
-  Top = 230
-  Width = 834
-  Height = 621
+  Left = 388
+  Top = 114
+  Width = 852
+  Height = 649
   Caption = 'Bias Module'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

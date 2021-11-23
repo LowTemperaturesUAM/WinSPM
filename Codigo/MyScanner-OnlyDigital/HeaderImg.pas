@@ -36,7 +36,6 @@ uses Scanner1, PID;
 {$R *.DFM}
 
 procedure TForm8.FormCreate(Sender: TObject);
-var i: Integer;
 begin
   Button1Click(nil);
 end;

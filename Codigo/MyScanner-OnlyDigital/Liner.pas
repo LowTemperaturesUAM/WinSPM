@@ -157,7 +157,7 @@ Abort_Measure:=False;
 if Form7.RadioGroup1.ItemIndex=0 then ReadXfromADC:=True else
 ReadXfromADC:=False;
 x_axisDac:=Form7.SpinEdit1.Value;
-x_axisADC:=Form7.SpinEdit2.Value;
+x_axisAdc:=Form7.seADCxaxis.Value;
 x_axisMult:=StrtoFloat(Form7.Edit1.Text);
 NumCol:=1;
 if Form7.Checkbox1.checked then NumCol:=NumCol+1;
@@ -208,11 +208,25 @@ if CheckBox2.Checked then
     //FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
    end;
 
-
-if Form7.CheckBox4.Checked then
-Princ:=Round(-32768*Size_xAxis)
+// Be careful with the following things, because the voltage will be suddenly modified
+if Form7.CheckBox4.Checked then   // This is when we want to reverse the bias
+begin
+if Form7.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
+  Princ:=Round(-32768/Form7.seReduceRampFactor.Value*Size_xAxis)
+  else
+  Princ:=Round(-32768*Size_xAxis);
+end
 else
+begin
+if Form7.chkReduceRamp.Checked then
+  Princ:=Round(32768/Form7.seReduceRampFactor.Value*Size_xAxis)
+  else
+  Princ:=Round(32768*Size_xAxis);
+end;
 Princ:=Round(32768*Size_xAxis);
+
+
+
 Fin:=-Princ;
 
 here_previous_ctrl:=0;

@@ -131,12 +131,14 @@ type
     { Private declarations }
   public
     { Public declarations }
-  XDAC,YDAC,XDAC_Pos,YDAC_Pos, ADCTopo, ADCI, MultI: Integer;
-  AmpTopo, AmpI, AmpX,Ampy,AmpX_Pos,AmpY_Pos,CalTopo,CalX,CalY: Single;
+//añadidas nuevas variables para leer other, noviembre de 2021.
+  XDAC,YDAC,XDAC_Pos,YDAC_Pos, ADCTopo, ADCI, ADCOther, MultI, MultOther: Integer;
+  AmpTopo, AmpI, AmpOther, AmpX,Ampy,AmpX_Pos,AmpY_Pos,CalTopo,CalX,CalY: Single;
+
   SleepDo: Integer;
   BiasDAC: Integer;
   MultBias: Single;
-  ReadTopo, ReadCurrent: Boolean;
+  ReadTopo, ReadCurrent, ReadOther: Boolean;
   PosXSTM,PosYSTM,DacValX,DacvalY: Integer;
   StopAction,PauseAction: Boolean;
   P_Scan_Mean, P_Scan_Jump, P_Scan_Lines, IV_Scan_Lines: Integer;
@@ -166,6 +168,7 @@ type
   TiempoMedio: Single;
   TiempoInicial: Int64;
   XOffset, YOffset: Double; // Posición central del área de barrido entre -1 y 1
+  VersionDivider: Boolean; // si la versión del LHA contiene divisores o no
   end;
 
 var
@@ -189,6 +192,11 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
+  //control sobre si la versión del LHA contiene divisores o no
+if Application.MessageBox('LHA Version with multiple dividers ?','LHA version', MB_YESNO)=IDYES
+  then VersionDivider:=True
+  else VersionDivider:=False;
+
 Form2.Show;
 XDAC:=Form2.SpinEdit1.Value;
 YDAC:=Form2.SpinEdit2.Value;
@@ -342,8 +350,7 @@ StopAction:=True;
 end;
 
 procedure TForm1.SetCanvasZoomFactor(Canvas: TCanvas; AZoomFactor: Integer);
-var
-  i: Integer;
+
 begin
   if AZoomFactor = 100 then
     SetMapMode(Canvas.Handle, MM_TEXT)
@@ -374,12 +381,6 @@ begin
 end;
 
 procedure TForm1.PaintBox1Paint(Sender: TObject);
-var
-bmp: TBitmap;
-ptr : PByteArray ;
-rect : TRect ;
-i,j,c: Integer;
-
 begin
 Update(nil);
 end;
@@ -431,7 +432,7 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
-k, Prin, Fin: Integer;
+k, Prin: Integer;
 A:Boolean;
 begin
 
@@ -1214,7 +1215,6 @@ end;
 procedure TForm1.MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 var
 j,StepNumr,StepSign: Integer;
-interv: Double;
 Go_jump: Integer;
 
 begin

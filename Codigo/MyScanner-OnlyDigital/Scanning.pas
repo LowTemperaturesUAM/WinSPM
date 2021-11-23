@@ -128,7 +128,7 @@ end;
 
 procedure TForm3.FillImg(Sender: TObject; Data: HImg; Size: Integer; Sens: Integer);
 var
-i,j,SizeofPixel,SepPixel: Integer;
+i,j: Integer;
 DatatoPaint: Array[0..512,0..512] of Integer;
 DataMax, DataMin, DataTo0_255, DataTo0_255Offset, BrightnessOffset: Double;
 RectBitmap: TRect;

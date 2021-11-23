@@ -67,9 +67,6 @@ type
     Edit1: TEdit;
     Label8: TLabel;
     tmr55: TTimer;
-    Timer_expansion: TTimer;
-    Save_Z: TButton;
-    Stop_Z: TButton;
     procedure Button1Click(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     function InitDataAcq : boolean ;
@@ -86,9 +83,6 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
-    procedure Timer_expansionTimer(Sender: TObject);
-    procedure Save_ZClick(Sender: TObject);
-    procedure Stop_ZClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -96,7 +90,6 @@ type
     { Public declarations }
     attenuator: Double;
     StopAction: Boolean;
-    FileExpansion: TextFile;
   end;
 
 var
@@ -688,8 +681,8 @@ end;
 
 function TForm10.ramp_take(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
 var
-i,j,Loc_ADCTopo,Loc_ADCI: Integer;
-Loc_CalTopo,Loc_AmpTopo,Loc_AmpI,Loc_MultI,Step,DacVal: Double;
+i,j,Loc_ADCTopo,Loc_ADCI, Loc_ADCOther: Integer;
+Loc_CalTopo,Loc_AmpTopo,Loc_AmpI,Loc_MultI,Loc_AmpOther,Loc_MultOther,Step,DacVal: Double;
 ReceivesBytes, BytesToReceive: Integer;
 adcRead: TVectorDouble;
 BufferMem: Array[0..FT_Out_Buffer_Size] of Byte;
@@ -714,6 +707,9 @@ begin
   Loc_MultI:=Form1.MultI;
   Loc_ADCI:=Form1.ADCI;
 
+  Loc_AmpOther:=Form1.AmpOther;
+  Loc_MultOther:=Form1.MultOther;
+  Loc_ADCOther:=Form1.ADCOther;
 
   // Lectura de UNA rampa de ida o vuelta
   BufferPtr := Addr(BufferMem[0]);
@@ -765,8 +761,14 @@ begin
       end;
 
       //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+      //Se vuelve a poner Loc_ADCI
       if Form4.ReadCurrent then
-        Form4.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Form4.x_axisADC];
+        Form4.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+      //Hermann, 19/11/2021. se añade una lectura de un ADC adicional
+        if Form4.ReadOther then
+        Form4.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
     end;
 
     Inc(i);
@@ -813,8 +815,14 @@ begin
     end;
 
     //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
     if Form4.ReadCurrent then
-      Form4.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Form4.x_axisADC];
+      Form4.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if Form4.ReadOther then
+      Form4.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
 
     i:=i+1;
   end;
@@ -1032,31 +1040,6 @@ end;
 procedure TForm10.Edit1Change(Sender: TObject);
 begin
 Label8.Caption:='1';
-end;
-
-procedure TForm10.Timer_expansionTimer(Sender: TObject);
-begin
-  Writeln(FileExpansion,adc_take(Form1.ADCTopo,Form1.ADCTopo,16));
-end;
-
-procedure TForm10.Save_ZClick(Sender: TObject);
-begin
-  Label7.Font.Color :=clGreen;
-  Label7.Caption :='Saving';
-  AssignFile(FileExpansion, Concat(Edit1.Text,'_',Label8.Caption,'.txt'));
-  ReWrite(FileExpansion);
-
-  Timer_expansion.Enabled:=True;
-end;
-
-procedure TForm10.Stop_ZClick(Sender: TObject);
-begin
-  Label7.Font.Color :=clRed;
-  Label7.Caption :='Not saving';
-
-  Timer_expansion.Enabled:=False;
-  CloseFile(FileExpansion);
-  Label8.Caption:=IntToStr(StrToInt(Label8.Caption)+1);
 end;
 
 end.
