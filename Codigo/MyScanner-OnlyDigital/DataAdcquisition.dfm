@@ -1,7 +1,7 @@
 object Form10: TForm10
-  Left = 76
-  Top = 176
-  Width = 1821
+  Left = -6
+  Top = 260
+  Width = 1547
   Height = 171
   Caption = 'DAC and ADC handling'
   Color = clBtnFace
@@ -186,45 +186,10 @@ object Form10: TForm10
     Text = 'Test'
     OnChange = Edit1Change
   end
-  object Save_Z: TButton
-    Left = 1400
-    Top = 88
-    Width = 113
-    Height = 33
-    Caption = 'Save Z'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 10
-    OnClick = Save_ZClick
-  end
-  object Stop_Z: TButton
-    Left = 1528
-    Top = 88
-    Width = 81
-    Height = 33
-    Caption = 'Stop Z'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 11
-    OnClick = Stop_ZClick
-  end
   object tmr55: TTimer
     Enabled = False
     Interval = 10
     Left = 528
     Top = 8
-  end
-  object Timer_expansion: TTimer
-    OnTimer = Timer_expansionTimer
-    Left = 1296
-    Top = 88
   end
 end
