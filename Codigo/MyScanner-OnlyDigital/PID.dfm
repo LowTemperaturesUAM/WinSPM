@@ -1,6 +1,6 @@
 object FormPID: TFormPID
-  Left = 1050
-  Top = 195
+  Left = 838
+  Top = 188
   Width = 352
   Height = 475
   Caption = 'WinPID'
@@ -185,8 +185,8 @@ object FormPID: TFormPID
     Top = 280
     Width = 33
     Height = 22
-    MaxValue = 0
-    MinValue = 0
+    MaxValue = 3
+    MinValue = -3
     TabOrder = 3
     Value = -1
     OnChange = SpinEdit3Change
@@ -229,7 +229,7 @@ object FormPID: TFormPID
     Height = 121
     Kind = sbVertical
     LargeChange = 10
-    Max = 500
+    Max = 1000
     PageSize = 0
     Position = 6
     TabOrder = 7
@@ -336,8 +336,8 @@ object FormPID: TFormPID
     Top = 280
     Width = 33
     Height = 22
-    MaxValue = 0
-    MinValue = 0
+    MaxValue = 3
+    MinValue = -3
     TabOrder = 18
     Value = 0
     OnChange = Gain_IChange
@@ -347,8 +347,8 @@ object FormPID: TFormPID
     Top = 280
     Width = 41
     Height = 22
-    MaxValue = 0
-    MinValue = 0
+    MaxValue = 3
+    MinValue = -3
     TabOrder = 19
     Value = 0
     OnChange = Gain_DChange
