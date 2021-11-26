@@ -25,6 +25,7 @@ uses
 
 begin
   Application.Initialize;
+  Application.Title := 'WinSPM';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TForm2, Form2);
   Application.CreateForm(TForm6, Form6);
