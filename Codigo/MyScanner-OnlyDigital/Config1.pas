@@ -109,13 +109,24 @@ Form1.MultOther:=StrtoInt(Edit5.Text);
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
 begin
-  Form10.set_attenuator(0.1);
+  if Form1.Versiondivider=False then Form10.set_attenuator(0,0.1)
+  else
+    begin
+       Form10.set_attenuator(1,0.1);
+       Form10.set_attenuator(2,0.1);
+    end;
 //  Form1.AmpX:= Form1.AmpX*0.1;
 //  Form1.AmpY:= Form1.AmpY*0.1;
 end
 else
-  Form10.set_attenuator(1);
-
+  begin
+  if Form1.Versiondivider=False then Form10.set_attenuator(0,1)
+  else
+  begin
+       Form10.set_attenuator(1,1);
+       Form10.set_attenuator(2,1);
+  end;
+  end;
 Form1.TrackBar3Change(self);
 
 // Guardamos los datos en el fichero de configuración

@@ -76,7 +76,10 @@ type
     function ramp_take(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
     function send_buffer(bufferToSend: PAnsiChar; bytesToSend: Integer): FTC_STATUS;
     procedure set_dio_port(value: Word);
-    procedure set_attenuator(value: Double);
+    // para las electrónicas con atenuador. Si Form1.VersionDivider=False, entonces es todo como
+    // cuando no hay atenuador. Si no, es que hay atenuador.
+    procedure set_attenuator(DACAttNr: Integer; value: double);
+    //procedure set_attenuator(value: Double);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -247,8 +250,15 @@ begin
 
   // Escritura de valor máximo en el atenuador por posibles problemas tras reset (va a la mitad del FS)
   // El valor máximo significa que no atenua.
-  set_attenuator(1);
-
+  // Se tiene en cuenta la versión de la electrónica
+  if Form1.Versiondivider=False then set_attenuator(0,1)
+  else
+    begin
+     set_attenuator(1,1);
+     set_attenuator(2,1);
+     set_attenuator(3,1);
+     set_attenuator(4,1);
+    end;
   // Configuración de la salidas digitales
 
  Buffer:=HexToString('80FEFB8200FF110200400000878208FF80FFFB');
@@ -889,7 +899,7 @@ begin
      if not simulating then MessageDlg('error al escribir el puerto digital', mtError, [mbOk], 0);
 end;
 
-procedure TForm10.set_attenuator(value: double);
+procedure TForm10.set_attenuator(DACAttNr: Integer; value: double);
 var
   BufferDest: PAnsiChar;
   i: Integer;
@@ -904,6 +914,7 @@ begin
   valueDAC := Round(value*$FFFF);
 
   // Construyo la cadena que se enviará
+  // esto habrá que cambiarlo todo para pasar a unicode
   i := 0;
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
   (BufferDest+i)^ := Char($FE-Integer(pAttcs)); Inc(i);
@@ -911,7 +922,18 @@ begin
   (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
   (BufferDest+i)^ := Char(2); Inc(i); // Número de bytes a transmitir menos 1
   (BufferDest+i)^ := Char(0); Inc(i);
-  (BufferDest+i)^ := Char(03); Inc(i); // Registro: Ambos DACs
+  if Form1.VersionDivider=False then
+  begin
+    (BufferDest+i)^ := Char(03);
+    Inc(i); // Registro: Ambos DACs
+  end
+  else
+    begin
+      if (DACAttNr=1) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 0
+      if (DACAttNr=2) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 2
+      if (DACAttNr=3) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 5
+      if (DACAttNr=4) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 6
+    end;
   (BufferDest+i)^ := Char(valueDAC shr 8); Inc(i);  // Parte alta del valor del DAC
   (BufferDest+i)^ := Char(valueDAC and $FF); Inc(i); // Parte baja del valor del DAC
   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);

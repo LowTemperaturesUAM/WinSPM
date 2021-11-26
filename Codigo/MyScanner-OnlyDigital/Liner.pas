@@ -68,6 +68,7 @@ type
     lblAccumulate: TLabel;
     SpinEdit6: TSpinEdit;
     Label2: TLabel;
+    chkPainYesNo: TCheckBox;
     procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -93,6 +94,7 @@ type
     procedure Button6Click(Sender: TObject);
     procedure ClearChart();
     procedure chkAcquireBlockClick(Sender: TObject);
+    procedure chkPainYesNoClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -123,6 +125,7 @@ type
   b_offset: Integer;
   Datos1,Datos2,CurvaADerivar: vcurva;
   CurvaDerivada: vcurva;
+  PaintYesNo: Boolean; // Es para si se quiere o no pintar las IVs
   end;
 
 var
@@ -178,6 +181,7 @@ Temperature:=StrtoFloat(Edit5.Text);
 MagField:=StrtoFloat(Edit6.Text);
 ChartLine.LeftAxis.AxisValuesFormat := '0.##E+###';
 StopIt:=True;
+PaintYesNo:=chkPainYesNo.checked;
 end;
 
 //Do
@@ -208,27 +212,6 @@ if CheckBox2.Checked then
     //FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
    end;
 
-// Be careful with the following things, because the voltage will be suddenly modified
-if Form7.CheckBox4.Checked then   // This is when we want to reverse the bias
-begin
-if Form7.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
-  Princ:=Round(-32768/Form7.seReduceRampFactor.Value*Size_xAxis)
-  else
-  Princ:=Round(-32768*Size_xAxis);
-end
-else
-begin
-if Form7.chkReduceRamp.Checked then
-  Princ:=Round(32768/Form7.seReduceRampFactor.Value*Size_xAxis)
-  else
-  Princ:=Round(32768*Size_xAxis);
-end;
-Princ:=Round(32768*Size_xAxis);
-
-
-
-Fin:=-Princ;
-
 here_previous_ctrl:=0;
 
   // Creamos los vectores DataCurrentOld que usaremos para el accumulate
@@ -243,6 +226,24 @@ here_previous_ctrl:=0;
   begin
   for j:=0 to SpinEdit2.Value -1 do
   begin
+
+    // Be careful with the following things, because the voltage will be suddenly modified
+    if Form7.CheckBox4.Checked then   // This is when we want to reverse the bias
+    begin
+      if Form7.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
+        Princ:=Round(-32768/Form7.seReduceRampFactor.Value*Size_xAxis)
+      else
+    Princ:=Round(-32768*Size_xAxis);
+    end
+    else
+    begin
+      if Form7.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
+        Princ:=Round(32768/Form7.seReduceRampFactor.Value*Size_xAxis)
+      else
+    Princ:=Round(32768*Size_xAxis);
+    end;
+
+    Fin:=-Princ;
     // Indicamos por qué iteracion vamos
     lblAccumulate.Caption := format ('%d of', [j+1]);
 
@@ -269,7 +270,14 @@ here_previous_ctrl:=0;
       DataCurrentOld[1,h]:=  DataCurrent[1,h];
       end;
 
-    RadioGroup2Click(nil); //Pintamos
+    if (PaintYesNo) then RadioGroup2Click(nil); //Pintamos
+
+    // Esto es peligroso, pero lo hacemos, a ver si no da problemas ...
+    // volvemos a poner Princ al valor máximo antes de hacer funcionar el control otra vez
+    if Form7.chkReduceRamp.Checked then
+      if Form7.CheckBox4.Checked then Princ:=Round(-32768*Size_xAxis)
+      else Princ:=Round(32768*Size_xAxis);
+
     Form10.dac_set(x_axisDAC,Princ, nil);
 
     // Vamos a dejar funcionar el control durante 2 s
@@ -818,6 +826,11 @@ begin
     end
   else
     SpinEdit3.MaxValue := 999999
+end;
+
+procedure TForm4.chkPainYesNoClick(Sender: TObject);
+begin
+PaintYesNo:=chkPainYesNo.Checked;
 end;
 
 end.

@@ -1,6 +1,6 @@
 object Form4: TForm4
-  Left = 388
-  Top = 114
+  Left = 395
+  Top = 97
   Width = 852
   Height = 649
   Caption = 'Bias Module'
@@ -510,6 +510,17 @@ object Form4: TForm4
     State = cbChecked
     TabOrder = 16
     OnClick = chkAcquireBlockClick
+  end
+  object chkPainYesNo: TCheckBox
+    Left = 416
+    Top = 560
+    Width = 97
+    Height = 17
+    Caption = 'chkPainYesNo'
+    Checked = True
+    State = cbChecked
+    TabOrder = 24
+    OnClick = chkPainYesNoClick
   end
   object SaveDialog1: TSaveDialog
     Filter = 'Text files (*.txt)|*.txt|Data files (*.dat)|*.dat'
