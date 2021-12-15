@@ -14,7 +14,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, blqloader,var_gbl,
-  Buttons, TeeProcs, TeEngine, Chart, Series, VclTee.TeeGDIPlus;
+  Buttons, TeeProcs, TeEngine, Chart, Series{*, VclTee.TeeGDIPlus};
 
 type
   TDataCurve = Array [0..1,0..2048] of single;
@@ -245,7 +245,7 @@ here_previous_ctrl:=0;
 
     Fin:=-Princ;
     // Indicamos por qué iteracion vamos
-    lblAccumulate.Caption := format ('%d of', [j+1], TFormatSettings.Invariant);
+    lblAccumulate.Caption := format ('%d of', [j+1]);
 
     // Forth (Rampa de ida)
     // Lectura de UNA rampa de ida
@@ -623,7 +623,9 @@ var
 
 begin
 
-  //DecimalSeparator := '.';
+{$IfDef VER150}
+  DecimalSeparator := '.';
+{$EndIf}
   factorX := 1;
   commentsWSxM := StringReplace(comments, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]);
 
@@ -656,7 +658,7 @@ begin
   WriteLn(myFile, '');
   WriteLn(myFile, '    Number of lines: 2'); // Ida y vuelta
 
-  strLine := Format('    Number of points: %d', [PointNumber], TFormatSettings.Invariant);
+  strLine := Format('    Number of points: %d', [PointNumber]);
   WriteLn(myFile, strLine);
 
   WriteLn(myFile, '    X axis text: V[#x]');
@@ -690,8 +692,8 @@ begin
 
   for i:=0 to PointNumber-1 do
   begin
-    strLine := Format('%g %g %g %g', [DataX[0,i]*factorX, DataCurve^[0,i]*factorY,
-      DataX[1,i]*factorX, DataCurve^[1,i]*factorY], TFormatSettings.Invariant);
+    strLine := MyFormat('%g %g %g %g', [DataX[0,i]*factorX, DataCurve^[0,i]*factorY,
+      DataX[1,i]*factorX, DataCurve^[1,i]*factorY]);
     WriteLn(myFile, strLine);
   end;
 

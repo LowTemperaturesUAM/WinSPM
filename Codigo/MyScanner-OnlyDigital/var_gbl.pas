@@ -1,7 +1,7 @@
 unit var_gbl;
 
 interface
-uses Windows, Graphics;
+uses Windows, Graphics, SysUtils;
 
 const
 ldatos = 2048;
@@ -338,8 +338,18 @@ signo_lect : array [0..2] of integer;
   FPalette : array [0..511,0..2] of byte ;
 
 
+function MyFormat(const FormatStr: string; const Args: array of const): string;
 
 
 implementation
+
+function MyFormat(const FormatStr: string; const Args: array of const): string;
+begin
+{$IfDef VER150}
+  Format(FormatStr, Args);
+{$Else}
+  Format(FormatStr, Args, TFormatSettings.Invariant);
+{$EndIf}
+end;
 
 end.

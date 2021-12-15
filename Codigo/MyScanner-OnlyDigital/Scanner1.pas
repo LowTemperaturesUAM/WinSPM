@@ -1272,7 +1272,7 @@ begin
   if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
 
-  FileNumber := Format('%.3d', [SpinEdit1.Value], TFormatSettings.Invariant);
+  FileNumber := Format('%.3d', [SpinEdit1.Value]);
   MiFile:=MiFile+'\'+Edit1.Text+Suffix+FileNumber+'.stp';
 
   F:=TFileStream.Create(MiFile,fmCreate) ;
@@ -1304,7 +1304,9 @@ var
   ImageTopo: ^TImageSingle;
 
 begin
-//  DecimalSeparator := '.';
+{$IfDef VER150}
+  DecimalSeparator := '.';
+{$EndIf}
   if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
 
@@ -1337,7 +1339,7 @@ begin
       Exit;
   end;
 
-  FileNumber := Format('%.3d', [SpinEdit1.Value], TFormatSettings.Invariant);
+  FileNumber := Format('%.3d', [SpinEdit1.Value]);
   MiFile:=MiFile+'\'+Edit1.Text+FileNumber+strDirections+'.gsi';
 
   F:=TFileStream.Create(MiFile,fmCreate) ;
@@ -1351,19 +1353,19 @@ begin
   F.Write('[Control]'#13#10, 2+Length('[Control]'));
   F.Write(''#13#10, 2+Length(''));
 
-  strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position], TFormatSettings.Invariant);
+  strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*CalX], TFormatSettings.Invariant);
+  strLine := MyFormat('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*CalX]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    X Offset: %f nm', [XOffset*10*AmpX*CalX], TFormatSettings.Invariant);
+  strLine := MyFormat('    X Offset: %f nm', [XOffset*10*AmpX*CalX]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*CalY], TFormatSettings.Invariant);
+  strLine := MyFormat('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*CalY]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Y Offset: %f nm', [YOffset*10*AmpY*CalY], TFormatSettings.Invariant);
+  strLine := MyFormat('    Y Offset: %f nm', [YOffset*10*AmpY*CalY]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   F.Write(''#13#10, 2+Length(''));
@@ -1372,13 +1374,13 @@ begin
   F.Write(''#13#10, 2+Length(''));
   F.Write('    Image Data Type: double'#13#10, 2+Length('    Image Data Type: double'));
 
-  strLine := Format('    Number of columns: %d', [Form1.IV_Scan_Lines], TFormatSettings.Invariant);
+  strLine := Format('    Number of columns: %d', [Form1.IV_Scan_Lines]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of points per ramp: %d', [Form4.PointNumber], TFormatSettings.Invariant);
+  strLine := Format('    Number of points per ramp: %d', [Form4.PointNumber]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of rows: %d', [Form1.IV_Scan_Lines], TFormatSettings.Invariant);
+  strLine := Format('    Number of rows: %d', [Form1.IV_Scan_Lines]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   F.Write('    Spectroscopy Amplitude: 1 nA'#13#10, 2+Length('    Spectroscopy Amplitude: 1 nA')); // Lo importante es la unidad, no el valor
@@ -1403,7 +1405,7 @@ begin
 
   for i := 0 to Form4.PointNumber-1 do
   begin
-    strLine := Format('    Image %.3d: %.4f V', [i, minV+i*(maxV-minV)/(Form4.PointNumber-1)], TFormatSettings.Invariant);
+    strLine := MyFormat('    Image %.3d: %.4f V', [i, minV+i*(maxV-minV)/(Form4.PointNumber-1)]);
     F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
   end;
 

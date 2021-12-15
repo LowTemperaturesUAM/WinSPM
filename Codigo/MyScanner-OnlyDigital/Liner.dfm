@@ -1,9 +1,9 @@
 object Form4: TForm4
   Left = 395
   Top = 97
+  Width = 852
+  Height = 649
   Caption = 'Bias Module'
-  ClientHeight = 610
-  ClientWidth = 836
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -177,6 +177,7 @@ object Form4: TForm4
     Width = 105
     Height = 21
     Hint = 'Point Number'
+    ItemHeight = 13
     ItemIndex = 9
     ParentShowHint = False
     ShowHint = True
@@ -441,9 +442,13 @@ object Form4: TForm4
     Width = 681
     Height = 457
     AllowPanning = pmVertical
+    AnimatedZoom = True
+    BackWall.Brush.Color = clWhite
     BackWall.Brush.Style = bsClear
-    Legend.Visible = False
+    Title.Font.Charset = DEFAULT_CHARSET
     Title.Font.Color = clBlack
+    Title.Font.Height = -11
+    Title.Font.Name = 'Arial'
     Title.Font.Style = [fsBold, fsItalic]
     Title.Text.Strings = (
       'Ramp')
@@ -453,6 +458,7 @@ object Form4: TForm4
     DepthAxis.Maximum = 0.500000000000000000
     DepthAxis.Minimum = -0.500000000000000000
     LeftAxis.ExactDateTime = False
+    Legend.Visible = False
     RightAxis.Automatic = False
     RightAxis.AutomaticMaximum = False
     RightAxis.AutomaticMinimum = False
@@ -461,27 +467,36 @@ object Form4: TForm4
     TopAxis.AutomaticMinimum = False
     View3D = False
     View3DWalls = False
-    Zoom.Animated = True
     Color = clWhite
     TabOrder = 23
-    DefaultCanvas = 'TGDIPlusCanvas'
-    ColorPaletteIndex = 13
     object ChartLineSerie0: TFastLineSeries
+      Marks.ArrowLength = 8
+      Marks.Visible = False
       PercentFormat = '##0,## %'
       SeriesColor = clRed
       ValueFormat = '#,##0,###'
       LinePen.Color = clRed
+      XValues.DateTime = False
       XValues.Name = 'X'
+      XValues.Multiplier = 1.000000000000000000
       XValues.Order = loAscending
+      YValues.DateTime = False
       YValues.Name = 'Y'
+      YValues.Multiplier = 1.000000000000000000
       YValues.Order = loNone
     end
     object ChartLineSerie1: TFastLineSeries
+      Marks.ArrowLength = 8
+      Marks.Visible = False
       SeriesColor = clBlue
       LinePen.Color = clBlue
+      XValues.DateTime = False
       XValues.Name = 'X'
+      XValues.Multiplier = 1.000000000000000000
       XValues.Order = loAscending
+      YValues.DateTime = False
       YValues.Name = 'Y'
+      YValues.Multiplier = 1.000000000000000000
       YValues.Order = loNone
     end
   end

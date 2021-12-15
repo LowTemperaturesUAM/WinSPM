@@ -1,9 +1,9 @@
 object Form3: TForm3
   Left = 237
   Top = 272
+  Width = 989
+  Height = 639
   Caption = 'Scanning'
-  ClientHeight = 600
-  ClientWidth = 973
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -257,9 +257,13 @@ object Form3: TForm3
     Width = 609
     Height = 561
     AllowPanning = pmVertical
+    AnimatedZoom = True
+    BackWall.Brush.Color = clWhite
     BackWall.Brush.Style = bsClear
-    Legend.Visible = False
+    Title.Font.Charset = DEFAULT_CHARSET
     Title.Font.Color = clBlack
+    Title.Font.Height = -11
+    Title.Font.Name = 'Arial'
     Title.Font.Style = [fsBold, fsItalic]
     Title.Text.Strings = (
       'Result of Scan')
@@ -272,6 +276,7 @@ object Form3: TForm3
     DepthAxis.AutomaticMinimum = False
     DepthAxis.Maximum = 2.500000000000000000
     DepthAxis.Minimum = -0.500000000000000000
+    Legend.Visible = False
     RightAxis.Automatic = False
     RightAxis.AutomaticMaximum = False
     RightAxis.AutomaticMinimum = False
@@ -279,11 +284,8 @@ object Form3: TForm3
     TopAxis.AutomaticMaximum = False
     TopAxis.AutomaticMinimum = False
     View3D = False
-    Zoom.Animated = True
     Color = clWhite
     TabOrder = 15
-    DefaultCanvas = 'TGDIPlusCanvas'
-    ColorPaletteIndex = 13
   end
   object chkFlatten: TCheckBox
     Left = 16

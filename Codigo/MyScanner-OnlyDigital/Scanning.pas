@@ -5,7 +5,11 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, {xyyGraph,} var_gbl, Spin, ComCtrls, Chart, Series,
-  TeeProcs, TeEngine, VclTee.TeeGDIPlus;
+  TeeProcs, TeEngine
+{$ifndef VER150}
+  , VclTee.TeeGDIPlus
+{$EndIf}
+  ;
 
 type
   TForm3 = class(TForm)

@@ -1,9 +1,9 @@
 object Form2: TForm2
   Left = 119
   Top = 228
+  Width = 453
+  Height = 414
   Caption = 'WinSPMConfig'
-  ClientHeight = 375
-  ClientWidth = 437
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -166,6 +166,7 @@ object Form2: TForm2
       Top = 16
       Width = 41
       Height = 21
+      ItemHeight = 13
       TabOrder = 1
       Text = '13'
       Items.Strings = (
@@ -205,6 +206,7 @@ object Form2: TForm2
       Top = 88
       Width = 41
       Height = 21
+      ItemHeight = 13
       TabOrder = 8
       Text = '13'
       Items.Strings = (
@@ -216,6 +218,7 @@ object Form2: TForm2
       Top = 112
       Width = 41
       Height = 21
+      ItemHeight = 13
       TabOrder = 10
       Text = '13'
       Items.Strings = (
@@ -227,6 +230,7 @@ object Form2: TForm2
       Top = 40
       Width = 41
       Height = 21
+      ItemHeight = 13
       TabOrder = 4
       Text = '13'
       Items.Strings = (
@@ -333,6 +337,7 @@ object Form2: TForm2
       Top = 16
       Width = 41
       Height = 21
+      ItemHeight = 13
       TabOrder = 2
       Text = '13'
       Items.Strings = (
@@ -382,6 +387,7 @@ object Form2: TForm2
       Top = 48
       Width = 41
       Height = 21
+      ItemHeight = 13
       ItemIndex = 2
       TabOrder = 6
       Text = '8'
@@ -425,6 +431,7 @@ object Form2: TForm2
       Top = 80
       Width = 41
       Height = 21
+      ItemHeight = 13
       TabOrder = 10
       Text = '9'
       Items.Strings = (
