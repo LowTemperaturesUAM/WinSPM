@@ -13,8 +13,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, xyyGraph, Menus, Spin, blqdataset, blqloader,var_gbl,
-  Buttons, TeeProcs, TeEngine, Chart, Series;
+  StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, blqloader,var_gbl,
+  Buttons, TeeProcs, TeEngine, Chart, Series, VclTee.TeeGDIPlus;
 
 type
   TDataCurve = Array [0..1,0..2048] of single;
@@ -90,7 +90,7 @@ type
     procedure scrollSizeBiasChange(Sender: TObject);
     procedure SpinEdit5Change(Sender: TObject);
     procedure Button7Click(Sender: TObject);
-    procedure SaveIV(fileName: string; dataSet: Integer; comments: String);
+    procedure SaveIV(fileName: string; dataSet: Integer; comments: AnsiString);
     procedure Button6Click(Sender: TObject);
     procedure ClearChart();
     procedure chkAcquireBlockClick(Sender: TObject);
@@ -121,7 +121,7 @@ type
   
   b : TblqLoader ;
   DS : TblqDataSet ;
-  blqname : string ;
+  blqname : AnsiString ;
   b_offset: Integer;
   Datos1,Datos2,CurvaADerivar: vcurva;
   CurvaDerivada: vcurva;
@@ -132,7 +132,7 @@ var
   Form4: TForm4;
 
   b : TblqLoader ;
-  blqname : string ;
+  blqname : AnsiString ;
   b_offset: Integer;
   CurvaADerivar: vcurva;
   CurvaDerivada: vcurva;
@@ -534,7 +534,7 @@ end;
 procedure TForm4.Button4Click(Sender: TObject);
 var
 i,j,k,cols,BlockOffset: Integer;
-Fi_Name,BlockFileName,BlockFile,TakeComment:string;
+Fi_Name,BlockFileName,BlockFile,TakeComment:AnsiString;
 number: Double;
 
 begin
@@ -612,18 +612,18 @@ end;
 
 // Guarda las curvas IV en el formato de WSxM
 // Nacho Horcas, diciembre de 2017
-procedure TForm4.SaveIV(fileName: string; dataSet: Integer; comments: String);
+procedure TForm4.SaveIV(fileName: string; dataSet: Integer; comments: AnsiString);
 var
   myFile : TextFile;
-  commentsWSxM, strLine: string;
-//  strGeneralInfoDir :string;
+  commentsWSxM, strLine: AnsiString;
+//  strGeneralInfoDir :AnsiString;
   factorX, factorY: double;
   i: Integer;
   DataCurve: ^TDataCurve;
 
 begin
 
-  DecimalSeparator := '.';
+  //DecimalSeparator := '.';
   factorX := 1;
   commentsWSxM := StringReplace(comments, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]);
 
@@ -717,7 +717,7 @@ end;
 //En principio no hace nada, button10 no existe
 procedure TForm4.Button10Click(Sender: TObject);
 var
-BlockFile:string;
+BlockFile:AnsiString;
 b_offset: Integer;
 
 begin

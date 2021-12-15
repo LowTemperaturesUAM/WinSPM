@@ -1,9 +1,9 @@
 object Form10: TForm10
   Left = -6
   Top = 260
-  Width = 1547
-  Height = 171
   Caption = 'DAC and ADC handling'
+  ClientHeight = 132
+  ClientWidth = 1531
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

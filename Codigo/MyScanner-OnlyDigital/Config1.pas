@@ -66,8 +66,8 @@ type
   private
     { Private declarations }
     IniFile: TIniFile;
-    iniTitle: String;
-//    const string iniTitle := 'Channels';
+    iniTitle: AnsiString;
+//    const AnsiString iniTitle := 'Channels';
   public
     { Public declarations }
   end;

@@ -68,7 +68,7 @@ TIMGheader = record
   end ;
 
 infocurva = record
-               name : string;
+               name : AnsiString;
                decolor :integer;
                     w1   : word;
                     w2   : word;
@@ -104,7 +104,7 @@ infocurva = record
 
 
 Newcurva = record
-                    name : array [1..13] of char; {string[12];}
+                    name : array [1..13] of char;
                     w1   : word;
                     w2   : word;
                     w3   : word;
@@ -268,27 +268,10 @@ fcurva : file;
 codtipocurva : byte;
 
 //parametros de medida de curvas
-cuantas : integer =1;
 puntos : integer =1024;
-Nprom : integer = 1;
-DelayPto : integer = 1;
-clims : datalims;
 pderi : integer = 20;
 
-
-
 //generales
-fullcurname : string = '';
-curname : string = '';
-curserienum : integer = 0;
-curmednum : integer = 0;
-
-fullfotoname : string = '';
-fotoname : string = '';
-fotonum : integer = 0;
-siov : string ='IV';
-cabfoto : TIMG_cab;
-
 NumCuadros: integer = 0;
 NumCurMeds: integer =0;
 

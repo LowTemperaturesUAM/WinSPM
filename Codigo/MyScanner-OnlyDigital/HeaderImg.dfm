@@ -1,9 +1,9 @@
 object Form8: TForm8
   Left = 918
   Top = 238
-  Width = 422
-  Height = 731
   Caption = 'SaveConfig'
+  ClientHeight = 692
+  ClientWidth = 406
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -67,9 +67,16 @@ object Form8: TForm8
     Top = 112
     Width = 257
     Height = 385
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     Lines.Strings = (
       'RichEdit1')
+    ParentFont = False
     TabOrder = 3
+    Zoom = 100
   end
   object Edit1: TEdit
     Left = 8

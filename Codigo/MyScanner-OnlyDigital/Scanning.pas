@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, xyyGraph, var_gbl, Spin, ComCtrls, Chart, Series,
-  TeeProcs, TeEngine;
+  StdCtrls, ExtCtrls, {xyyGraph,} var_gbl, Spin, ComCtrls, Chart, Series,
+  TeeProcs, TeEngine, VclTee.TeeGDIPlus;
 
 type
   TForm3 = class(TForm)

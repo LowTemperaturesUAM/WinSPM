@@ -23,7 +23,7 @@ type
 
   TBlockEntry = class
     private
-      FNombre : string ;
+      FNombre : AnsiString ;
       FOffset : Integer ;
       FIndex : Integer ;
     public
@@ -41,7 +41,7 @@ type
       FSelectedEntries : TList ;
 
       function NoGoodFile : Boolean ;
-      procedure AddEntry(name:string;offset,index:integer) ;
+      procedure AddEntry(name:AnsiString;offset,index:integer) ;
       procedure AddSelectedEntry(n:integer) ;
 
 
@@ -51,7 +51,7 @@ type
       property FileName : string read FFileName ;
       property Count : integer read nnn ;
       property SelectedCount : Integer read sss ;
-      function SelectBlockFile(FileName : string) : Boolean ;
+      function SelectBlockFile(FileName : String) : Boolean ;
       function SelectEntriesDialog : Boolean ;
       function SelectNextEntries(inc:Integer) :  Boolean ;
       function GetEntryOffset(n:integer) : Integer ;
@@ -131,7 +131,7 @@ begin
   Result:=False ;
 end ;
 
-procedure TblqLoader.AddEntry(name:string;offset,index:integer) ;
+procedure TblqLoader.AddEntry(name:AnsiString;offset,index:integer) ;
 var Entry : TBlockEntry ;
 begin
   Entry:=TBlockEntry.Create ;

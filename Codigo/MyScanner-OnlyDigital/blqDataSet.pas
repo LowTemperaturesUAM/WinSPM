@@ -40,7 +40,7 @@ type
       function GetValue(n:integer) : double ;
       procedure SetValue(n:integer;f:double) ;
 
-      function GetAxisTitle:string ;
+      function GetAxisTitle:AnsiString ;
       procedure SetAxisUnits(n:Integer) ;
 
       constructor Create(n:integer) ;
@@ -61,7 +61,7 @@ type
 
       property Value[n:integer] : double read GetValue write SetValue ; default ;
       property AxisType:Integer read FAxisType ;
-      property AxisTitle:string read GetAxisTitle ;
+      property AxisTitle:AnsiString read GetAxisTitle ;
       property AxisUnits:Integer write SetAxisUnits ;
 
       property MinIndex : integer read GetMinIndex ;
@@ -87,12 +87,12 @@ type
       FNcols : Integer ;
       FNrows : Integer ;
       FCol : TList ;
-      FName : string ;
+      FName : AnsiString ;
       FMoment : double ;
       FTime : double ;
-      FComment : string ;
+      FComment : AnsiString ;
 
-      FBlockFile : string ;
+      FBlockFile : AnsiString ;
       FBlockOffset : Integer ;
       FXCol,FY1Col,FY2Col : Integer ;
 
@@ -106,21 +106,21 @@ type
       property y1col : integer read Fy1col write Fy1col ;
       property y2col : integer read Fy2col write Fy2col ;
       property Col[n:Integer] : TDataSetCol read GetCol ; default ;
-      property Name:string read FName ;
-      property BlockFile:string read FBlockFile ;
+      property Name:AnsiString read FName ;
+      property BlockFile:AnsiString read FBlockFile ;
       property BlockOffset:integer read FBlockOffset ;
       property Nrows:integer read FNrows ;
       property Ncols:integer read FNcols ;
       property Moment : double read FMoment ;
       property Time : double read FTime ;
-      property Comment : string read FComment write FComment;
+      property Comment : AnsiString read FComment write FComment;
 
       // SECRETAS
-      property _Name:string write FName ;
+      property _Name:AnsiString write FName ;
       property _Moment : double write FMoment;
       property _Time : double write FTime ;
-      property _Comment : string write FComment ;
-      property _BlockFile:string write FBlockFile;
+      property _Comment : AnsiString write FComment ;
+      property _BlockFile:AnsiString write FBlockFile;
       property _BlockOffset:Integer write FBlockOffset ;
 
   end ;
@@ -159,8 +159,8 @@ type
     Reserved : array [0..15] of byte ;
   end ;
 
-  function LoadDataSetFromBlock(BlockFile:string;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
-  function WriteDataSetInBlock(BlockFile:string;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
+  function LoadDataSetFromBlock(BlockFile:AnsiString;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
+  function WriteDataSetInBlock(BlockFile:AnsiString;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
 
 const
   units_unknown=0 ; units_displacement=100 ; units_voltage=200 ;
@@ -281,8 +281,8 @@ begin
   FParamB[n]:=d ;
 end ;
 
-function TDataSetCol.GetAxistitle : string ;
-var s,u,n : string ;
+function TDataSetCol.GetAxistitle : AnsiString ;
+var s,u,n : AnsiString ;
 begin
   case FAxisType of
     units_unknown : begin n:='unknown' ; u:='' ; end ;
@@ -330,7 +330,7 @@ begin
 end ;
 
 
-function LoadDataSetFromBlock(BlockFile:string;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
+function LoadDataSetFromBlock(BlockFile:AnsiString;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
 type
   Tsingle_array = array [0..65535] of single ;
   Tdouble_array = array [0..65535] of double ;
@@ -422,7 +422,7 @@ begin
 end ;
 
 
-function WriteDataSetInBlock(BlockFile:string;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
+function WriteDataSetInBlock(BlockFile:AnsiString;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
 label
   fin_error, fin_write_error ;
 type

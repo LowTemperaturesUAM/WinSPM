@@ -23,7 +23,7 @@ type
     { Public declarations }
   ZAmplitude: Single;
   PosFin:Integer;
-  WSxMHeader: String;
+  WSxMHeader: AnsiString;
   end;
 
 var
@@ -42,10 +42,10 @@ end;
 
 procedure TForm8.Button1Click(Sender: TObject);
 var
-MyComments, strLine, strUnit: string;
+MyComments, strLine, strUnit: AnsiString;
 
 begin
-  DecimalSeparator := '.';
+  //DecimalSeparator := '.';
 
   if RadioGroup1.ItemIndex=0 then MyComments:='Forth'
   else MyComments:='Back';

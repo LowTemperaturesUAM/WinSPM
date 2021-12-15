@@ -107,7 +107,7 @@ implementation
 
 uses Config_Liner;
   Function SPI_GetHiSpeedDeviceNameLocIDChannel(dwDeviceNameIndex: DWORD; lpDeviceNameBuffer: LPSTR; dwDeviceNameBufferSize: DWORD; lpdwLocationID: LPDWORD; lpChannelBuffer: LPSTR; dwChannelBufferSize: DWORD; lpdwHiSpeedDeviceType: LPDWORD):FTC_STATUS; stdcall ; External FT2232CSPI_DLL_Name name 'SPI_GetHiSpeedDeviceNameLocIDChannel';
-  Function SPI_OpenHiSpeedDevice( DeviceName:String;  LocationID:Integer;Channel: String; ftHandle:pointer):FTC_STATUS;     stdcall ; External FT2232CSPI_DLL_Name name 'SPI_OpenHiSpeedDevice';
+  Function SPI_OpenHiSpeedDevice( DeviceName:AnsiString;  LocationID:Integer;Channel: AnsiString; ftHandle:pointer):FTC_STATUS;     stdcall ; External FT2232CSPI_DLL_Name name 'SPI_OpenHiSpeedDevice';
   Function SPI_InitDevice  (ftHandle:dword; ClockDivisor:Dword ) : FTC_STATUS;    stdcall ; External FT2232CSPI_DLL_Name name 'SPI_InitDevice' ;
   Function SPI_SetDeviceLatencyTimer (ftHandle:dword; Timervalue:Dword)   : FTC_STATUS;    stdcall ; External FT2232CSPI_DLL_Name name 'SPI_SetDeviceLatencyTimer' ;
   Function SPI_SetHiSpeedDeviceGPIOs(fthandle: Dword; ChipSelectsDisableStates: PFtcChipSelectPins; HighInputOutputPins: PFtcInputOutputPins): FTC_STATUS; stdcall ; External FT2232CSPI_DLL_Name name 'SPI_SetHiSpeedDeviceGPIOs';
@@ -117,9 +117,9 @@ uses Config_Liner;
   Function FT_GetQueueStatus (lngHandle:dword; lngRxBytes:pointer ):   FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_GetQueueStatus';
   Function FT_Write(ftHandle:Dword; FTOutBuf : Pointer; BufferSize : LongInt; ResultPtr : Pointer ) : FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_Write';
   Function FT_Purge(ftHandle:Dword; dwMask:Dword):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_Purge';
-  Function FT_SetChars(ftHandle:Dword; uEventCh, uEventChEn, uErrorCh, uErrorChEn: Char):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_SetChars';
+  Function FT_SetChars(ftHandle:Dword; uEventCh, uEventChEn, uErrorCh, uErrorChEn: AnsiChar):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_SetChars';
   Function FT_ResetDevice(ftHandle:Dword):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_ResetDevice';
-  Function FT_SetFlowControl(ftHandle:Dword; usFlowControl: Word; uXon, uXoff: Char):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_SetFlowControl';
+  Function FT_SetFlowControl(ftHandle:Dword; usFlowControl: Word; uXon, uXoff: AnsiChar):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_SetFlowControl';
 
 {$R *.DFM}
 
@@ -130,7 +130,7 @@ uses Config_Liner;
 // Convierte pares de valores de números hexadecimales codificados en ASCII a su equivalente sin codificar.
 // Ejemplo:
 // HexToString('4142') -> 'AB' o lo que es lo mismo $4142 (si el endianness es el adecuado).
-function HexToString(H: String): String;
+function HexToString(H: AnsiString): String;
 var I: Integer;
 begin
   Result:= '';
@@ -149,7 +149,7 @@ Function TForm10.InitDataAcq : boolean  ;
 
  var LocationID:Integer;
  var SPI_Ret:Integer;    SPI_Hdl:Dword;
- var sTexto: String;
+ var sTexto: AnsiString;
  var DeviceType: DWORD;
  var nameBuffer: array[1..50] of AnsiChar;
  var channelBuffer:  array[1..50] of AnsiChar;
@@ -180,7 +180,7 @@ begin
  // else  MessageDlg('Abierto correctamente', mtError, [mbOk], 0);
 
  SPI_Ret :=  SPI_InitDevice(SPI_Hdl, 2); // Con los retardos que hay ahora en los ADCs podría funcionar con 0 e ir más rápido
- Str( SPI_Ret, sTexto );
+ Str(SPI_Ret, sTexto);
 
  If SPI_Ret <> 0  then
  begin
@@ -191,7 +191,7 @@ begin
 
  FT_ResetDevice(SPI_Hdl);
 
- SPI_Ret := FT_SetChars(SPI_Hdl, Char(0), Char(0), Char(0), Char(0));
+ SPI_Ret := FT_SetChars(SPI_Hdl, AnsiChar(0), AnsiChar(0), AnsiChar(0), AnsiChar(0));
  Str( SPI_Ret, sTexto );
 
  SPI_Ret := SPI_SetDeviceLatencyTimer  (SPI_Hdl,2);
@@ -204,7 +204,7 @@ begin
  end;
   // else  MessageDlg('Latencia correcta', mtError, [mbOk], 0);
 
-   FT_SetFlowControl (SPI_Hdl, FT_FLOW_RTS_CTS, Char(0), Char(0));
+   FT_SetFlowControl (SPI_Hdl, FT_FLOW_RTS_CTS, AnsiChar(0), AnsiChar(0));
    // Configurar entradas y salidas y estado inicial
 
    entradassalidas.bPin1InputOutputState:=true;
@@ -294,8 +294,8 @@ end  ;
  // Devuelve el número de caracteres que ocupa la cadena que envía por USB o
  // -1 en caso de error (donde se controle)
 function TForm10.dac_set(ndac, valor:integer; BufferOut: PAnsiChar) : Integer ;
-Var sTexto:String;
-Var sTexto2:String;
+Var sTexto:AnsiString;
+Var sTexto2:AnsiString;
 var CadenaCS:integer;
 var sele_dac:integer;
 var BytesToWrite: Integer;
@@ -343,20 +343,20 @@ begin
 
    // Construyo la cadena que se enviará
    i := 0; // El primer caracter está reservado para la longitud, se use o no.
-   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-   (BufferDest+i)^ := Char(CadenaCS); Inc(i);
-   (BufferDest+i)^ := Char($FB); Inc(i);
-   (BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
-   (BufferDest+i)^ := Char($02); Inc(i);
-   (BufferDest+i)^ := Char($00); Inc(i);
-   (BufferDest+i)^ := Char(sele_dac); Inc(i);
-   (BufferDest+i)^ := Char(valor shr 8); Inc(i); // Byte más significativo del valor
-   (BufferDest+i)^ := Char(valor and $FF); Inc(i); // Byte menos significativo del valor
-   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-   (BufferDest+i)^ := Char($FF); Inc(i);
-   (BufferDest+i)^ := Char($FB); Inc(i);
-//   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   (BufferDest+i)^ := AnsiChar(CadenaCS); Inc(i);
+   (BufferDest+i)^ := AnsiChar($FB); Inc(i);
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO); Inc(i);
+   (BufferDest+i)^ := AnsiChar($02); Inc(i);
+   (BufferDest+i)^ := AnsiChar($00); Inc(i);
+   (BufferDest+i)^ := AnsiChar(sele_dac); Inc(i);
+   (BufferDest+i)^ := AnsiChar(valor shr 8); Inc(i); // Byte más significativo del valor
+   (BufferDest+i)^ := AnsiChar(valor and $FF); Inc(i); // Byte menos significativo del valor
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+   (BufferDest+i)^ := AnsiChar($FB); Inc(i);
+//   (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
 
    // Nacho Horcas, agosto de 2017
    // Si sólo se tiene que guardar la instrucción en el buffer, se guarda y no se envía nada
@@ -388,9 +388,9 @@ end  ;
 function TForm10.adc_take(chn,mux,n:integer) : double ;
 
 
-Var sTexto:String;
-Var sTexto2:String;
-Var sTexto3:String;
+Var sTexto:AnsiString;
+Var sTexto2:AnsiString;
+Var sTexto3:AnsiString;
 
 var SPI_Ret:Integer;
 var BytesToWrite: Integer;
@@ -505,9 +505,9 @@ end;
 function TForm10.adc_take_all(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar) : TVectorDouble ;
 
 
-Var sTexto:String;
-Var sTexto2:String;
-Var sTexto3:String;
+Var sTexto:AnsiString;
+Var sTexto2:AnsiString;
+Var sTexto3:AnsiString;
 
 var SPI_Ret:Integer;
 var BytesToWrite: Integer;
@@ -537,38 +537,38 @@ begin
    // Si es sólo ponerla en el buffer, hay que copiarla para cada iteración.
    i := 1; // El primer caracter está reservado para la longitud, se use o no.
    // Activamos la señal de conversión del ADC
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($7F); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($7F); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
    // Esperamos un poco hasta que termine la conversión
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
    // Leemos los datos del ADC
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($EF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdReadDI); Inc(i);
-   Buffer[i] := Char($0B); Inc(i);
-   Buffer[i] := Char($00); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
-   Buffer[0] := Char(i-1); // Longitud de la cadena
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($EF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdReadDI); Inc(i);
+   Buffer[i] := AnsiChar($0B); Inc(i);
+   Buffer[i] := AnsiChar($00); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+   Buffer[0] := AnsiChar(i-1); // Longitud de la cadena
   end;
 
   setLength(datosum, NUM_ADCs);
@@ -876,23 +876,23 @@ begin
 
   // Construyo la cadena que se enviará
   i := 0;
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(0); Inc(i);
-  (BufferDest+i)^ := Char($FF); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
-  (BufferDest+i)^ := Char(2); Inc(i); // Número de bytes a transmitir menos 1
-  (BufferDest+i)^ := Char(0); Inc(i);
-  (BufferDest+i)^ := Char($40); Inc(i); // Direccion del chip y bits de control
-  (BufferDest+i)^ := Char(9); Inc(i); // Registro de datos
-  (BufferDest+i)^ := Char(value); Inc(i); // Valores de cada bit
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(Integer(pDIOcs)); Inc(i);
-  (BufferDest+i)^ := Char($FF); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(0); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO2); Inc(i);
+  (BufferDest+i)^ := AnsiChar(2); Inc(i); // Número de bytes a transmitir menos 1
+  (BufferDest+i)^ := AnsiChar(0); Inc(i);
+  (BufferDest+i)^ := AnsiChar($40); Inc(i); // Direccion del chip y bits de control
+  (BufferDest+i)^ := AnsiChar(9); Inc(i); // Registro de datos
+  (BufferDest+i)^ := AnsiChar(value); Inc(i); // Valores de cada bit
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Integer(pDIOcs)); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
@@ -916,31 +916,31 @@ begin
   // Construyo la cadena que se enviará
   // esto habrá que cambiarlo todo para pasar a unicode
   i := 0;
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE-Integer(pAttcs)); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
-  (BufferDest+i)^ := Char(2); Inc(i); // Número de bytes a transmitir menos 1
-  (BufferDest+i)^ := Char(0); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE-Integer(pAttcs)); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO2); Inc(i);
+  (BufferDest+i)^ := AnsiChar(2); Inc(i); // Número de bytes a transmitir menos 1
+  (BufferDest+i)^ := AnsiChar(0); Inc(i);
   if Form1.VersionDivider=False then
   begin
-    (BufferDest+i)^ := Char(03);
+    (BufferDest+i)^ := AnsiChar(03);
     Inc(i); // Registro: Ambos DACs
   end
   else
     begin
-      if (DACAttNr=1) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 0
-      if (DACAttNr=2) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 2
-      if (DACAttNr=3) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 5
-      if (DACAttNr=4) then (BufferDest+i)^ := Char(03); Inc(i); // registro DAC A Canal 6
+      if (DACAttNr=1) then (BufferDest+i)^ := AnsiChar(03); Inc(i); // registro DAC A Canal 0
+      if (DACAttNr=2) then (BufferDest+i)^ := AnsiChar(03); Inc(i); // registro DAC A Canal 2
+      if (DACAttNr=3) then (BufferDest+i)^ := AnsiChar(03); Inc(i); // registro DAC A Canal 5
+      if (DACAttNr=4) then (BufferDest+i)^ := AnsiChar(03); Inc(i); // registro DAC A Canal 6
     end;
-  (BufferDest+i)^ := Char(valueDAC shr 8); Inc(i);  // Parte alta del valor del DAC
-  (BufferDest+i)^ := Char(valueDAC and $FF); Inc(i); // Parte baja del valor del DAC
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(valueDAC shr 8); Inc(i);  // Parte alta del valor del DAC
+  (BufferDest+i)^ := AnsiChar(valueDAC and $FF); Inc(i); // Parte baja del valor del DAC
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
@@ -995,7 +995,7 @@ procedure TForm10.Button4Click(Sender: TObject);
 var
 mux,n: SmallInt;
   myFile : TextFile;
-  //text   : string;
+  //text   : AnsiString;
   //startTime : TDateTime;
   //currentTime : TDateTime;
   frequency,startTime,endTime : Int64 ;

@@ -8,7 +8,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, xyyGraph, var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series;
+  StdCtrls, ExtCtrls, ComCtrls, {xyyGraph,} var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series;
 
 type
   TCitsIV = array of single;        // Cada rampa de una IV
@@ -96,7 +96,6 @@ type
     procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
     procedure SaveCits(dataSet: Integer);
-    procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
     procedure Button5Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -1296,15 +1295,16 @@ end;
 // Nacho Horcas, diciembre de 2017
 procedure TForm1.SaveCits(dataSet: Integer);
 var
-  MiFile, FileNumber, strLine, strDirections : string;
-  strGeneralInfoDir :string;
+  MiFile, FileNumber:string;
+  strLine, strDirections : AnsiString;
+  strGeneralInfoDir : AnsiString;
   minV, maxV, value : double;
   valueSingle : Single;
   i, j, k, size_double: Integer;
   ImageTopo: ^TImageSingle;
 
 begin
-  DecimalSeparator := '.';
+//  DecimalSeparator := '.';
   if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
 
@@ -1448,26 +1448,6 @@ begin
   F.Destroy;
 end;
 
-procedure TForm1.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
-var
-MyStrLength,LengthDiff,i: Integer;
-Buf: String;
-
-begin
-Buf:='';
-MyStrLength:=Length(MyString);
-if (MyStrLength<MyLength) then
- begin
-  LengthDiff:=MyLength-MyStrLength;
-  if (LengthDiff<10) then SetLength(Buf,LengthDiff)
-  else LengthDiff:=0;
-  for i:=1 to LengthDiff do Buf[i]:='0';
-  //SetLength(MyString,MyLength);
-  MyString:=Buf+MyString;
-  end;
-end;
-
-
 procedure TForm1.Button5Click(Sender: TObject);
 begin
 Form8.Show;
@@ -1542,24 +1522,23 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 var
-i,Long :Integer;
-S: String;
+  i,Long :Integer;
+  S: String;
 begin
-if SaveDialog1.Execute then
-begin
-S:=ExtractFileName(SaveDialog1.FileName);
-for i:=1 to Length(S) do if S[i]='.' then Long:=i;
+  if SaveDialog1.Execute then
+  begin
+    S:=ExtractFileName(SaveDialog1.FileName);
+    for i:=1 to Length(S) do if S[i]='.' then Long:=i;
 
-SetLength(S,Long-1);
-Edit1.Text:=S;
+    SetLength(S,Long-1);
+    Edit1.Text:=S;
 
-Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
-Form4.Edit1.Text:=Edit1.Text;
-Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
-//CreateDir(Form9.Label5.Caption+'\IV');
-Form9.Label6.Caption:=Form9.Label5.Caption;
-end;
-
+    Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
+    Form4.Edit1.Text:=Edit1.Text;
+    Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
+    //CreateDir(Form9.Label5.Caption+'\IV');
+    Form9.Label6.Caption:=Form9.Label5.Caption;
+  end;
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
@@ -1881,7 +1860,7 @@ var
   x, y, sizeX, sizeY, value: Single;
   numParamsRead, i: Integer; // Número de datos que hemos podido obtener de la cabecera
   fileTemp: TextFile;
-  fileLine, strLabel, strValue: string;
+  fileLine, strLabel, strValue: AnsiString;
 
 begin
   // Para no borrar por error algo que no toque
