@@ -100,7 +100,7 @@ var
   SupraSPI_Hdl:Dword;
   simulating: Boolean;
   simulatedDac: array[0..7] of Integer;
-  Buffer:String[50]; //En ppio. hay espacio de sobra con esta cantidad
+  Buffer:AnsiString;
 
 
 implementation
@@ -130,12 +130,12 @@ uses Config_Liner;
 // Convierte pares de valores de números hexadecimales codificados en ASCII a su equivalente sin codificar.
 // Ejemplo:
 // HexToString('4142') -> 'AB' o lo que es lo mismo $4142 (si el endianness es el adecuado).
-function HexToString(H: AnsiString): String;
+function HexToString(H: AnsiString): AnsiString;
 var I: Integer;
 begin
   Result:= '';
   for I := 1 to length (H) div 2 do
-    Result:= Result+Char(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
+    Result:= Result+AnsiChar(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
 end;
 
 
@@ -470,7 +470,7 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
 
    numres:=ord(FT_In_Buffer[(chn*2)])*256 +  ( ord(FT_In_Buffer[(chn*2+1)]));
    if  numres > $7FFF             then    numres:=numres - $10000;      //Conversión (condicional) a nºs negativos
-   resultadoooo:=numres/$10000;
+   resultadoooo:=numres/$8000;
 
   Str( resultadoooo, sTexto2 );
   Str( n, sTexto3 );
@@ -568,7 +568,7 @@ begin
    Buffer[i] := AnsiChar($FF); Inc(i);
    Buffer[i] := AnsiChar($FB); Inc(i);
    Buffer[i] := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
-   Buffer[0] := AnsiChar(i-1); // Longitud de la cadena
+   SetLength(Buffer, i-1); // Longitud de la cadena
   end;
 
   setLength(datosum, NUM_ADCs);

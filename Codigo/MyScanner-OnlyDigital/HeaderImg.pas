@@ -75,20 +75,20 @@ begin
   if (FormPID = nil) then
     strLine :='    Set Point: ?? %'
   else
-    strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
+    strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position], TFormatSettings.Invariant);
 
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*Form1.CalX]);
+  strLine := Format('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*Form1.CalX], TFormatSettings.Invariant);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Offset: %f nm', [Form1.XOffset*10*Form1.AmpX*Form1.CalX]);
+  strLine := Format('    X Offset: %f nm', [Form1.XOffset*10*Form1.AmpX*Form1.CalX], TFormatSettings.Invariant);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*Form1.CalY]);
+  strLine := Format('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*Form1.CalY], TFormatSettings.Invariant);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Offset: %f nm', [Form1.YOffset*10*Form1.AmpY*Form1.CalY]);
+  strLine := Format('    Y Offset: %f nm', [Form1.YOffset*10*Form1.AmpY*Form1.CalY], TFormatSettings.Invariant);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+#13#10+
@@ -96,13 +96,13 @@ begin
         #13#10+
         '    Image Data Type: double'#13#10;
 
-  strLine := Format('    Number of columns: %d', [Form1.P_Scan_Lines]);
+  strLine := Format('    Number of columns: %d', [Form1.P_Scan_Lines], TFormatSettings.Invariant);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Number of rows: %d', [Form1.P_Scan_Lines]);
+  strLine := Format('    Number of rows: %d', [Form1.P_Scan_Lines], TFormatSettings.Invariant);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Z Amplitude: 1 %s', [strUnit]); // Si se guardan como flotantes el número se ignora el valor. Se usa la unidad con el valor que venga en la matriz
+  strLine := Format('    Z Amplitude: 1 %s', [strUnit], TFormatSettings.Invariant); // Si se guardan como flotantes el número se ignora el valor. Se usa la unidad con el valor que venga en la matriz
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+

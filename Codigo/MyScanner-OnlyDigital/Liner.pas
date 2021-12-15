@@ -245,7 +245,7 @@ here_previous_ctrl:=0;
 
     Fin:=-Princ;
     // Indicamos por qué iteracion vamos
-    lblAccumulate.Caption := format ('%d of', [j+1]);
+    lblAccumulate.Caption := format ('%d of', [j+1], TFormatSettings.Invariant);
 
     // Forth (Rampa de ida)
     // Lectura de UNA rampa de ida
@@ -656,7 +656,7 @@ begin
   WriteLn(myFile, '');
   WriteLn(myFile, '    Number of lines: 2'); // Ida y vuelta
 
-  strLine := Format('    Number of points: %d', [PointNumber]);
+  strLine := Format('    Number of points: %d', [PointNumber], TFormatSettings.Invariant);
   WriteLn(myFile, strLine);
 
   WriteLn(myFile, '    X axis text: V[#x]');
@@ -691,7 +691,7 @@ begin
   for i:=0 to PointNumber-1 do
   begin
     strLine := Format('%g %g %g %g', [DataX[0,i]*factorX, DataCurve^[0,i]*factorY,
-      DataX[1,i]*factorX, DataCurve^[1,i]*factorY]);
+      DataX[1,i]*factorX, DataCurve^[1,i]*factorY], TFormatSettings.Invariant);
     WriteLn(myFile, strLine);
   end;
 
