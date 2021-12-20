@@ -8,7 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, {xyyGraph,} var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series;
+  StdCtrls, ExtCtrls, ComCtrls, {xyyGraph,} var_gbl, Spin, Math, ClipBrd, jpeg,
+  AnsiStrings, Paste, Series, UITypes;
 
 type
   TCitsIV = array of single;        // Cada rampa de una IV
@@ -85,7 +86,6 @@ type
     procedure MakeLine(Sender:TObject; Saveit: Boolean; LineNr: Integer);
     function FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
     function FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
-    function TakeOnePoint(Sender:TObject) : Single;
     procedure CreateCitsTempFiles();
     procedure DestroyCitsTempFiles();
     procedure CitsSeekToIV(row, column, point: Integer);
@@ -117,7 +117,7 @@ type
     procedure ScrollBar3Change(Sender: TObject);
     function PointGlobalToCanvas(pntGlobal: TPointFloat; canvasSize: Integer):TPoint;
     function PointCanvasToGlobal(pntCanvas: TPoint; canvasSize: Integer):TPointFloat;
-    function StringToLengthNm(strValue: String):Single;
+    function StringToLengthNm(strValue: AnsiString):Single;
     procedure btnMarkNowClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
@@ -481,7 +481,7 @@ var
 i,j,k,total,OldX,OldY,LastX,LastY, channelToPlot, flatten: Integer;
 Princ,Princ2,Fin,Step: Integer;
 xvolt,yvolt,yFactor: single;
-MakeX,MakeY: Boolean;
+MakeX: Boolean;
 interv, zeroSingle: Single;
 Data:HImg;
 C2,F:Int64;
@@ -490,6 +490,7 @@ ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
 
 begin
   zeroSingle := 0; // Para completar con ceros el fichero
+  Step:=0;
 
   // Creamos las series (líneas que se dibujarán) en el gráfico
   ChartLineSerie0 := TFastLineSeries.Create(self);
@@ -502,7 +503,6 @@ begin
   Form3.ChartLine.AddSeries(ChartLineSerie1);
 
   MakeX:=False;
-  MakeY:=False;
 
 OldX:=0; // dado que son dacs diferentes, el dac del barrido está en 0
 OldY:=0;
@@ -511,9 +511,7 @@ LastX:=0;
 LastY:=0;
 
 if (RadioGroup1.ItemIndex=0) then
-  MakeX:=True
-else
-  MakeY:=True;
+  MakeX:=True;
 
   //modify rounding, Hermann 22/09/2020
 if MakeX then
@@ -973,17 +971,6 @@ begin
   Result := true;
 end;
 
-function TForm1.TakeOnePoint(Sender:TObject) : Single;
-var
-Lectura: Single;
-i: Integer;
-begin
-for i:=0 to P_Scan_Mean do
- begin
-
- end;
-end;
-
 procedure TForm1.CreateCitsTempFiles();
 var
   i: Integer;
@@ -1071,6 +1058,7 @@ repeat
   PuntosPonderados:=0;
   TiempoMedio:=0;
   TiempoInicial:=0;
+  Step:=0;
 
   h.xstart:=DacValX/32768*Form10.attenuator*AmpX*10*1e-9;
   h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*Form10.attenuator*10*1e-9;
@@ -1104,6 +1092,8 @@ repeat
    PrincX:=Round(-int(32767*P_Scan_Size));
    MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
    MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
+   DacvalX_Local:=PrincX;
+   DacvalY_Local:=PrincY;
    //sleep(500*StrToInt(SpinEdit3.Text));
    //FormPID.se1.Text:='0';
    //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
@@ -1340,7 +1330,7 @@ begin
   end;
 
   FileNumber := Format('%.3d', [SpinEdit1.Value]);
-  MiFile:=MiFile+'\'+Edit1.Text+FileNumber+strDirections+'.gsi';
+  MiFile:=MiFile+'\'+Edit1.Text+FileNumber+String(strDirections)+'.gsi';
 
   F:=TFileStream.Create(MiFile,fmCreate) ;
 
@@ -1353,20 +1343,20 @@ begin
   F.Write('[Control]'#13#10, 2+Length('[Control]'));
   F.Write(''#13#10, 2+Length(''));
 
-  strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := MyFormat('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*CalX]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := MyFormat('    X Offset: %f nm', [XOffset*10*AmpX*CalX]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := MyFormat('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*CalY]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := MyFormat('    Y Offset: %f nm', [YOffset*10*AmpY*CalY]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   F.Write(''#13#10, 2+Length(''));
 
@@ -1374,17 +1364,17 @@ begin
   F.Write(''#13#10, 2+Length(''));
   F.Write('    Image Data Type: double'#13#10, 2+Length('    Image Data Type: double'));
 
-  strLine := Format('    Number of columns: %d', [Form1.IV_Scan_Lines]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Number of columns: %d', [Form1.IV_Scan_Lines]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of points per ramp: %d', [Form4.PointNumber]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Number of points per ramp: %d', [Form4.PointNumber]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of rows: %d', [Form1.IV_Scan_Lines]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Number of rows: %d', [Form1.IV_Scan_Lines]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   F.Write('    Spectroscopy Amplitude: 1 nA'#13#10, 2+Length('    Spectroscopy Amplitude: 1 nA')); // Lo importante es la unidad, no el valor
-  F.Write(PChar(strGeneralInfoDir+#13#10)^, 2+Length(strGeneralInfoDir));
+  F.Write(PAnsiChar(strGeneralInfoDir+#13#10)^, 2+Length(strGeneralInfoDir));
   F.Write('    Z Amplitude: 1 nm'#13#10, 2+Length('    Z Amplitude: 1 nm')); // Lo importante es la unidad, no el valor
   F.Write(''#13#10, 2+Length(''));
 
@@ -1406,7 +1396,7 @@ begin
   for i := 0 to Form4.PointNumber-1 do
   begin
     strLine := MyFormat('    Image %.3d: %.4f V', [i, minV+i*(maxV-minV)/(Form4.PointNumber-1)]);
-    F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+    F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
   end;
 
   F.Write(''#13#10, 2+Length(''));
@@ -1530,6 +1520,7 @@ begin
   if SaveDialog1.Execute then
   begin
     S:=ExtractFileName(SaveDialog1.FileName);
+    Long := Length(S)+1;
     for i:=1 to Length(S) do if S[i]='.' then Long:=i;
 
     SetLength(S,Long-1);
@@ -1686,22 +1677,22 @@ begin
   Result.Y := Round(tempY);
 end;
 
-function TForm1.StringToLengthNm(strValue: String):Single;
+function TForm1.StringToLengthNm(strValue: AnsiString):Single;
 var
-  strNumber, strUnit: String;
+  strNumber, strUnit: AnsiString;
   value: Single;
   i: integer;
 begin
   try
     strValue := Trim(strValue);
-    i := LastDelimiter(' ', strValue);
+    i := LastDelimiter(AnsiString(' '), strValue);
     if (i > 0) then
     begin
       strNumber := Copy(strValue, 1, i-1);
       strUnit := Copy(strValue, i+1, Length(strValue)-i);
     end;
 
-    value := StrToFloat(strNumber); // Leemos el número
+    value := StrToFloat(String(strNumber)); // Leemos el número
 
     // Convertimos las unidades, si hiciera falta
     if strUnit = 'Å' then
@@ -1945,7 +1936,7 @@ begin
 
         fileLine := Trim(fileLine);
         // Si el campo tiene algún valor, lo leemos
-        i := LastDelimiter(':', fileLine);
+        i := LastDelimiter(AnsiString(':'), fileLine);
         if (i > 0) then
         begin
           strLabel := Copy(fileLine, 1, i-1);

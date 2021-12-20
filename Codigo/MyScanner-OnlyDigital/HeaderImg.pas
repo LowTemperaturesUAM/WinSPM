@@ -77,7 +77,7 @@ begin
   if (FormPID = nil) then
     strLine :='    Set Point: ?? %'
   else
-    strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
+    strLine := MyFormat('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
 
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
@@ -98,20 +98,20 @@ begin
         #13#10+
         '    Image Data Type: double'#13#10;
 
-  strLine := Format('    Number of columns: %d', [Form1.P_Scan_Lines]);
+  strLine := MyFormat('    Number of columns: %d', [Form1.P_Scan_Lines]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Number of rows: %d', [Form1.P_Scan_Lines]);
+  strLine := MyFormat('    Number of rows: %d', [Form1.P_Scan_Lines]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Z Amplitude: 1 %s', [strUnit]); // Si se guardan como flotantes el número se ignora el valor. Se usa la unidad con el valor que venga en la matriz
+  strLine := MyFormat('    Z Amplitude: 1 %s', [strUnit]); // Si se guardan como flotantes el número se ignora el valor. Se usa la unidad con el valor que venga en la matriz
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+
         #13#10+
         '[Miscellaneous]'#13#10+
         #13#10+
-        '    Comments: '+Edit1.Text+MyComments+#13#10+
+        '    Comments: '+AnsiString(Edit1.Text)+MyComments+#13#10+
         '    Saved with version: MyScanner 1.302'#13#10+
         '    Version: 1.0 (August 2005)'#13#10+
         '    Z Scale Factor: 1'#13#10+
@@ -121,7 +121,7 @@ begin
         #13#10;
 
   PosFin := Length(WSxMHeader);
-  RichEdit1.Text:= WSxMHeader;
+  RichEdit1.Text:= String(WSxMHeader);
   Label2.Caption:=InttoStr(PosFin);
 end;
 

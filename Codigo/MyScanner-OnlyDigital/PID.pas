@@ -323,10 +323,10 @@ end;
 
 procedure TFormPID.Button1Click(Sender: TObject);
 var
- Past,TickTime: longint;
+ Past,TickTime: Cardinal;
 
  begin
- TickTime:=SpinEdit6.Value;
+ TickTime:=Cardinal(SpinEdit6.Value);
  Past := GetTickCount;
  repeat
  application.ProcessMessages;

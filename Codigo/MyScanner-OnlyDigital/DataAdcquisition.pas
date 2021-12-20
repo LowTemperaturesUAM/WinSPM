@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, DateUtils, StdCtrls, Spin, Controls, Classes, Graphics, Forms, Dialogs, Scanner1,
   Liner, FT2232CSPIUnit, SPIDLLFuncUnit,D2XXUnit, StrUtils, WINSOCK, PID,
-  ExtCtrls ;
+  ExtCtrls, UITypes;
 
   Const
   FT_DLL_Name = 'ftd2xx.dll';
@@ -138,6 +138,19 @@ begin
     Result:= Result+AnsiChar(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
 end;
 
+// HexToBuffer
+// Convierte pares de valores de números hexadecimales codificados en ASCII a su equivalente sin codificar.
+// Ejemplo:
+// HexToString('4142') -> 'AB' o lo que es lo mismo $4142 (si el endianness es el adecuado).
+// Devuelve la longitud de la cadena
+function HexToBuffer(H: AnsiString; var destBuffer: array of uint8): uint8;
+var I: Integer;
+begin
+  Result:= 0;
+  for I := 1 to length (H) div 2 do
+    destBuffer[i] := uint8(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
+end;
+
 
 Function Get_USB_Device_QueueStatus(ReceivesBytes: Dword): Dword;
 //' return the number of bytes waiting to be read
@@ -149,7 +162,7 @@ Function TForm10.InitDataAcq : boolean  ;
 
  var LocationID:Integer;
  var SPI_Ret:Integer;    SPI_Hdl:Dword;
- var sTexto: AnsiString;
+ var sTexto: String;
  var DeviceType: DWORD;
  var nameBuffer: array[1..50] of AnsiChar;
  var channelBuffer:  array[1..50] of AnsiChar;
@@ -164,7 +177,7 @@ Function TForm10.InitDataAcq : boolean  ;
 begin
   simulating := false;
   SPI_Ret :=0;
- Result:=False;
+  Result:=false;
 
  SPI_GetHiSpeedDeviceNameLocIDChannel(0, @nameBuffer, 50, @LocationID, @channelBuffer, 50, @DeviceType);
  SPI_Ret := SPI_OpenHiSpeedDevice(nameBuffer, LocationID, channelBuffer, @SPI_Hdl) ;
@@ -235,8 +248,6 @@ begin
  end;
  //  else  MessageDlg('Puertos correctos', mtError, [mbOk], 0);         // Da error, ignoro el motivo
 
-
-  Buffer:=' ';
 
   //  No necesaria esta parte de la configuración.
   //  Buffer:=HexToString('80FFFB8208FF');
@@ -388,9 +399,9 @@ end  ;
 function TForm10.adc_take(chn,mux,n:integer) : double ;
 
 
-Var sTexto:AnsiString;
-Var sTexto2:AnsiString;
-Var sTexto3:AnsiString;
+Var sTexto:String;
+Var sTexto2:String;
+Var sTexto3:String;
 
 var SPI_Ret:Integer;
 var BytesToWrite: Integer;
@@ -404,9 +415,11 @@ var numres:longint;
 var resultadoooo:extended;
 var i:integer;
 var datosum: double ;
-var   f : double ;
+var f : double ;
 
 begin
+
+  result := 0;
 
 // En el original, había estas limitaciones:
 // if (n<1) or (chn<0) or (chn>7) or (mux<0) or (mux>31) then Exit ; ;
@@ -505,15 +518,13 @@ end;
 function TForm10.adc_take_all(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar) : TVectorDouble ;
 
 
-Var sTexto:AnsiString;
-Var sTexto2:AnsiString;
-Var sTexto3:AnsiString;
+Var sTexto:String;
+Var sTexto2:String;
 
 var SPI_Ret:Integer;
 var BytesToWrite: Integer;
 var BytesWritten:Integer;
 var BytesToReceive:Integer;
-var numADCChannels:Integer;
 var ReceivesBytes:Integer;
 var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
 var BytesReturned:Integer;
@@ -522,7 +533,7 @@ var resultadoooo:extended;
 var i:integer;
 var j:integer;
 var datosum: TVectorDouble ;
-var   f : double ;
+var f : double ;
 
 var intentos: Integer; // Para pruebas de cuando faltan datos
 
@@ -993,7 +1004,6 @@ end;
 
 procedure TForm10.Button4Click(Sender: TObject);
 var
-mux,n: SmallInt;
   myFile : TextFile;
   //text   : AnsiString;
   //startTime : TDateTime;

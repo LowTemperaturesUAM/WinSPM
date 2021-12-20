@@ -14,7 +14,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, blqloader,var_gbl,
-  Buttons, TeeProcs, TeEngine, Chart, Series{*, VclTee.TeeGDIPlus};
+  Buttons, TeeProcs, TeEngine, Chart, Series, VclTee.TeeGDIPlus,
+  AnsiStrings;
 
 type
   TDataCurve = Array [0..1,0..2048] of single;
@@ -152,8 +153,6 @@ end;
 
 //Open Liner
 procedure TForm4.FormShow(Sender: TObject);
-var
-i: Integer;
 begin
 //xyyGraph1[1].PlotPoints:=False;
 Abort_Measure:=False;
@@ -196,9 +195,7 @@ procedure TForm4.Button1Click(Sender: TObject);
 var
 j,h,k,Princ,Fin: Integer;
 DataCurrentOld: Array [0..1,0..2048] of single;
-adcRead: TVectorDouble;
-pidTimer: Boolean;
-  here_previous_ctrl:  Double;
+here_previous_ctrl:  Double;
 NumberControl: Integer;
 
 begin
@@ -337,7 +334,7 @@ procedure TForm4.DerivaRectas (vin:vcurva;out vout:vcurva);
 //Son variables tipo "vcurva". "vcurva" es una estructura donde .x son los datos de la ida, .y los datos de la vuelta, y .n otra cosa no importante para esto.
 //Para derivar, los datos "Y" están guardados en la vcurva, y los datos "X" están guardados en DataX
 var       i,o,np,m,tot0,pderi                 : integer;
-          sx,sy,sx2,sxy,b,bb,cc,nps,sx_2,sy_2,sx2_2,sxy_2,b_2,bb_2,cc_2           : double;{single;}
+          sx,sy,sx2,sxy,bb,nps,sx_2,sy_2,sx2_2,sxy_2,bb_2: double;{single;}
 begin
  m:=StrToInt(ComboBox1.text); //Número de puntos
 
@@ -393,13 +390,13 @@ if pderi=0 then begin //Si un punto de derivada
           nps:=1.0*np;
           bb:=((nps*SXY)-(SX*SY));
           bb_2:=((nps*SXY_2)-(SX_2*SY_2));
-          cc:=((nps*SX2)-(SX*SX));
-          cc_2:=((nps*SX2_2)-(SX_2*SX_2));
+//          cc:=((nps*SX2)-(SX*SX)); Nacho, diciembre de 2021. Estas variables que se asignan aqui luego no se usan ¿error?
+//          cc_2:=((nps*SX2_2)-(SX_2*SX_2)); Nacho, diciembre de 2021. Estas variables que se asignan aqui luego no se usan ¿error?
 
-          if abs(cc)<1e-10  then b:=1e10 else b:=bb/cc;
+//          if abs(cc)<1e-10  then b:=1e10 else b:=bb/cc; Nacho, diciembre de 2021. Estas variables que se asignan aqui luego no se usan ¿error?
           vout.x[i]:=bb;
 
-          if abs(cc_2)<1e-10  then b_2:=1e10 else b_2:=bb_2/cc_2;
+//          if abs(cc_2)<1e-10  then b_2:=1e10 else b_2:=bb_2/cc_2; Nacho, diciembre de 2021. Estas variables que se asignan aqui luego no se usan ¿error?
           vout.y[i]:=bb_2;
 
           tot0:=m;
@@ -534,31 +531,32 @@ end;
 procedure TForm4.Button4Click(Sender: TObject);
 var
 i,j,k,cols,BlockOffset: Integer;
-Fi_Name,BlockFileName,BlockFile,TakeComment:AnsiString;
+BlockFileName:String;
+BlockFile,TakeComment:AnsiString;
 number: Double;
 
 begin
 BlockFileName:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
-TakeComment:=DateTimeToStr(Now)+#13+#10+
+TakeComment:=AnsiString(DateTimeToStr(Now)+#13+#10+
     'T(K)='+FloattoStr(Temperature)+#13+#10+
     'B(T)='+FloattoStr(MagField)+#13+#10+
     'X(nm)='+FloattoStrF(Form1.XOffset*10*Form1.AmpX*Form1.CalX, ffGeneral, 5, 4)+#13+#10+
-    'Y(nm)='+FloattoStrF(Form1.YOffset*10*Form1.AmpY*Form1.CalY, ffGeneral, 5, 4)+#13+#10;
+    'Y(nm)='+FloattoStrF(Form1.YOffset*10*Form1.AmpY*Form1.CalY, ffGeneral, 5, 4)+#13+#10);
   for k:=0 to 1 do
   begin
   BlockOffset:=k;
   number:=SpinEdit1.Value+Presentblknumber/10000+BlockOffset/10000;
-  BlockFile:=Edit1.Text+FloattoStrF(number,ffFixed,5,4);
+  BlockFile:=AnsiString(Edit1.Text)+AnsiString(FloattoStrF(number,ffFixed,5,4));
   DS:=TblqDataSet.Create(NumCol,PointNumber) ;
   DS._Name:=BlockFile; // Aquí se pone el fichero con .xxxx al final
-  DS._BlockFile:=BlockFileName ; // Es el fichero de verdad, como en dd
+  DS._BlockFile:=AnsiString(BlockFileName); // Es el fichero de verdad, como en dd
   DS._BlockOffset:=Presentblknumber+BlockOffset ;
   DS._Moment:=Now;
   DS._Time:=Now ;
 
  for i:=0 to NumCol-1 do
   begin
-  BlockFile:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value);
+  BlockFile:=AnsiString(SaveDialog1.Filename+InttoStr(SpinEdit1.Value));
   if (k=0) then DS._Comment:=TakeComment+'Forth';
   if (k=1) then DS._Comment:=TakeComment+'Back';
   // COL HEADER
@@ -627,7 +625,7 @@ begin
   DecimalSeparator := '.';
 {$EndIf}
   factorX := 1;
-  commentsWSxM := StringReplace(comments, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]);
+  commentsWSxM := StringReplace(comments, AnsiString(#13#10), AnsiString('\n'), [rfReplaceAll, rfIgnoreCase]);
 
   AssignFile(myFile, fileName);
   ReWrite(myFile);
@@ -658,7 +656,7 @@ begin
   WriteLn(myFile, '');
   WriteLn(myFile, '    Number of lines: 2'); // Ida y vuelta
 
-  strLine := Format('    Number of points: %d', [PointNumber]);
+  strLine := MyFormat('    Number of points: %d', [PointNumber]);
   WriteLn(myFile, strLine);
 
   WriteLn(myFile, '    X axis text: V[#x]');
@@ -719,8 +717,7 @@ end;
 //En principio no hace nada, button10 no existe
 procedure TForm4.Button10Click(Sender: TObject);
 var
-BlockFile:AnsiString;
-b_offset: Integer;
+BlockFile:String;
 
 begin
 BlockFile:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';

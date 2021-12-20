@@ -338,12 +338,12 @@ signo_lect : array [0..2] of integer;
   FPalette : array [0..511,0..2] of byte ;
 
 
-function MyFormat(const FormatStr: string; const Args: array of const): string;
+function MyFormat(const FormatStr: string; const Args: array of const): AnsiString;
 
 
 implementation
 
-function MyFormat(const FormatStr: string; const Args: array of const): string;
+function MyFormat(const FormatStr: string; const Args: array of const): AnsiString;
 begin
 {$IfDef VER150}
   Format(FormatStr, Args);

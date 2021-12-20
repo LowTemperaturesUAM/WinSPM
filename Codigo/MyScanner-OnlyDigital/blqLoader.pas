@@ -163,8 +163,9 @@ var
   Ext : string ;
   Offset : integer ;
   d : TBlockEntry ;
-  j : integer ;
+  i,j : integer ;
 begin
+  result := false;
   if FileName='' then begin
     Open:=TOpenDialog.Create(Self) ;
     // OPCIONES
@@ -243,13 +244,16 @@ begin
   blqLoaderForm.ListBox1.Items.Clear ;
   for i:=0 to nnn-1 do begin
     d:=FEntries[i] ;
-    blqLoaderForm.ListBox1.Items.Add(d.FNombre) ;
+    blqLoaderForm.ListBox1.Items.Add(String(d.FNombre));
   end ;
-
+  result := true;
 end ;
 
 
 function TblqLoader.SelectEntriesDialog : Boolean ;
+var
+  i: Integer;
+
 begin
   Result:=False ;
   if nnn=0 then Exit ;

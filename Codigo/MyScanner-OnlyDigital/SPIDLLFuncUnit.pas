@@ -131,6 +131,8 @@ var
   DeviceName: TDeviceName;
   dwLocationID: Dword;
 begin
+  ftStatus := -1;
+
   if (FT2232CSPIDll = True) then
   begin
     dwNumDevices := 0;
@@ -181,6 +183,8 @@ var
   dwDeviceHandleIndex: Dword;
   bDeviceStored: Boolean;
 begin
+  ftStatus := -1;
+
   if (FT2232CSPIDll = True) then
   begin
     for dwDeviceHandleIndex := 0 to 49 do
@@ -251,6 +255,8 @@ var
   ftStatus: FTC_STATUS;
   dwDeviceHandleIndex: Dword;
 begin
+  ftStatus := -1;
+
   if (ftHandle <> 0) then
   begin
     ftStatus := FT2232CSPI.Close(ftHandle);
@@ -1501,7 +1507,7 @@ var
   HighPinsWriteActiveStates: FtcHigherOutputPins;
   DataByteIndex: Integer;
   TimeSeconds, TimeMinutes, TimeHours, DayOfWeek, DayOfMonth, MonthOfYear, YearOfCentury: Word;
-  ReadDateTime: TDateTime;  
+//  ReadDateTime: TDateTime;
 begin
   ftStatus := FTC_SUCCESS;
 
@@ -1543,7 +1549,7 @@ begin
       begin
         if (dwNumDataBytesReturned = 16) then
         begin
-          for DataByteIndex := 0 to (dwNumDataBytesReturned - 1) do
+{          for DataByteIndex := 0 to (dwNumDataBytesReturned - 1) do
    //         DisplayLines.Add('DS1305 - Read Loc Addr : ' + HexByteToStr(AddressByte) + ' Data : ' + HexByteToStr(ReadDataBuffer[DataByteIndex]));
 
           TimeSeconds := ReadDataBuffer[$00];
@@ -1568,7 +1574,7 @@ begin
           YearOfCentury := YearOfCentury + 2000;
 
    //       ReadDateTime := EncodeDateTime(YearOfCentury, MonthOfYear, DayOfMonth, TimeHours, TimeMinutes, TimeSeconds, 0);
-          DisplayLines.Add(FormatDateTime('dddd, d mmmm, yyyy, " " h:mm:ss am/pm', ReadDateTime));
+          DisplayLines.Add(FormatDateTime('dddd, d mmmm, yyyy, " " h:mm:ss am/pm', ReadDateTime));  }
         end
         else
           DisplayFT2232CSPIDllError('Read_DS1305_Device', 'Incorrect number of data bytes returned', ftStatus);
@@ -1971,7 +1977,7 @@ begin
       DataByteIndex := 0;
       while (DataByteIndex < MaxSPI93LC56BChipSizeInBytes) do
       begin
-        dwReadWordValue := ((ReadDataBuffer[(DataByteIndex + 1)] * 256) or ReadDataBuffer[DataByteIndex]);
+//        dwReadWordValue := ((ReadDataBuffer[(DataByteIndex + 1)] * 256) or ReadDataBuffer[DataByteIndex]);
 
   //      DisplayLines.Add(DeviceName + '(DS1305) - Read Data Value : ' + HexWrdToStr(dwReadWordValue));
 
@@ -2024,13 +2030,11 @@ begin
       end;
 
       DataByteIndex := 0;
-      dwLocationAddress := 0;
       while (DataByteIndex < SPIM95128MemoryReadWriteInBytes) do
       begin
   //      DisplayLines.Add(DeviceName + '(M95128) - Read Loc Addr : ' + HexWrdToStr(dwLocationAddress) + ' Data : ' + HexByteToStr(ReadDataBuffer[DataByteIndex]));
 
         DataByteIndex := (DataByteIndex + 1);
-        Inc(dwLocationAddress);
       end;
 
       if (dwNumBytesReturned <> dwNumDataBytesToBeReturned) then
@@ -2079,13 +2083,11 @@ begin
       end;
 
       DataByteIndex := 0;
-      dwLocationAddress := 0;
       while (DataByteIndex < MaxSPIM95020ChipSizeInBytes) do
       begin
 //        DisplayLines.Add(DeviceName + '(M95020) - Read Loc Addr : ' + HexWrdToStr(dwLocationAddress) + ' Data : ' + HexByteToStr(ReadDataBuffer[DataByteIndex]));
 
         DataByteIndex := (DataByteIndex + 1);
-        Inc(dwLocationAddress);
       end;
 
       if (dwNumBytesReturned <> dwNumDataBytesToBeReturned) then
@@ -2107,7 +2109,6 @@ end;
 
 function  ExecuteSPIDeviceCommandSequence(DeviceName: String; ExternalDeviceIndex: Integer; var DisplayLines: TStringList): Boolean;
 var
-  ftStatus: FTC_STATUS;
   dwDeviceIndex, dwDeviceHandleIndex: Dword;
   ExecftHandle: Dword;
 begin

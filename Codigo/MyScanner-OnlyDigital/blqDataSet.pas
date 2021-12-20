@@ -44,12 +44,13 @@ type
       procedure SetAxisUnits(n:Integer) ;
 
       constructor Create(n:integer) ;
-      destructor Destroy ; override ;
 
       function GetMinIndex : integer ;
       function GetMaxIndex : integer ;
 
     public
+      destructor Destroy ; override ;
+
       property Data : TPArrayOfSingles read Fdata ;
       property DataFormat : integer read FDataFormat ;
       property Prom:integer read FProm ;
@@ -128,12 +129,12 @@ type
   T_BLQ_Head = record
     v0 : word ; // $4444
     v1,v2,v3 : word ;
-    Name : array [0..31] of Char ;
+    Name : array [0..31] of AnsiChar ;
     NCols : Integer ;
     NRows : Integer ;
     Moment : double ;
     Time : double ;
-    Comment : array [0..127] of Char ;
+    Comment : array [0..127] of AnsiChar ;
 
     User : Integer ;
     UserReserved : array [0..99] of byte ;
@@ -159,8 +160,8 @@ type
     Reserved : array [0..15] of byte ;
   end ;
 
-  function LoadDataSetFromBlock(BlockFile:AnsiString;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
-  function WriteDataSetInBlock(BlockFile:AnsiString;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
+  function LoadDataSetFromBlock(BlockFile:String;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
+  function WriteDataSetInBlock(BlockFile:String;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
 
 const
   units_unknown=0 ; units_displacement=100 ; units_voltage=200 ;
@@ -185,6 +186,9 @@ var
   f : Double ;
 
 constructor TDataSetCol.Create(n:integer) ;
+var
+  i: byte;
+
 begin
   inherited Create ;
   GetMem(FData,4*n) ;
@@ -217,6 +221,8 @@ end ;
 
 
 constructor TblqDataSet.Create(ncols,nrows:Integer) ;
+var
+  i: byte;
 begin
   inherited Create ;
   Fncols:=ncols ;
@@ -237,6 +243,9 @@ begin
 end ;
 
 destructor TblqDataSet.Destroy ;
+var
+  i: byte;
+
 begin
   for i:=0 to Ncols-1 do TDataSetCol(FCol[i]).Free ;
   FCol.Clear ;
@@ -330,7 +339,7 @@ begin
 end ;
 
 
-function LoadDataSetFromBlock(BlockFile:AnsiString;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
+function LoadDataSetFromBlock(BlockFile:String;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
 type
   Tsingle_array = array [0..65535] of single ;
   Tdouble_array = array [0..65535] of double ;
@@ -359,8 +368,8 @@ begin
   // CREAR EL DATASET
   //DS.Free ;
   DS:=TblqDataSet.Create(BLQ_Head.NCols,BLQ_Head.Nrows) ;
-  DS._Name:=BLQ_Head.Name ;
-  DS._BlockFile:=BlockFile ;
+  DS._Name:=BLQ_Head.Name;
+  DS._BlockFile:=AnsiString(BlockFile);
   DS._BlockOffset:=BlockOffset ;
   DS._Moment:=BLQ_Head.Moment ;
   DS._Time:=BLQ_Head.Time ;
@@ -422,7 +431,7 @@ begin
 end ;
 
 
-function WriteDataSetInBlock(BlockFile:AnsiString;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
+function WriteDataSetInBlock(BlockFile:String;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
 label
   fin_error, fin_write_error ;
 type
@@ -436,7 +445,7 @@ var
   bufs : array[0..16384] of single ;
   bufd : array[0..16384] of double ;
   f1,f2 : double ;
-
+  i:Integer ;
 
 begin
   Result:=False ;
@@ -456,13 +465,13 @@ begin
   // CABECERA GENERAL
   h.V0:=$4444 ; h.V1:=1 ; h.V2:=0 ; h.V3:=0 ;
   for i:=0 to 31 do h.Name[i]:=#0 ;
-  strcopy(h.Name,PChar(DS.Name)) ;
+  strcopy(h.Name,PAnsiChar(DS.Name)) ;
   h.NCols:=DS.NCols ;
   h.NRows:=DS.NRows ;
   h.Moment:=DS.Moment ;
   h.Time:=DS.Time ;
   for i:=0 to 127 do h.Comment[i]:=#0 ;
-  strcopy(h.Comment,PChar(DS.Comment)) ;
+  strcopy(h.Comment,PAnsiChar(DS.Comment)) ;
   h.User:=1 ;
   for i:=0 to 99 do h.UserReserved[i]:=0 ;
   h.Unid:=1 ;
