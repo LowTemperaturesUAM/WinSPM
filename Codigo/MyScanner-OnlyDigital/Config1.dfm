@@ -1,7 +1,7 @@
 object Form2: TForm2
-  Left = 119
-  Top = 228
-  Width = 453
+  Left = 75
+  Top = 72
+  Width = 410
   Height = 414
   Caption = 'WinSPMConfig'
   Color = clBtnFace
@@ -28,6 +28,14 @@ object Form2: TForm2
     Width = 84
     Height = 13
     Caption = 'Calibration (nm/V)'
+  end
+  object SaveCfg: TSpeedButton
+    Left = 147
+    Top = 336
+    Width = 100
+    Height = 25
+    Caption = 'Save Config to File'
+    OnClick = SaveCfgClick
   end
   object Panel1: TPanel
     Left = 16
