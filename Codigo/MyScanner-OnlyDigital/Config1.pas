@@ -146,40 +146,40 @@ iniTrip := 'Trip';
 iniPID := 'PID';
 IniFile := TIniFile.Create(GetCurrentDir+'\Config.ini');
 try
-  SpinEdit1.Value := IniFile.ReadInteger(iniTitle, 'XScanDac', 0);
-  SpinEdit2.Value := IniFile.ReadInteger(iniTitle, 'YScanDac', 5);
-  Combobox1.Text := IniFile.ReadString(iniTitle, 'XYAmplifier', '13');
+  SpinEdit1.Value := IniFile.ReadInteger(String(iniTitle), 'XScanDac', 0);
+  SpinEdit2.Value := IniFile.ReadInteger(String(iniTitle), 'YScanDac', 5);
+  Combobox1.Text := IniFile.ReadString(String(iniTitle), 'XYAmplifier', '13');
   Combobox2.Text := Combobox1.Text;
-  SpinEdit6.Value := IniFile.ReadInteger(iniTitle, 'XPosDac', 1);
-  SpinEdit7.Value := IniFile.ReadInteger(iniTitle, 'YPosDac', 3);
-  Combobox6.Text := IniFile.ReadString(iniTitle, 'XYPosAmp', '13');
+  SpinEdit6.Value := IniFile.ReadInteger(String(iniTitle), 'XPosDac', 1);
+  SpinEdit7.Value := IniFile.ReadInteger(String(iniTitle), 'YPosDac', 3);
+  Combobox6.Text := IniFile.ReadString(String(iniTitle), 'XYPosAmp', '13');
   Combobox7.Text := Combobox6.Text;
-  Edit1.Text := IniFile.ReadString(iniTitle, 'XYCalibration', '5');
+  Edit1.Text := IniFile.ReadString(String(iniTitle), 'XYCalibration', '5');
   Edit2.Text := Edit1.Text;
   //Parametros de topo y corriente
-  SpinEdit3.Value := IniFile.ReadInteger(iniTitle, 'TopoAdc', 2);
-  Combobox3.Text := IniFile.ReadString(iniTitle, 'TopoAmp', '13');
-  Edit3.Text := IniFile.ReadString(iniTitle, 'TopoCalibration', '1');
-  SpinEdit4.Value := IniFile.ReadInteger(iniTitle, 'CurrentAdc', 0);
-  Combobox4.Text := IniFile.ReadString(iniTitle, 'CurrentAmp', '8');
-  Edit4.Text := IniFile.ReadString(iniTitle, 'CurrentMult', '-1');
+  SpinEdit3.Value := IniFile.ReadInteger(String(iniTitle), 'TopoAdc', 2);
+  Combobox3.Text := IniFile.ReadString(String(iniTitle), 'TopoAmp', '13');
+  Edit3.Text := IniFile.ReadString(String(iniTitle), 'TopoCalibration', '1');
+  SpinEdit4.Value := IniFile.ReadInteger(String(iniTitle), 'CurrentAdc', 0);
+  Combobox4.Text := IniFile.ReadString(String(iniTitle), 'CurrentAmp', '8');
+  Edit4.Text := IniFile.ReadString(String(iniTitle), 'CurrentMult', '-1');
   //Parametros de Liner
-  Form7.SpinEdit1.Value := IniFile.ReadInteger(iniLiner, 'IVRampDac', 5);
-  Form7.seADCxaxis.Value := IniFile.ReadInteger(iniLiner, 'IVReadAdc', 0);
-  Form7.Edit1.Text := IniFile.ReadString(iniLiner, 'IVMult', '10');
+  Form7.SpinEdit1.Value := IniFile.ReadInteger(String(iniLiner), 'IVRampDac', 5);
+  Form7.seADCxaxis.Value := IniFile.ReadInteger(String(iniLiner), 'IVReadAdc', 0);
+  Form7.Edit1.Text := IniFile.ReadString(String(iniLiner), 'IVMult', '10');
   //En principio es mejor no cambiar este valor por defecto y solo cambiarlo manualmente
   //Podriamos leer un valor por defecto para las curvas reducidas pero que haya que marcar la casilla manualmente
-  //Form7.seReduceRampFactor.Value := IniFile.ReadInteger(iniLiner), 'ReduceRamp', 1);
+  //Form7.seReduceRampFactor.Value := IniFile.ReadInteger(String(iniLiner)), 'ReduceRamp', 1);
 
   //Parametros de Trip
-  Form6.SpinEdit1.Value := IniFile.ReadInteger(iniTrip, 'CoarseDac', 4);
+  Form6.SpinEdit1.Value := IniFile.ReadInteger(String(iniTrip), 'CoarseDac', 4);
   Form6.SpinEdit2.Value := SpinEdit4.Value;
-  Form6.spinCurrentLimit.Value := IniFile.ReadInteger(iniTrip, 'CurrentLim', 50);
-  Form6.CheckBox1.Checked := IniFile.ReadBool(iniTrip, 'ZPInverse', False);
-  Form6.CheckBox2.Checked := IniFile.ReadBool(iniTrip, 'CurrentInverse', False);
+  Form6.spinCurrentLimit.Value := IniFile.ReadInteger(String(iniTrip), 'CurrentLim', 50);
+  Form6.CheckBox1.Checked := IniFile.ReadBool(String(iniTrip), 'ZPInverse', False);
+  Form6.CheckBox2.Checked := IniFile.ReadBool(String(iniTrip), 'CurrentInverse', False);
   //Parametros PID
   FormPID.SpinEdit1.Value := SpinEdit4.Value;
-  FormPID.SpinEdit2.Value := IniFile.ReadInteger(iniPID, 'OutputDac', 6);
+  FormPID.SpinEdit2.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
 finally
   IniFile.Free;
 end;
@@ -221,31 +221,31 @@ begin
 // Leemos los datos del fichero de configuración
 IniFile := TIniFile.Create(GetCurrentDir+'\Config.ini');
 try
-  IniFile.WriteInteger(iniTitle, 'XScanDac', SpinEdit1.Value);
-  IniFile.WriteInteger(iniTitle, 'YScanDac', SpinEdit2.Value);
-  IniFile.WriteString(iniTitle, 'XYAmplifier', Combobox1.Text);
-  IniFile.WriteInteger(iniTitle, 'XPosDac', SpinEdit6.Value);
-  IniFile.WriteInteger(iniTitle, 'YPosDac', SpinEdit7.Value);
-  IniFile.WriteString(iniTitle, 'XYPosAmp', Combobox6.Text);
-  IniFile.WriteString(iniTitle, 'XYCalibration', Edit1.Text);
+  IniFile.WriteInteger(String(iniTitle), 'XScanDac', SpinEdit1.Value);
+  IniFile.WriteInteger(String(iniTitle), 'YScanDac', SpinEdit2.Value);
+  IniFile.WriteString(String(iniTitle), 'XYAmplifier', Combobox1.Text);
+  IniFile.WriteInteger(String(iniTitle), 'XPosDac', SpinEdit6.Value);
+  IniFile.WriteInteger(String(iniTitle), 'YPosDac', SpinEdit7.Value);
+  IniFile.WriteString(String(iniTitle), 'XYPosAmp', Combobox6.Text);
+  IniFile.WriteString(String(iniTitle), 'XYCalibration', Edit1.Text);
   //Parametros de topo y corriente
-  IniFile.WriteInteger(iniTitle, 'TopoAdc', SpinEdit3.Value);
-  IniFile.WriteString(iniTitle, 'TopoAmp', Combobox3.Text);
-  IniFile.WriteString(iniTitle, 'TopoCalibration', Edit3.Text);
-  IniFile.WriteInteger(iniTitle, 'CurrentAdc', SpinEdit4.Value);
-  IniFile.WriteString(iniTitle, 'CurrentAmp', Combobox4.Text);
-  IniFile.WriteString(iniTitle, 'CurrentMult', Edit4.Text);
+  IniFile.WriteInteger(String(iniTitle), 'TopoAdc', SpinEdit3.Value);
+  IniFile.WriteString(String(iniTitle), 'TopoAmp', Combobox3.Text);
+  IniFile.WriteString(String(iniTitle), 'TopoCalibration', Edit3.Text);
+  IniFile.WriteInteger(String(iniTitle), 'CurrentAdc', SpinEdit4.Value);
+  IniFile.WriteString(String(iniTitle), 'CurrentAmp', Combobox4.Text);
+  IniFile.WriteString(String(iniTitle), 'CurrentMult', Edit4.Text);
   //Parametros de Liner
-  IniFile.WriteInteger(iniLiner, 'IVRampDac', Form7.SpinEdit1.Value);
-  IniFile.WriteInteger(iniLiner, 'IVReadAdc', Form7.seADCxaxis.Value);
-  IniFile.WriteString(iniLiner, 'IVMult', Form7.Edit1.Text);
+  IniFile.WriteInteger(String(iniLiner), 'IVRampDac', Form7.SpinEdit1.Value);
+  IniFile.WriteInteger(String(iniLiner), 'IVReadAdc', Form7.seADCxaxis.Value);
+  IniFile.WriteString(String(iniLiner), 'IVMult', Form7.Edit1.Text);
   //Parametros de Trip
-  IniFile.WriteInteger(iniTrip, 'CoarseDac', Form6.SpinEdit1.Value);
-  IniFile.WriteInteger(iniTrip, 'CurrentLim', Form6.spinCurrentLimit.Value);
-  IniFile.WriteBool(iniTrip, 'ZPInverse', Form6.CheckBox1.Checked);
-  IniFile.WriteBool(iniTrip, 'CurrentInverse', Form6.CheckBox2.Checked);
+  IniFile.WriteInteger(String(iniTrip), 'CoarseDac', Form6.SpinEdit1.Value);
+  IniFile.WriteInteger(String(iniTrip), 'CurrentLim', Form6.spinCurrentLimit.Value);
+  IniFile.WriteBool(String(iniTrip), 'ZPInverse', Form6.CheckBox1.Checked);
+  IniFile.WriteBool(String(iniTrip), 'CurrentInverse', Form6.CheckBox2.Checked);
   //Parametros PID
-  IniFile.WriteInteger(iniPID, 'OutputDac', FormPID.SpinEdit2.Value);
+  IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.SpinEdit2.Value);
 finally
   IniFile.Free;
 end;
