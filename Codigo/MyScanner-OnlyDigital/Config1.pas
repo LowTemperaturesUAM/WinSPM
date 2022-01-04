@@ -67,8 +67,7 @@ type
     procedure SaveCfgClick(Sender: TObject);
   private
     { Private declarations }
-    IniFile: TIniFile;
-    MemFile: TMemIniFile;
+    IniFile: TMemIniFile;
     iniTitle: AnsiString;
     iniLiner: AnsiString;
     iniTrip: AnsiString;
@@ -145,7 +144,7 @@ iniTitle := 'Channels';
 iniLiner := 'Liner';
 iniTrip := 'Trip';
 iniPID := 'PID';
-IniFile := TIniFile.Create(GetCurrentDir+'\Config.ini');
+IniFile := TMemIniFile.Create(GetCurrentDir+'\Config.ini');
 try
   SpinEdit1.Value := IniFile.ReadInteger(String(iniTitle), 'XScanDac', 0);
   SpinEdit2.Value := IniFile.ReadInteger(String(iniTitle), 'YScanDac', 5);
@@ -220,36 +219,36 @@ procedure TForm2.SaveCfgClick(Sender: TObject);
 begin
 // Guardamos los datos en el fichero de configuración
 // Leemos los datos del fichero de configuración
-MemFile := TMemIniFile.Create(GetCurrentDir+'\Config.ini');
+IniFile := TMemIniFile.Create(GetCurrentDir+'\Config.ini');
 try
-  MemFile.WriteInteger(String(iniTitle), 'XScanDac', SpinEdit1.Value);
-  MemFile.WriteInteger(String(iniTitle), 'YScanDac', SpinEdit2.Value);
-  MemFile.WriteString(String(iniTitle), 'XYAmplifier', Combobox1.Text);
-  MemFile.WriteInteger(String(iniTitle), 'XPosDac', SpinEdit6.Value);
-  MemFile.WriteInteger(String(iniTitle), 'YPosDac', SpinEdit7.Value);
-  MemFile.WriteString(String(iniTitle), 'XYPosAmp', Combobox6.Text);
-  MemFile.WriteString(String(iniTitle), 'XYCalibration', Edit1.Text);
+  IniFile.WriteInteger(String(iniTitle), 'XScanDac', SpinEdit1.Value);
+  IniFile.WriteInteger(String(iniTitle), 'YScanDac', SpinEdit2.Value);
+  IniFile.WriteString(String(iniTitle), 'XYAmplifier', Combobox1.Text);
+  IniFile.WriteInteger(String(iniTitle), 'XPosDac', SpinEdit6.Value);
+  IniFile.WriteInteger(String(iniTitle), 'YPosDac', SpinEdit7.Value);
+  IniFile.WriteString(String(iniTitle), 'XYPosAmp', Combobox6.Text);
+  IniFile.WriteString(String(iniTitle), 'XYCalibration', Edit1.Text);
   //Parametros de topo y corriente
-  MemFile.WriteInteger(String(iniTitle), 'TopoAdc', SpinEdit3.Value);
-  MemFile.WriteString(String(iniTitle), 'TopoAmp', Combobox3.Text);
-  MemFile.WriteString(String(iniTitle), 'TopoCalibration', Edit3.Text);
-  MemFile.WriteInteger(String(iniTitle), 'CurrentAdc', SpinEdit4.Value);
-  MemFile.WriteString(String(iniTitle), 'CurrentAmp', Combobox4.Text);
-  MemFile.WriteString(String(iniTitle), 'CurrentMult', Edit4.Text);
+  IniFile.WriteInteger(String(iniTitle), 'TopoAdc', SpinEdit3.Value);
+  IniFile.WriteString(String(iniTitle), 'TopoAmp', Combobox3.Text);
+  IniFile.WriteString(String(iniTitle), 'TopoCalibration', Edit3.Text);
+  IniFile.WriteInteger(String(iniTitle), 'CurrentAdc', SpinEdit4.Value);
+  IniFile.WriteString(String(iniTitle), 'CurrentAmp', Combobox4.Text);
+  IniFile.WriteString(String(iniTitle), 'CurrentMult', Edit4.Text);
   //Parametros de Liner
-  MemFile.WriteInteger(String(iniLiner), 'IVRampDac', Form7.SpinEdit1.Value);
-  MemFile.WriteInteger(String(iniLiner), 'IVReadAdc', Form7.seADCxaxis.Value);
-  MemFile.WriteString(String(iniLiner), 'IVMult', Form7.Edit1.Text);
+  IniFile.WriteInteger(String(iniLiner), 'IVRampDac', Form7.SpinEdit1.Value);
+  IniFile.WriteInteger(String(iniLiner), 'IVReadAdc', Form7.seADCxaxis.Value);
+  IniFile.WriteString(String(iniLiner), 'IVMult', Form7.Edit1.Text);
   //Parametros de Trip
-  MemFile.WriteInteger(String(iniTrip), 'CoarseDac', Form6.SpinEdit1.Value);
-  MemFile.WriteInteger(String(iniTrip), 'CurrentLim', Form6.spinCurrentLimit.Value);
-  MemFile.WriteBool(String(iniTrip), 'ZPInverse', Form6.CheckBox1.Checked);
-  MemFile.WriteBool(String(iniTrip), 'CurrentInverse', Form6.CheckBox2.Checked);
+  IniFile.WriteInteger(String(iniTrip), 'CoarseDac', Form6.SpinEdit1.Value);
+  IniFile.WriteInteger(String(iniTrip), 'CurrentLim', Form6.spinCurrentLimit.Value);
+  IniFile.WriteBool(String(iniTrip), 'ZPInverse', Form6.CheckBox1.Checked);
+  IniFile.WriteBool(String(iniTrip), 'CurrentInverse', Form6.CheckBox2.Checked);
   //Parametros PID
-  MemFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.SpinEdit2.Value);
+  IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.SpinEdit2.Value);
 finally
-  MemFile.UpdateFile;
-  MemFile.Free;
+  IniFile.UpdateFile;
+  IniFile.Free;
 end;
 end;
 
