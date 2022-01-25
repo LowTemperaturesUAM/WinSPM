@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, xyyGraph, Menus, Spin, blqdataset, blqloader,var_gbl,
+  StdCtrls, ExtCtrls, xyyGraph, Menus, Spin, blqdataset, {blqloader,} var_gbl,
   Buttons, TeeProcs, TeEngine, Chart, Series;
 
 type
@@ -119,7 +119,7 @@ type
   Temperature,MagField: Single;
   StopIt: Boolean;
   
-  b : TblqLoader ;
+  //b : TblqLoader ;     //bqlLoader solo aparece aqui, creo que podemos eliminarlo
   DS : TblqDataSet ;
   blqname : string ;
   b_offset: Integer;
@@ -131,7 +131,7 @@ type
 var
   Form4: TForm4;
 
-  b : TblqLoader ;
+  //b : TblqLoader ;
   blqname : string ;
   b_offset: Integer;
   CurvaADerivar: vcurva;
