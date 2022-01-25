@@ -5,13 +5,12 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, xyyGraph, var_gbl, Spin, ComCtrls, Chart, Series,
-  TeeProcs, TeEngine;
+  TeeProcs, TeEngine, Buttons;
 
 type
   TForm3 = class(TForm)
     ScrollBox1: TScrollBox;
     ScrollBox2: TScrollBox;
-    Button1: TButton;
     RadioGroup1: TRadioGroup;
     PaintBox1: TPaintBox;
     PaintBox2: TPaintBox;
@@ -41,6 +40,8 @@ type
     lblOffset: TLabel;
     trckbrOffset: TTrackBar;
     btnResetZoomOffset: TButton;
+    Panel1: TPanel;
+    Button1: TSpeedButton;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
@@ -255,27 +256,27 @@ end;
 
 procedure TForm3.Button3Click(Sender: TObject);
 begin
-  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum/2,ChartLine.LeftAxis.Maximum/2);
+  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum+(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/4,ChartLine.LeftAxis.Maximum-(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/4);
 end;
 
 procedure TForm3.Button4Click(Sender: TObject);
 begin
-  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum*2, ChartLine.LeftAxis.Maximum*2);
+  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum-(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/2,ChartLine.LeftAxis.Maximum+(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/2);
 end;
 
 procedure TForm3.Button5Click(Sender: TObject);
 begin
-  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum-0.05, ChartLine.LeftAxis.Maximum-0.05);
+  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum-0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum), ChartLine.LeftAxis.Maximum-0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum));
 end;
 
 procedure TForm3.Button6Click(Sender: TObject);
 begin
-  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum+0.05, ChartLine.LeftAxis.Maximum+0.05);
+  ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum+0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum), ChartLine.LeftAxis.Maximum+0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum));
 end;
 
 procedure TForm3.FormShow(Sender: TObject);
 begin
-  ChartLine.LeftAxis.AxisValuesFormat := '0.##E+###';
+  ChartLine.LeftAxis.AxisValuesFormat := '0.####E+0';
   Button7Click(nil);
 end;
 

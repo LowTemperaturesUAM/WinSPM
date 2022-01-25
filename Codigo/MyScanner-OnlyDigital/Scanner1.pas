@@ -8,7 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, xyyGraph, var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series;
+  StdCtrls, ExtCtrls, ComCtrls, xyyGraph, var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series,
+  Buttons;
 
 type
   TCitsIV = array of single;        // Cada rampa de una IV
@@ -68,8 +69,9 @@ type
     ScrollBar2: TScrollBar;
     ScrollBar3: TScrollBar;
     btnCenterAtTip: TButton;
-    Button9: TButton;
     Button15: TButton;
+    Button9: TSpeedButton;
+    Panel3: TPanel;
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -1274,7 +1276,7 @@ begin
   MiFile:=Form9.Label5.Caption; //Here is directory
 
   FileNumber := Format('%.3d', [SpinEdit1.Value]);
-  MiFile:=MiFile+'\'+Edit1.Text+Suffix+FileNumber+'.stp';
+  MiFile:=MiFile+'\'+Edit1.Text+'_'+FileNumber+Suffix+'.stp';
 
   F:=TFileStream.Create(MiFile,fmCreate) ;
   F.WriteBuffer(Form8.WSxMHeader[1], Length(Form8.WSxMHeader));
@@ -1492,7 +1494,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=0;
   Form8.RadioGroup2.ItemIndex:=0;
-  SaveSTP(nil,OneImg,'_ih_', factorZ);
+  SaveSTP(nil,OneImg,'_ih', factorZ);
 
   for i:=0 to h.yn-1 do
   begin
@@ -1503,7 +1505,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=1;
   Form8.RadioGroup2.ItemIndex:=0;
-  SaveSTP(nil,OneImg,'_vh_', factorZ);
+  SaveSTP(nil,OneImg,'_vh', factorZ);
 end;
 
 if ReadCurrent=True then
@@ -1518,7 +1520,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=0;
   Form8.RadioGroup2.ItemIndex:=1;
-  SaveSTP(nil,OneImg,'_ic_', factorZ);
+  SaveSTP(nil,OneImg,'_ic', factorZ);
 
   for i:=0 to h.yn-1 do
   begin
@@ -1529,7 +1531,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=1;
   Form8.RadioGroup2.ItemIndex:=1;
-  SaveSTP(nil,OneImg,'_vc_', factorZ);
+  SaveSTP(nil,OneImg,'_vc', factorZ);
 
 // Se usa la misma condición que controla si se hacen IVs y aparte, que se quieran guardar los datos en este formato
 if (CheckBox2.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
