@@ -15,20 +15,6 @@ object Form2: TForm2
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object Label8: TLabel
-    Left = 120
-    Top = 56
-    Width = 39
-    Height = 13
-    Caption = 'Amplifier'
-  end
-  object Label9: TLabel
-    Left = 216
-    Top = 56
-    Width = 84
-    Height = 13
-    Caption = 'Calibration (nm/V)'
-  end
   object SaveCfg: TSpeedButton
     Left = 147
     Top = 336
@@ -40,7 +26,7 @@ object Form2: TForm2
   object Panel1: TPanel
     Left = 16
     Top = 8
-    Width = 361
+    Width = 370
     Height = 145
     TabOrder = 0
     object Label1: TLabel

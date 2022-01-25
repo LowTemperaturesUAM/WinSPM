@@ -140,7 +140,7 @@ var
 
 implementation
 
-uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1;
+uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1, FileNames;
 
 {$R *.DFM}
 
@@ -709,6 +709,7 @@ if SaveDialog1.Execute then
   SaveDialog1.FileName:=SaveDialog1.FileName;
   Presentblknumber:=0;
   Label12.Caption:=InttoStr(Presentblknumber);
+  Form9.Label6.Caption:=ExtractFileDir(SaveDialog1.FileName);
   end;
 
 Edit1.Text:=ExtractFileName(SaveDialog1.FileName);

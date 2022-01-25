@@ -158,7 +158,6 @@ object Form7: TForm7
     Top = 8
     Width = 81
     Height = 177
-    Caption = 'Pane3'
     TabOrder = 2
     object RadioGroup2: TRadioGroup
       Left = 0

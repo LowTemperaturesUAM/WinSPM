@@ -20,9 +20,7 @@ type
     Edit1: TEdit;
     Label7: TLabel;
     ComboBox1: TComboBox;
-    Label8: TLabel;
     ComboBox2: TComboBox;
-    Label9: TLabel;
     Label10: TLabel;
     Label11: TLabel;
     Panel2: TPanel;

@@ -1554,10 +1554,15 @@ SetLength(S,Long-1);
 Edit1.Text:=S;
 
 Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
-Form4.Edit1.Text:=Edit1.Text;
-Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
-//CreateDir(Form9.Label5.Caption+'\IV');
-Form9.Label6.Caption:=Form9.Label5.Caption;
+
+//Cambiamos el directorio y normbre de las IV solo si es una espectro
+  if Checkbox2.Checked then
+  begin
+    Form4.Edit1.Text:=Edit1.Text;
+    Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
+    //CreateDir(Form9.Label5.Caption+'\IV');
+    Form9.Label6.Caption:=Form9.Label5.Caption;
+  end;
 end;
 
 end;
