@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, xyyGraph, var_gbl, Spin, ComCtrls, Chart, Series,
+  StdCtrls, ExtCtrls, {xyyGraph,} var_gbl, Spin, ComCtrls, Chart, Series,
   TeeProcs, TeEngine, Buttons;
 
 type

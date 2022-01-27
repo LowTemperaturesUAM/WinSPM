@@ -17,7 +17,7 @@ uses
   DataAdcquisition in 'DataAdcquisition.pas' {Form10},
   PID in 'PID.pas' {FormPID},
   Config_IV in 'Config_IV.pas' {Form11},
-  xyyGraph in 'xyyGraph.pas',
+  //xyyGraph in 'xyyGraph.pas',
   Paste in 'Paste.pas' {FormPaste},
   ThdTimer in 'ThdTimer.pas';
 
