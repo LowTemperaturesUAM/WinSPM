@@ -70,6 +70,7 @@ type
     iniLiner: AnsiString;
     iniTrip: AnsiString;
     iniPID: AnsiString;
+    ConfigDir: String;
 //    const string iniTitle := 'Channels';
   public
     { Public declarations }
@@ -142,7 +143,8 @@ iniTitle := 'Channels';
 iniLiner := 'Liner';
 iniTrip := 'Trip';
 iniPID := 'PID';
-IniFile := TMemIniFile.Create(GetCurrentDir+'\Config.ini');
+ConfigDir := GetCurrentDir;
+IniFile := TMemIniFile.Create(ConfigDir+'\Config.ini');
 try
   SpinEdit1.Value := IniFile.ReadInteger(String(iniTitle), 'XScanDac', 0);
   SpinEdit2.Value := IniFile.ReadInteger(String(iniTitle), 'YScanDac', 5);
@@ -161,6 +163,9 @@ try
   SpinEdit4.Value := IniFile.ReadInteger(String(iniTitle), 'CurrentAdc', 0);
   Combobox4.Text := IniFile.ReadString(String(iniTitle), 'CurrentAmp', '8');
   Edit4.Text := IniFile.ReadString(String(iniTitle), 'CurrentMult', '-1');
+  SpinEdit5.Value := IniFile.ReadInteger(String(iniTitle), 'OtherAdc', 1);
+  Combobox5.Text := IniFile.ReadString(String(iniTitle), 'OtherAmp', '9');
+  Edit5.Text := IniFile.ReadString(String(iniTitle), 'OtherMult', '1');
   //Parametros de Liner
   Form7.SpinEdit1.Value := IniFile.ReadInteger(String(iniLiner), 'IVRampDac', 5);
   Form7.CheckBox4.Checked := IniFile.ReadBool(String(iniLiner), 'IVReverseDac', False);
@@ -179,6 +184,7 @@ try
   //Parametros PID
   FormPID.SpinEdit1.Value := SpinEdit4.Value;
   FormPID.SpinEdit2.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
+  FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', False);
 finally
   IniFile.Free;
 end;
@@ -218,7 +224,10 @@ procedure TForm2.SaveCfgClick(Sender: TObject);
 begin
 // Guardamos los datos en el fichero de configuración
 // Leemos los datos del fichero de configuración
-IniFile := TMemIniFile.Create(GetCurrentDir+'\Config.ini');
+// En esta version en necesario guardar el directorio de ejecucion
+// porque si no el archivo de configuracion se guarda en el directorio de las topos
+// y entonces los cambios que hagamos no se aplican para la proxima vez
+IniFile := TMemIniFile.Create(ConfigDir+'\Config.ini');
 try
   IniFile.WriteInteger(String(iniTitle), 'XScanDac', SpinEdit1.Value);
   IniFile.WriteInteger(String(iniTitle), 'YScanDac', SpinEdit2.Value);
@@ -234,6 +243,9 @@ try
   IniFile.WriteInteger(String(iniTitle), 'CurrentAdc', SpinEdit4.Value);
   IniFile.WriteString(String(iniTitle), 'CurrentAmp', Combobox4.Text);
   IniFile.WriteString(String(iniTitle), 'CurrentMult', Edit4.Text);
+  IniFile.WriteInteger(String(iniTitle), 'OtherAdc', SpinEdit5.Value);
+  IniFile.WriteString(String(iniTitle), 'OtherAmp', Combobox5.Text);
+  IniFile.WriteString(String(iniTitle), 'OtherMult', Edit5.Text);
   //Parametros de Liner
   IniFile.WriteInteger(String(iniLiner), 'IVRampDac', Form7.SpinEdit1.Value);
   IniFile.WriteBool(String(iniLiner), 'IVReverseDac', Form7.CheckBox4.Checked);
@@ -246,6 +258,7 @@ try
   IniFile.WriteBool(String(iniTrip), 'CurrentInverse', Form6.CheckBox2.Checked);
   //Parametros PID
   IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.SpinEdit2.Value);
+  IniFile.WriteBool(String(iniPID), 'PIDReverseOut', FormPID.CheckBox2.Checked);
 finally
   IniFile.UpdateFile;
   IniFile.Free;
