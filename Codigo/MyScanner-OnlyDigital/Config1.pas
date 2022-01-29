@@ -146,6 +146,7 @@ iniPID := 'PID';
 ConfigDir := GetCurrentDir;
 IniFile := TMemIniFile.Create(ConfigDir+'\Config.ini');
 try
+  //Parametros de barrido
   SpinEdit1.Value := IniFile.ReadInteger(String(iniTitle), 'XScanDac', 0);
   SpinEdit2.Value := IniFile.ReadInteger(String(iniTitle), 'YScanDac', 5);
   Combobox1.Text := IniFile.ReadString(String(iniTitle), 'XYAmplifier', '13');
@@ -163,6 +164,7 @@ try
   SpinEdit4.Value := IniFile.ReadInteger(String(iniTitle), 'CurrentAdc', 0);
   Combobox4.Text := IniFile.ReadString(String(iniTitle), 'CurrentAmp', '8');
   Edit4.Text := IniFile.ReadString(String(iniTitle), 'CurrentMult', '-1');
+  //Incluyo los parametros para una tercera entrada pero hay que activarla manualmente
   SpinEdit5.Value := IniFile.ReadInteger(String(iniTitle), 'OtherAdc', 1);
   Combobox5.Text := IniFile.ReadString(String(iniTitle), 'OtherAmp', '9');
   Edit5.Text := IniFile.ReadString(String(iniTitle), 'OtherMult', '1');
@@ -206,20 +208,6 @@ Form1.ReadTopo:=Checkbox1.checked;
 Form1.ReadCurrent:=Checkbox2.checked;
 end;
 
-procedure TForm2.CheckBox4Click(Sender: TObject);
-begin
-if Checkbox4.Checked then
-  begin
-//    Checkbox4.Checked:=False;
-    Form1.CheckBox2.Checked:=True;
-  end
-else
-  begin
-//  Checkbox4.Checked:=True;
-  Form1.CheckBox2.Checked:=False;
-  end;
-end;
-
 procedure TForm2.SaveCfgClick(Sender: TObject);
 begin
 // Guardamos los datos en el fichero de configuración
@@ -229,6 +217,7 @@ begin
 // y entonces los cambios que hagamos no se aplican para la proxima vez
 IniFile := TMemIniFile.Create(ConfigDir+'\Config.ini');
 try
+  //Parametros de barrido
   IniFile.WriteInteger(String(iniTitle), 'XScanDac', SpinEdit1.Value);
   IniFile.WriteInteger(String(iniTitle), 'YScanDac', SpinEdit2.Value);
   IniFile.WriteString(String(iniTitle), 'XYAmplifier', Combobox1.Text);
@@ -263,6 +252,20 @@ finally
   IniFile.UpdateFile;
   IniFile.Free;
 end;
+end;
+
+procedure TForm2.CheckBox4Click(Sender: TObject);
+begin
+if Checkbox4.Checked then
+  begin
+//    Checkbox4.Checked:=False;
+    Form1.CheckBox2.Checked:=True;
+  end
+else
+  begin
+//  Checkbox4.Checked:=True;
+  Form1.CheckBox2.Checked:=False;
+  end;
 end;
 
 end.
