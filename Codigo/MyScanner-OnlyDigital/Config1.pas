@@ -113,7 +113,7 @@ Form1.MultOther:=StrtoInt(Edit5.Text);
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
 begin
-  if Form1.Versiondivider=False then Form10.set_attenuator(0,0.1)
+  if Form1.Versiondivider=False then Form10.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
   else
     begin
        Form10.set_attenuator(1,0.1);
