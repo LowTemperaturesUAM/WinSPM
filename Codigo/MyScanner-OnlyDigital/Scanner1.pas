@@ -8,7 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, xyyGraph, var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series;
+  StdCtrls, ExtCtrls, ComCtrls, {xyyGraph,} var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series,
+  Buttons;
 
 type
   TCitsIV = array of single;        // Cada rampa de una IV
@@ -68,8 +69,9 @@ type
     ScrollBar2: TScrollBar;
     ScrollBar3: TScrollBar;
     btnCenterAtTip: TButton;
-    Button9: TButton;
     Button15: TButton;
+    Button9: TSpeedButton;
+    Panel3: TPanel;
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -109,7 +111,7 @@ type
     procedure ResizeBitmap(Bitmap: TBitmap; Width, Height: Integer; Background: TColor);
     procedure Button7Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
-    procedure Update(Sender:TObject);
+    procedure UpdateCanvas(Sender:TObject);
     procedure SetCanvasZoomFactor(Canvas: TCanvas; AZoomFactor: Integer);
     procedure Button17Click(Sender: TObject);
     procedure Button18Click(Sender: TObject);
@@ -255,7 +257,7 @@ FormPID.Show;
 
 // Hacemos un tip reset para asegurarnos de que la posición inicial es la central
 Button9Click(nil);
-Update(nil);
+UpdateCanvas(nil);
 end;
 
 procedure TForm1.PaintBox1DblClick(Sender: TObject);
@@ -297,7 +299,7 @@ begin
   MoveDac(nil, YDAC_Pos, Princ, Fin, P_Scan_Jump, nil);
 
   DacvalY:=Fin;
-  Update(nil);
+  UpdateCanvas(nil);
 end;
 
 procedure TForm1.TrackBar3Change(Sender: TObject);
@@ -308,7 +310,7 @@ Label8.Caption:=InttoStr(Trackbar3.Position);
 P_Scan_Size:=Trackbar3.Position/1000;
 Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10,ffFixed,3,1);
 Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10*CalX,ffFixed,3,1);
-Update(nil);
+UpdateCanvas(nil);
 end;
 
 procedure TForm1.TrackBar2Change(Sender: TObject);
@@ -382,7 +384,7 @@ end;
 
 procedure TForm1.PaintBox1Paint(Sender: TObject);
 begin
-Update(nil);
+UpdateCanvas(nil);
 end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
@@ -420,7 +422,7 @@ begin
     ScrollBar2.Position := Round((oldPosY*zoomFactor/(zoomFactor-1)+1)*halfScrollSize)
   end;
 
-  Update(nil);
+  UpdateCanvas(nil);
 end;
 
 procedure TForm1.ComboBox2Change(Sender: TObject);
@@ -1194,7 +1196,7 @@ repeat
            bitmapPasteList[i].bitmap.Canvas.CopyRect(Dest, Form3.PaintBox1.Canvas, Source);
         finally
        end;
-       Update(self);
+       UpdateCanvas(self);
      end;
 
 
@@ -1274,7 +1276,7 @@ begin
   MiFile:=Form9.Label5.Caption; //Here is directory
 
   FileNumber := Format('%.3d', [SpinEdit1.Value]);
-  MiFile:=MiFile+'\'+Edit1.Text+Suffix+FileNumber+'.stp';
+  MiFile:=MiFile+'\'+Edit1.Text+'_'+FileNumber+Suffix+'.stp';
 
   F:=TFileStream.Create(MiFile,fmCreate) ;
   F.WriteBuffer(Form8.WSxMHeader[1], Length(Form8.WSxMHeader));
@@ -1492,7 +1494,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=0;
   Form8.RadioGroup2.ItemIndex:=0;
-  SaveSTP(nil,OneImg,'_ih_', factorZ);
+  SaveSTP(nil,OneImg,'_ih', factorZ);
 
   for i:=0 to h.yn-1 do
   begin
@@ -1503,7 +1505,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=1;
   Form8.RadioGroup2.ItemIndex:=0;
-  SaveSTP(nil,OneImg,'_vh_', factorZ);
+  SaveSTP(nil,OneImg,'_vh', factorZ);
 end;
 
 if ReadCurrent=True then
@@ -1518,7 +1520,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=0;
   Form8.RadioGroup2.ItemIndex:=1;
-  SaveSTP(nil,OneImg,'_ic_', factorZ);
+  SaveSTP(nil,OneImg,'_ic', factorZ);
 
   for i:=0 to h.yn-1 do
   begin
@@ -1529,7 +1531,7 @@ begin
   end;
   Form8.RadioGroup1.ItemIndex:=1;
   Form8.RadioGroup2.ItemIndex:=1;
-  SaveSTP(nil,OneImg,'_vc_', factorZ);
+  SaveSTP(nil,OneImg,'_vc', factorZ);
 
 // Se usa la misma condición que controla si se hacen IVs y aparte, que se quieran guardar los datos en este formato
 if (CheckBox2.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
@@ -1554,10 +1556,15 @@ SetLength(S,Long-1);
 Edit1.Text:=S;
 
 Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
-Form4.Edit1.Text:=Edit1.Text;
-Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
-//CreateDir(Form9.Label5.Caption+'\IV');
-Form9.Label6.Caption:=Form9.Label5.Caption;
+
+//Cambiamos el directorio y normbre de las IV solo si es una espectro
+  if Checkbox2.Checked then
+  begin
+    Form4.Edit1.Text:=Edit1.Text;
+    Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
+    //CreateDir(Form9.Label5.Caption+'\IV');
+    Form9.Label6.Caption:=Form9.Label5.Caption;
+  end;
 end;
 
 end;
@@ -1768,7 +1775,7 @@ begin
   Result.Y := tempY;
 end;
 
-procedure TForm1.Update(Sender:TObject);
+procedure TForm1.UpdateCanvas(Sender:TObject);
 var
   i:Integer;
   bottomLeft, topRight: TPoint;
@@ -2056,7 +2063,7 @@ begin
       bitmapPasteList[i].bitmap := TBitmap.Create;
       bitmapPasteList[i].bitmap.Assign(Clipboard);
 
-      Update(Self);
+      UpdateCanvas(Self);
 
     except
         // Can't convert
@@ -2076,12 +2083,12 @@ end;
 
 procedure TForm1.ScrollBar2Change(Sender: TObject);
 begin
-  Update(nil)
+  UpdateCanvas(nil)
 end;
 
 procedure TForm1.ScrollBar3Change(Sender: TObject);
 begin
-  Update(nil)
+  UpdateCanvas(nil)
 end;
 
 procedure TForm1.btnMarkNowClick(Sender: TObject);
@@ -2108,7 +2115,7 @@ begin
   bitmapPasteList[i].bitmap.Canvas.Brush.Color := $00C0C0;
   bitmapPasteList[i].bitmap.Canvas.FillRect(Rect(0, 0, 1, 1));}
 
-  Update(self);
+  UpdateCanvas(self);
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -2141,7 +2148,7 @@ begin
   ScrollBar3.Position := Round((scrollX+1)*halfScollRange);
   ScrollBar2.Position := Round((scrollY+1)*halfScollRange);
 
-  Update(nil);
+  UpdateCanvas(nil);
 end;
 
 procedure TForm1.Button15Click(Sender: TObject);
@@ -2169,7 +2176,7 @@ begin
   bitmapPasteList[i].bitmap.Canvas.Brush.Color := $00C0C0;
   bitmapPasteList[i].bitmap.Canvas.FillRect(Rect(0, 0, 1, 1));}
 
-  Update(self);
+  UpdateCanvas(self);
 end;
 
 //procedure TForm1.SpinEdit3Change(Sender: TObject);

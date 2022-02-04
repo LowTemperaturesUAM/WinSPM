@@ -101,21 +101,6 @@ object Form3: TForm3
       ParentColor = False
     end
   end
-  object Button1: TButton
-    Left = 6
-    Top = 40
-    Width = 75
-    Height = 25
-    Caption = 'STOP'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 2
-    OnClick = Button1Click
-  end
   object RadioGroup1: TRadioGroup
     Left = 15
     Top = 312
@@ -126,7 +111,7 @@ object Form3: TForm3
     Items.Strings = (
       'Topo'
       'Current')
-    TabOrder = 3
+    TabOrder = 2
   end
   object SpinEdit1: TSpinEdit
     Left = 15
@@ -135,7 +120,7 @@ object Form3: TForm3
     Height = 22
     MaxValue = 100
     MinValue = 0
-    TabOrder = 4
+    TabOrder = 3
     Value = 2
   end
   object Button2: TButton
@@ -150,56 +135,56 @@ object Form3: TForm3
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 5
+    TabOrder = 4
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 19
-    Top = 376
+    Left = 13
+    Top = 400
     Width = 65
     Height = 25
     Caption = 'IN'
-    TabOrder = 6
+    TabOrder = 5
     Visible = False
     OnClick = Button3Click
   end
   object Button4: TButton
-    Left = 19
-    Top = 405
+    Left = 13
+    Top = 429
     Width = 65
     Height = 25
     Caption = 'OUT'
-    TabOrder = 7
+    TabOrder = 6
     Visible = False
     OnClick = Button4Click
   end
   object Button5: TButton
-    Left = 19
-    Top = 443
+    Left = 13
+    Top = 467
     Width = 65
     Height = 25
     Caption = 'UP'
-    TabOrder = 8
+    TabOrder = 7
     Visible = False
     OnClick = Button5Click
   end
   object Button6: TButton
-    Left = 19
-    Top = 472
+    Left = 13
+    Top = 496
     Width = 65
     Height = 25
     Caption = 'DOWN'
-    TabOrder = 9
+    TabOrder = 8
     Visible = False
     OnClick = Button6Click
   end
   object Button7: TButton
-    Left = 18
-    Top = 512
+    Left = 13
+    Top = 536
     Width = 66
     Height = 25
     Caption = 'RESET'
-    TabOrder = 10
+    TabOrder = 9
     Visible = False
     OnClick = Button7Click
   end
@@ -215,7 +200,7 @@ object Form3: TForm3
     Position = 1
     SelEnd = 100
     SelStart = 1
-    TabOrder = 11
+    TabOrder = 10
     TickStyle = tsNone
     OnChange = TrackBar1Change
   end
@@ -231,7 +216,7 @@ object Form3: TForm3
     Position = 2
     SelEnd = 100
     SelStart = 1
-    TabOrder = 12
+    TabOrder = 11
     TickStyle = tsNone
     OnChange = TrackBar2Change
   end
@@ -241,7 +226,7 @@ object Form3: TForm3
     Width = 73
     Height = 17
     Caption = 'Scan Loop'
-    TabOrder = 14
+    TabOrder = 13
   end
   object CheckBox2: TCheckBox
     Left = 552
@@ -249,7 +234,7 @@ object Form3: TForm3
     Width = 137
     Height = 17
     Caption = 'Separate when finished'
-    TabOrder = 13
+    TabOrder = 12
   end
   object ChartLine: TChart
     Left = 84
@@ -285,7 +270,7 @@ object Form3: TForm3
     TopAxis.AutomaticMinimum = False
     View3D = False
     Color = clWhite
-    TabOrder = 15
+    TabOrder = 14
   end
   object chkFlatten: TCheckBox
     Left = 16
@@ -295,7 +280,7 @@ object Form3: TForm3
     Caption = 'Flatten'
     Checked = True
     State = cbChecked
-    TabOrder = 16
+    TabOrder = 15
   end
   object CheckBox3: TCheckBox
     Left = 208
@@ -303,7 +288,7 @@ object Form3: TForm3
     Width = 145
     Height = 17
     Caption = 'Show remaining time'
-    TabOrder = 17
+    TabOrder = 16
   end
   object trckbrZoom: TTrackBar
     Left = 752
@@ -316,7 +301,7 @@ object Form3: TForm3
     Position = 1
     SelEnd = 100
     SelStart = 1
-    TabOrder = 18
+    TabOrder = 17
     TickStyle = tsNone
     OnChange = trckbrZoomChange
   end
@@ -330,7 +315,7 @@ object Form3: TForm3
     PageSize = 10
     SelEnd = 100
     SelStart = -100
-    TabOrder = 19
+    TabOrder = 18
     TickStyle = tsNone
     OnChange = trckbrOffsetChange
   end
@@ -340,7 +325,30 @@ object Form3: TForm3
     Width = 41
     Height = 41
     Caption = 'Reset'
-    TabOrder = 20
+    TabOrder = 19
     OnClick = btnResetZoomOffsetClick
+  end
+  object Panel1: TPanel
+    Left = 6
+    Top = 40
+    Width = 75
+    Height = 27
+    Color = clRed
+    TabOrder = 20
+    object Button1: TSpeedButton
+      Left = 0
+      Top = 0
+      Width = 75
+      Height = 25
+      Caption = 'STOP'
+      Flat = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+      OnClick = Button1Click
+    end
   end
 end

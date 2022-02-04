@@ -514,9 +514,9 @@ object Form4: TForm4
   object chkPainYesNo: TCheckBox
     Left = 416
     Top = 560
-    Width = 97
+    Width = 70
     Height = 17
-    Caption = 'chkPainYesNo'
+    Caption = 'Paint Lines'
     Checked = True
     State = cbChecked
     TabOrder = 24

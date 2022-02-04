@@ -17,7 +17,7 @@ uses
   DataAdcquisition in 'DataAdcquisition.pas' {Form10},
   PID in 'PID.pas' {FormPID},
   Config_IV in 'Config_IV.pas' {Form11},
-  xyyGraph in 'xyyGraph.pas',
+  //xyyGraph in 'xyyGraph.pas',
   Paste in 'Paste.pas' {FormPaste},
   ThdTimer in 'ThdTimer.pas';
 
@@ -27,7 +27,6 @@ begin
   Application.Initialize;
   Application.Title := 'WinSPM';
   Application.CreateForm(TForm1, Form1);
-  Application.CreateForm(TForm2, Form2);
   Application.CreateForm(TForm6, Form6);
   Application.CreateForm(TForm3, Form3);
   Application.CreateForm(TForm4, Form4);
@@ -40,6 +39,7 @@ begin
   Application.CreateForm(TForm10, Form10);
   Application.CreateForm(TFormPID, FormPID);
   Application.CreateForm(TForm11, Form11);
+  Application.CreateForm(TForm2, Form2);
   Application.CreateForm(TFormPaste, FormPaste);
   Application.Run;
 end.

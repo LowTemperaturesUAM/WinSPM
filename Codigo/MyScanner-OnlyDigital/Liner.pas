@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, xyyGraph, Menus, Spin, blqdataset, blqloader,var_gbl,
+  StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, {blqloader,} var_gbl,
   Buttons, TeeProcs, TeEngine, Chart, Series;
 
 type
@@ -119,7 +119,7 @@ type
   Temperature,MagField: Single;
   StopIt: Boolean;
   
-  b : TblqLoader ;
+  //b : TblqLoader ;     //bqlLoader solo aparece aqui, creo que podemos eliminarlo
   DS : TblqDataSet ;
   blqname : string ;
   b_offset: Integer;
@@ -131,7 +131,7 @@ type
 var
   Form4: TForm4;
 
-  b : TblqLoader ;
+  //b : TblqLoader ;
   blqname : string ;
   b_offset: Integer;
   CurvaADerivar: vcurva;
@@ -140,7 +140,7 @@ var
 
 implementation
 
-uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1;
+uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1, FileNames;
 
 {$R *.DFM}
 
@@ -179,7 +179,7 @@ Size_xAxis:=scrollSizeBias.Position/100;
 
 Temperature:=StrtoFloat(Edit5.Text);
 MagField:=StrtoFloat(Edit6.Text);
-ChartLine.LeftAxis.AxisValuesFormat := '0.##E+###';
+ChartLine.LeftAxis.AxisValuesFormat := '0.####E+0';
 StopIt:=True;
 PaintYesNo:=chkPainYesNo.checked;
 end;
@@ -709,6 +709,7 @@ if SaveDialog1.Execute then
   SaveDialog1.FileName:=SaveDialog1.FileName;
   Presentblknumber:=0;
   Label12.Caption:=InttoStr(Presentblknumber);
+  Form9.Label6.Caption:=ExtractFileDir(SaveDialog1.FileName);
   end;
 
 Edit1.Text:=ExtractFileName(SaveDialog1.FileName);

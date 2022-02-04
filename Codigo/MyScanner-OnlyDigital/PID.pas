@@ -251,7 +251,7 @@ begin
     thisError := (Set_PID/1000*32768)-Read_PID;
     lastIntegral := lastIntegral+thisError/1000; // Siendo formales, habría que multiplicar thisError por dt. Hermann prefiere no hacerlo.
     // Es que podríamos ponerlo, pero dt va a ser casi siempre 0.001 s, por lo que es un factor multiplicativo un tanto arbitrario, pongo 1000, también en la derivada
-    Action_PID := Action_PID+reverse*Round((Gain*P_PID/100)*thisError + (Gain_of_I*I_PID/100)*(lastIntegral) + (Gain_of_D*D_PID/100)*(thisError-prevError)/1000);
+    Action_PID := Action_PID+reverse*Round((Gain*P_PID/100)*thisError + (Gain_of_I*I_PID/100)*(lastIntegral) + (Gain_of_D*D_PID/100)*(thisError-prevError)*1000);
     if (Action_PID>32768) then
     begin
       Action_PID:=32768;
