@@ -148,7 +148,7 @@ IniFile := TMemIniFile.Create(ConfigDir+'\Config.ini');
 try
   //Parametros de barrido
   SpinEdit1.Value := IniFile.ReadInteger(String(iniTitle), 'XScanDac', 0);
-  SpinEdit2.Value := IniFile.ReadInteger(String(iniTitle), 'YScanDac', 5);
+  SpinEdit2.Value := IniFile.ReadInteger(String(iniTitle), 'YScanDac', 2);
   Combobox1.Text := IniFile.ReadString(String(iniTitle), 'XYAmplifier', '13');
   Combobox2.Text := Combobox1.Text;
   SpinEdit6.Value := IniFile.ReadInteger(String(iniTitle), 'XPosDac', 1);
@@ -186,7 +186,7 @@ try
   //Parametros PID
   FormPID.SpinEdit1.Value := SpinEdit4.Value;
   FormPID.SpinEdit2.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
-  FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', False);
+  FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', True);
 finally
   IniFile.Free;
 end;
