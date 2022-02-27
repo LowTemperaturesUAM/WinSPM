@@ -63,6 +63,7 @@ object Form3: TForm3
     Width = 39
     Height = 13
     Caption = 'Contrast'
+    Enabled = False
   end
   object lblOffset: TLabel
     Left = 700
@@ -70,6 +71,7 @@ object Form3: TForm3
     Width = 49
     Height = 13
     Caption = 'Brightness'
+    Enabled = False
   end
   object ScrollBox1: TScrollBox
     Left = 696
@@ -295,6 +297,7 @@ object Form3: TForm3
     Top = 549
     Width = 177
     Height = 20
+    Enabled = False
     Max = 100
     Min = 1
     PageSize = 10
@@ -310,6 +313,7 @@ object Form3: TForm3
     Top = 576
     Width = 177
     Height = 20
+    Enabled = False
     Max = 100
     Min = -100
     PageSize = 10
