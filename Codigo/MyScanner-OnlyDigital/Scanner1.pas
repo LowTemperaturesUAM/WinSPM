@@ -713,7 +713,7 @@ begin
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
   TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-  if Form3.CheckBox3.Checked then Form3.Label6.Caption:=FloatToStr(RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1));
+  if Form3.CheckBox3.Checked then Form3.Label6.Caption:= FormatDateTime('hh:nn:ss',RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1) / SecsPerDay);
 
   Application.ProcessMessages;
   i:=i+1;
@@ -873,7 +873,7 @@ begin
 
     QueryPerformanceCounter(C2); // Lectura del cronómetro
     TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-    if Form3.CheckBox3.Checked then Form3.Label6.Caption:=FloatToStr(RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1));
+    if Form3.CheckBox3.Checked then Form3.Label6.Caption:= FormatDateTime('hh:nn:ss',RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1) / SecsPerDay);
 
     Application.ProcessMessages;
     i:=i+1;
