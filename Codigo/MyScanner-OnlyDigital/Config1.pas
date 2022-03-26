@@ -87,51 +87,51 @@ uses Scanner1, DataAdcquisition, Config_Liner, Config_Trip, PID;
 
 procedure TForm2.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-Form1.XDAC:=SpinEdit1.Value;
-Form1.YDAC:=SpinEdit2.Value;
-Form1.XDAC_Pos:=SpinEdit6.Value;
-Form1.YDAC_Pos:=SpinEdit7.Value;
-Form1.AmpX:=StrtoFloat(Combobox1.Text);
-Form1.AmpY:=StrtoFloat(Combobox2.Text);
-Form1.CalX:=StrtoFloat(Edit1.Text);
-Form1.CalY:=StrtoFloat(Edit2.Text);
-Form1.ADCTopo:=SpinEdit3.Value;
-Form1.ADCI:=SpinEdit4.Value;
-Form1.AmpTopo:=StrtoFloat(Combobox3.Text);
-Form1.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1)); //Le resto 1 a mano porque hay un factor 10 colgando por cómo se interpreta la lectura del adc
-Form1.CalTopo:=StrtoFloat(Edit3.Text);
-Form1.MultI:=StrtoInt(Edit4.Text);
-Form1.ReadTopo:=Checkbox1.checked;
-Form1.ReadCurrent:=Checkbox2.checked;
+ScanForm.XDAC:=SpinEdit1.Value;
+ScanForm.YDAC:=SpinEdit2.Value;
+ScanForm.XDAC_Pos:=SpinEdit6.Value;
+ScanForm.YDAC_Pos:=SpinEdit7.Value;
+ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
+ScanForm.AmpY:=StrtoFloat(Combobox2.Text);
+ScanForm.CalX:=StrtoFloat(Edit1.Text);
+ScanForm.CalY:=StrtoFloat(Edit2.Text);
+ScanForm.ADCTopo:=SpinEdit3.Value;
+ScanForm.ADCI:=SpinEdit4.Value;
+ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1)); //Le resto 1 a mano porque hay un factor 10 colgando por cómo se interpreta la lectura del adc
+ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
+ScanForm.MultI:=StrtoInt(Edit4.Text);
+ScanForm.ReadTopo:=Checkbox1.checked;
+ScanForm.ReadCurrent:=Checkbox2.checked;
 
 //añadido para poder leer other
-Form1.ReadOther:=Checkbox3.checked;
-Form1.ADCOther:=SpinEdit5.Value;
-Form1.AmpOther:=StrtoFloat(ComboBox5.Text);
-Form1.MultOther:=StrtoInt(Edit5.Text);
+ScanForm.ReadOther:=Checkbox3.checked;
+ScanForm.ADCOther:=SpinEdit5.Value;
+ScanForm.AmpOther:=StrtoFloat(ComboBox5.Text);
+ScanForm.MultOther:=StrtoInt(Edit5.Text);
 
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
 begin
-  if Form1.Versiondivider=False then Form10.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
+  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
   else
     begin
        Form10.set_attenuator(1,0.1);
        Form10.set_attenuator(2,0.1);
     end;
-//  Form1.AmpX:= Form1.AmpX*0.1;
-//  Form1.AmpY:= Form1.AmpY*0.1;
+//  ScanForm.AmpX:= ScanForm.AmpX*0.1;
+//  ScanForm.AmpY:= ScanForm.AmpY*0.1;
 end
 else
   begin
-  if Form1.Versiondivider=False then Form10.set_attenuator(0,1)
+  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,1)
   else
   begin
        Form10.set_attenuator(1,1);
        Form10.set_attenuator(2,1);
   end;
   end;
-Form1.TrackBar3Change(self);
+ScanForm.TrackBar3Change(self);
 
 
 end;
@@ -192,20 +192,20 @@ finally
 end;
 
 
-Form1.XDAC:=SpinEdit1.Value;
-Form1.YDAC:=SpinEdit2.Value;
-Form1.AmpX:=StrtoFloat(Combobox1.Text);
-Form1.AmpY:=StrtoFloat(Combobox2.Text);
-Form1.CalX:=StrtoFloat(Edit1.Text);
-Form1.CalY:=StrtoFloat(Edit2.Text);
-Form1.ADCTopo:=SpinEdit3.Value;
-Form1.ADCI:=SpinEdit4.Value;
-Form1.AmpTopo:=StrtoFloat(Form2.Combobox3.Text);
-Form1.AmpI:=power(10,-1*StrtoFloat(Form2.Combobox4.Text));
-Form1.CalTopo:=StrtoFloat(Form2.Edit3.Text);
-Form1.MultI:=StrtoInt(Form2.Edit4.Text);
-Form1.ReadTopo:=Checkbox1.checked;
-Form1.ReadCurrent:=Checkbox2.checked;
+ScanForm.XDAC:=SpinEdit1.Value;
+ScanForm.YDAC:=SpinEdit2.Value;
+ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
+ScanForm.AmpY:=StrtoFloat(Combobox2.Text);
+ScanForm.CalX:=StrtoFloat(Edit1.Text);
+ScanForm.CalY:=StrtoFloat(Edit2.Text);
+ScanForm.ADCTopo:=SpinEdit3.Value;
+ScanForm.ADCI:=SpinEdit4.Value;
+ScanForm.AmpTopo:=StrtoFloat(Form2.Combobox3.Text);
+ScanForm.AmpI:=power(10,-1*StrtoFloat(Form2.Combobox4.Text));
+ScanForm.CalTopo:=StrtoFloat(Form2.Edit3.Text);
+ScanForm.MultI:=StrtoInt(Form2.Edit4.Text);
+ScanForm.ReadTopo:=Checkbox1.checked;
+ScanForm.ReadCurrent:=Checkbox2.checked;
 end;
 
 procedure TForm2.SaveCfgClick(Sender: TObject);
@@ -259,12 +259,12 @@ begin
 if Checkbox4.Checked then
   begin
 //    Checkbox4.Checked:=False;
-    Form1.CheckBox2.Checked:=True;
+    ScanForm.CheckBox2.Checked:=True;
   end
 else
   begin
 //  Checkbox4.Checked:=True;
-  Form1.CheckBox2.Checked:=False;
+  ScanForm.CheckBox2.Checked:=False;
   end;
 end;
 

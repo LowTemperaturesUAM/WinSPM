@@ -17,9 +17,9 @@ type
   TCitsImage = array of TCitsLine;  // Todas las rampas IV de una imagen
   TImageSingle = Array [0..512,0..512] of Single;
 
-  TForm1 = class(TForm)
-    Button1: TButton;
-    Button2: TButton;
+  TScanForm = class(TForm)
+    ScanButton: TButton;
+    TestButton: TButton;
     Button4: TButton;
     CheckBox1: TCheckBox;
     Panel1: TPanel;
@@ -39,7 +39,7 @@ type
     Label8: TLabel;
     Button7: TButton;
     CheckBox2: TCheckBox;
-    Button8: TButton;
+    SaveImgButton: TButton;
     ScrollBox1: TScrollBox;
     PaintBox1: TPaintBox;
     Button10: TButton;
@@ -83,7 +83,7 @@ type
     procedure PaintBox1Paint(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
     procedure ComboBox2Change(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure TestButtonClick(Sender: TObject);
     procedure MakeLine(Sender:TObject; Saveit: Boolean; LineNr: Integer);
     function FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
     function FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
@@ -94,13 +94,13 @@ type
     procedure RedimCits(PointsXY, PointsIV: Integer);
     procedure Button12Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure ScanButtonClick(Sender: TObject);
     procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
     procedure SaveCits(dataSet: Integer);
     procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
     procedure Button5Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
+    procedure SaveImgButtonClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
@@ -174,7 +174,7 @@ type
   end;
 
 var
-  Form1: TForm1;
+  ScanForm: TScanForm;
 
 implementation
 
@@ -187,12 +187,12 @@ var
 
 {$R *.DFM}
 
-procedure TForm1.Button4Click(Sender: TObject);
+procedure TScanForm.Button4Click(Sender: TObject);
 begin
 Form2.Show;
 end;
 
-procedure TForm1.FormShow(Sender: TObject);
+procedure TScanForm.FormShow(Sender: TObject);
 begin
   //control sobre si la versión del LHA contiene divisores o no
 if Application.MessageBox('LHA Version with multiple dividers ?','LHA version', MB_YESNO)=IDYES
@@ -260,7 +260,7 @@ Button9Click(nil);
 UpdateCanvas(nil);
 end;
 
-procedure TForm1.PaintBox1DblClick(Sender: TObject);
+procedure TScanForm.PaintBox1DblClick(Sender: TObject);
 var
 pntClicked: TPoint;
 pntClickedFloat: TPointFloat;
@@ -272,7 +272,7 @@ begin
   SetNewOffset(pntClickedFloat);
 end;
 
-procedure TForm1.SetNewOffset(pntClickedFloat: TPointFloat);
+procedure TScanForm.SetNewOffset(pntClickedFloat: TPointFloat);
 var
 Princ,Fin: Integer;
 
@@ -302,7 +302,7 @@ begin
   UpdateCanvas(nil);
 end;
 
-procedure TForm1.TrackBar3Change(Sender: TObject);
+procedure TScanForm.TrackBar3Change(Sender: TObject);
 
 begin
 P_Scan_Size_Old:=P_Scan_Size;
@@ -313,7 +313,7 @@ Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10*C
 UpdateCanvas(nil);
 end;
 
-procedure TForm1.TrackBar2Change(Sender: TObject);
+procedure TScanForm.TrackBar2Change(Sender: TObject);
 begin
 Label6.Caption:=InttoStr(Trackbar2.Position);
 P_Scan_Jump:= Trackbar2.Position;
@@ -323,7 +323,7 @@ PuntosPonderados:=0;
 TiempoInicial:=0; // Inidicamos que no es un tiempo válido
 end;
 
-procedure TForm1.TrackBar1Change(Sender: TObject);
+procedure TScanForm.TrackBar1Change(Sender: TObject);
 begin
 Label4.Caption:=InttoStr(Trackbar1.Position);
 P_Scan_Mean:=Trackbar1.Position;
@@ -333,7 +333,7 @@ PuntosPonderados:=0;
 TiempoInicial:=0; // Inidicamos que no es un tiempo válido
 end;
 
-procedure TForm1.Button9Click(Sender: TObject);
+procedure TScanForm.Button9Click(Sender: TObject);
 var
 pointCenter: TPointFloat;
 
@@ -342,16 +342,16 @@ begin
   ScrollBar3.Position:=Round(ScrollBar3.max/2);
   pointCenter.x := 0;
   pointCenter.y := 0;
-  Form1.SetNewOffset(pointCenter);
+  ScanForm.SetNewOffset(pointCenter);
 end;
 
-procedure TForm1.Button10Click(Sender: TObject);
+procedure TScanForm.Button10Click(Sender: TObject);
 begin
 Form3.CheckBox1.Checked:=False;
 StopAction:=True;
 end;
 
-procedure TForm1.SetCanvasZoomFactor(Canvas: TCanvas; AZoomFactor: Integer);
+procedure TScanForm.SetCanvasZoomFactor(Canvas: TCanvas; AZoomFactor: Integer);
 
 begin
   if AZoomFactor = 100 then
@@ -364,7 +364,7 @@ begin
   end;
 end;
 
-Procedure TForm1.SetCanvasZoomAndRotation(ACanvas: TCanvas; Zoom: Double;
+Procedure TScanForm.SetCanvasZoomAndRotation(ACanvas: TCanvas; Zoom: Double;
   Angle: Double; CenterpointX, CenterpointY: Double);
 var
   form: tagXFORM;
@@ -382,12 +382,12 @@ begin
   SetWorldTransform(ACanvas.Handle, form);
 end;
 
-procedure TForm1.PaintBox1Paint(Sender: TObject);
+procedure TScanForm.PaintBox1Paint(Sender: TObject);
 begin
 UpdateCanvas(nil);
 end;
 
-procedure TForm1.ComboBox1Change(Sender: TObject);
+procedure TScanForm.ComboBox1Change(Sender: TObject);
 var
   halfScrollSize, oldPosX, oldPosY: Single;
 const
@@ -425,14 +425,14 @@ begin
   UpdateCanvas(nil);
 end;
 
-procedure TForm1.ComboBox2Change(Sender: TObject);
+procedure TScanForm.ComboBox2Change(Sender: TObject);
 begin
 P_Scan_Lines:=StrtoInt(ComboBox2.Text);  // Número de filas y columnas
 Form11.ComboBox1.ItemIndex := ComboBox2.ItemIndex;
 Form11.ComboBox1Change(nil)
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+procedure TScanForm.TestButtonClick(Sender: TObject);
 var
 k, Prin: Integer;
 A:Boolean;
@@ -474,12 +474,12 @@ while (StopAction<>True) do
 Button10.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
 //CrossPosY:=Round(-DacValY/32768*200+200);
-//Form1.PaintBox1DblClick(nil);  No descomentar estas línea tal cual. En lugar de eso usar la función SetNewOffset calculando previamente el punto. (0, 0) si es ir al centro.
+//ScanForm.PaintBox1DblClick(nil);  No descomentar estas línea tal cual. En lugar de eso usar la función SetNewOffset calculando previamente el punto. (0, 0) si es ir al centro.
 Form3.Close;
 if A=True then CheckBox2.Checked:=True;
 end;
 
-procedure TForm1.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
+procedure TScanForm.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
 var
 i,j,k,total,OldX,OldY,LastX,LastY, channelToPlot, flatten: Integer;
 Princ,Princ2,Fin,Step: Integer;
@@ -558,12 +558,12 @@ Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Pri
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
 begin
   channelToPlot := 1;
-  yFactor := StrtoFloat(Form2.Edit3.Text)*StrtoFloat(Form2.Combobox3.Text);//Form1.CalTopo*Form1.AmpTopo;
+  yFactor := StrtoFloat(Form2.Edit3.Text)*StrtoFloat(Form2.Combobox3.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
 end
 else // Current
 begin
   channelToPlot := 2;
-  yFactor := Form1.MultI*Form1.AmpI;
+  yFactor := ScanForm.MultI*ScanForm.AmpI;
 end;
 
 //Forth
@@ -900,7 +900,7 @@ begin
 end;
 
 // filterOrder: 0 = No filter; 1 = Fit to line
-function TForm1.FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
+function TScanForm.FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
 var
   i, j: Integer;
   ord, slope: Single;
@@ -943,7 +943,7 @@ begin
   end;
 end;
 
-function TForm1.FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
+function TScanForm.FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
 var
   i: Integer;
   sx, sy, sxy, sx2, aux: Single;
@@ -976,7 +976,7 @@ begin
   Result := true;
 end;
 
-function TForm1.TakeOnePoint(Sender:TObject) : Single;
+function TScanForm.TakeOnePoint(Sender:TObject) : Single;
 var
 Lectura: Single;
 i: Integer;
@@ -987,7 +987,7 @@ for i:=0 to P_Scan_Mean do
  end;
 end;
 
-procedure TForm1.CreateCitsTempFiles();
+procedure TScanForm.CreateCitsTempFiles();
 var
   i: Integer;
   path: array [0..MAX_PATH] of Char;
@@ -1003,7 +1003,7 @@ begin
   end;
 end;
 
-procedure TForm1.DestroyCitsTempFiles();
+procedure TScanForm.DestroyCitsTempFiles();
 var
   i: Integer;
 begin
@@ -1014,7 +1014,7 @@ begin
   end
 end;
 
-procedure TForm1.CitsSeekToIV(row, column, point: Integer);
+procedure TScanForm.CitsSeekToIV(row, column, point: Integer);
 var
   i, pointsIV: Integer;
   position: Int64;
@@ -1031,7 +1031,7 @@ begin
   end
 end;
 
-procedure TForm1.RedimCits(PointsXY, PointsIV: Integer);
+procedure TScanForm.RedimCits(PointsXY, PointsIV: Integer);
 var
   i: Integer;
 begin
@@ -1045,17 +1045,17 @@ begin
   end
 end;
 
-procedure TForm1.Button12Click(Sender: TObject);
+procedure TScanForm.Button12Click(Sender: TObject);
 begin
 Form4.Show;
 end;
 
-procedure TForm1.Button11Click(Sender: TObject);
+procedure TScanForm.Button11Click(Sender: TObject);
 begin
 Form5.Show;
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TScanForm.ScanButtonClick(Sender: TObject);
 var
 i,p: Integer;
 j,k,total: Integer;
@@ -1202,7 +1202,7 @@ repeat
 
   Form3.Close;
 
-  if (checkbox1.checked) then Button8Click(nil);
+  if (checkbox1.checked) then SaveImgButtonClick(nil);
 until not Form3.CheckBox1.Checked;
 //if (Form3.CheckBox1.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
 
@@ -1214,7 +1214,7 @@ end;
 end;
 
 // Nacho, agosto de 2017. Si se pasa un buffer válido, en lugar de enviar el dato lo añade al buffer
-procedure TForm1.MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+procedure TScanForm.MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 var
 j,StepNumr,StepSign: Integer;
 Go_jump: Integer;
@@ -1251,7 +1251,7 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TForm1.SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
+procedure TScanForm.SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
 var
 MiFile,FileNumber : string;
 k,l: Integer;
@@ -1259,7 +1259,7 @@ DataWsxmtoPlotinFile: Array [0..512,0..512] of Double;
 DataLine: Array [0..512] of Double;
 
 begin
-  Form1.Button8.Enabled:=False; // se desactiva para que no se pueda grabar sobre el fichero abierto.
+  ScanForm.SaveImgButton.Enabled:=False; // se desactiva para que no se pueda grabar sobre el fichero abierto.
   Form8.Button1.Click; // Rellena la cabecera de la imagen
 
   // Asume que las imágenes son cuadradas (mismo número de filas y columnas)
@@ -1291,12 +1291,12 @@ begin
     Application.ProcessMessages;  // para que funcione el control mientras que graba. No comprendo bien por qué tarda tanto.
   end;
   F.Destroy;
-  Form1.Button8.Enabled:=True; // se activa para que no se pueda grabar sobre el fichero abierto.
+  ScanForm.SaveImgButton.Enabled:=True; // se activa para que no se pueda grabar sobre el fichero abierto.
 end;
 
 // Guarda las curvas IV en el formato General Spectroscopy Imaging de WSxM
 // Nacho Horcas, diciembre de 2017
-procedure TForm1.SaveCits(dataSet: Integer);
+procedure TScanForm.SaveCits(dataSet: Integer);
 var
   MiFile, FileNumber, strLine, strDirections : string;
   strGeneralInfoDir :string;
@@ -1356,13 +1356,13 @@ begin
   strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*CalX]);
+  strLine := Format('    X Amplitude: %f nm', [abs(ScanForm.h.xend-ScanForm.h.xstart)*1e9*CalX]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := Format('    X Offset: %f nm', [XOffset*10*AmpX*CalX]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*CalY]);
+  strLine := Format('    Y Amplitude: %f nm', [abs(ScanForm.h.yend-ScanForm.h.ystart)*1e9*CalY]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := Format('    Y Offset: %f nm', [YOffset*10*AmpY*CalY]);
@@ -1374,13 +1374,13 @@ begin
   F.Write(''#13#10, 2+Length(''));
   F.Write('    Image Data Type: double'#13#10, 2+Length('    Image Data Type: double'));
 
-  strLine := Format('    Number of columns: %d', [Form1.IV_Scan_Lines]);
+  strLine := Format('    Number of columns: %d', [ScanForm.IV_Scan_Lines]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := Format('    Number of points per ramp: %d', [Form4.PointNumber]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of rows: %d', [Form1.IV_Scan_Lines]);
+  strLine := Format('    Number of rows: %d', [ScanForm.IV_Scan_Lines]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   F.Write('    Spectroscopy Amplitude: 1 nA'#13#10, 2+Length('    Spectroscopy Amplitude: 1 nA')); // Lo importante es la unidad, no el valor
@@ -1390,7 +1390,7 @@ begin
 
   F.Write('[Miscellaneous]'#13#10, 2+Length('[Miscellaneous]'));
   F.Write(''#13#10, 2+Length(''));
-  F.Write('    Saved with version: MyScanner 1.301'#13#10, 2+Length('    Saved with version: MyScanner 1.302'));
+  F.Write('    Saved with version: MyScanner 1.3'#13#10, 2+Length('    Saved with version: MyScanner 1.3'));
   F.Write('    Version: 1.0 (August 2005)'#13#10, 2+Length('    Version: 1.0 (August 2005)'));
   F.Write('    Z Scale Factor: 1'#13#10, 2+Length('    Z Scale Factor: 1'));
   F.Write('    Z Scale Offset: 0'#13#10, 2+Length('    Z Scale Offset: 0'));
@@ -1418,9 +1418,9 @@ begin
 
   // Fin de escribir la cabecera. Guardamos los datos, primero la topografía y luego las curvas IV
   // Para pruebas, guardo datos inventados
-  for i := Form1.IV_Scan_Lines-1 downto 0 do
+  for i := ScanForm.IV_Scan_Lines-1 downto 0 do
   begin
-    for j := Form1.IV_Scan_Lines-1 downto 0 do
+    for j := ScanForm.IV_Scan_Lines-1 downto 0 do
     begin
       value := ImageTopo^[i,j];
       F.Write(value, size_double);
@@ -1434,9 +1434,9 @@ begin
 
   for i := 0 to Form4.PointNumber-1 do
   begin
-    for j := Form1.IV_Scan_Lines-1 downto 0 do
+    for j := ScanForm.IV_Scan_Lines-1 downto 0 do
     begin
-      for k := Form1.IV_Scan_Lines-1 downto 0 do
+      for k := ScanForm.IV_Scan_Lines-1 downto 0 do
       begin
         CitsSeekToIV(j, k, i);
 //        value := DataCurrentCits[dataSet][j][k][i]*1e9; // Guardamos en nA
@@ -1450,7 +1450,7 @@ begin
   F.Destroy;
 end;
 
-procedure TForm1.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
+procedure TScanForm.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
 var
 MyStrLength,LengthDiff,i: Integer;
 Buf: String;
@@ -1470,12 +1470,12 @@ if (MyStrLength<MyLength) then
 end;
 
 
-procedure TForm1.Button5Click(Sender: TObject);
+procedure TScanForm.Button5Click(Sender: TObject);
 begin
 Form8.Show;
 end;
 
-procedure TForm1.Button8Click(Sender: TObject);
+procedure TScanForm.SaveImgButtonClick(Sender: TObject);
 var
 OneImg: HImg;
 i,j:Integer;
@@ -1484,7 +1484,7 @@ factorZ: double; // Factor para convertir los datos de la matriz a sus unidades 
 begin
 if ReadTopo=True then
 begin
-  factorZ := 10.0*Form1.AmpTopo*Form1.CalTopo;
+  factorZ := 10.0*ScanForm.AmpTopo*ScanForm.CalTopo;
   for i:=0 to h.yn-1 do
   begin
    for j:=0 to h.yn-1 do
@@ -1510,7 +1510,7 @@ end;
 
 if ReadCurrent=True then
 begin
-  factorZ := Form1.AmpI*1e9*Form1.MultI;
+  factorZ := ScanForm.AmpI*1e9*ScanForm.MultI;
   for i:=0 to h.yn-1 do
   begin
     for j:=0 to h.yn-1 do
@@ -1542,7 +1542,7 @@ end;
 SpinEdit1.Value:=SpinEdit1.Value+1;
 end;
 
-procedure TForm1.Button3Click(Sender: TObject);
+procedure TScanForm.Button3Click(Sender: TObject);
 var
 i,Long :Integer;
 S: String;
@@ -1569,29 +1569,29 @@ end;
 
 end;
 
-procedure TForm1.CheckBox1Click(Sender: TObject);
+procedure TScanForm.CheckBox1Click(Sender: TObject);
 begin
 Button3Click(nil);
 end;
 
-procedure TForm1.Button6Click(Sender: TObject);
+procedure TScanForm.Button6Click(Sender: TObject);
 begin
 Form9.Show;
 end;
 
-procedure TForm1.Button13Click(Sender: TObject);
+procedure TScanForm.Button13Click(Sender: TObject);
 begin
 //take_initialize;
 Form10.InitDataAcq;
 end;
 
-procedure TForm1.Button14Click(Sender: TObject);
+procedure TScanForm.Button14Click(Sender: TObject);
 
 begin
 FormPID.Show;
 end;
 
-procedure TForm1.ScrollBar1Change(Sender: TObject);
+procedure TScanForm.ScrollBar1Change(Sender: TObject);
 var
 dac_num, enviaDac:SmallInt;
 
@@ -1601,12 +1601,12 @@ enviaDac:=ScrollBar1.Position;
 Form10.dac_set(dac_num,enviaDac, nil);
 end;
 
-procedure TForm1.Button16Click(Sender: TObject);
+procedure TScanForm.Button16Click(Sender: TObject);
 begin
 Form10.Show;
 end;
 
-procedure TForm1.ResizeBitmap(Bitmap: TBitmap; Width, Height: Integer; Background: TColor);
+procedure TScanForm.ResizeBitmap(Bitmap: TBitmap; Width, Height: Integer; Background: TColor);
 var
   R: TRect;
   B: TBitmap;
@@ -1645,7 +1645,7 @@ begin
   end;
 end;
 
-procedure TForm1.Button7Click(Sender: TObject);
+procedure TScanForm.Button7Click(Sender: TObject);
 var
   i:Integer;
   Mensaje:Integer;
@@ -1670,7 +1670,7 @@ end;
 
 
 
-procedure TForm1.CheckBox2Click(Sender: TObject);
+procedure TScanForm.CheckBox2Click(Sender: TObject);
 begin
 if Checkbox2.Checked then
   begin
@@ -1682,7 +1682,7 @@ else
   end;
 end;
 
-function TForm1.PointGlobalToCanvas(pntGlobal: TPointFloat; canvasSize: Integer):TPoint;
+function TScanForm.PointGlobalToCanvas(pntGlobal: TPointFloat; canvasSize: Integer):TPoint;
 var
   zoomFactor, scrollX, scrollY, tempX, tempY, halfScollRange: Double;
 begin
@@ -1712,7 +1712,7 @@ begin
   Result.Y := Round(tempY);
 end;
 
-function TForm1.StringToLengthNm(strValue: String):Single;
+function TScanForm.StringToLengthNm(strValue: String):Single;
 var
   strNumber, strUnit: String;
   value: Single;
@@ -1746,7 +1746,7 @@ begin
 
 end;
 
-function TForm1.PointCanvasToGlobal(pntCanvas: TPoint; canvasSize: Integer):TPointFloat;
+function TScanForm.PointCanvasToGlobal(pntCanvas: TPoint; canvasSize: Integer):TPointFloat;
 var
   zoomFactor, scrollX, scrollY, tempX, tempY, halfScollRange: Double;
 begin
@@ -1775,7 +1775,7 @@ begin
   Result.Y := tempY;
 end;
 
-procedure TForm1.UpdateCanvas(Sender:TObject);
+procedure TScanForm.UpdateCanvas(Sender:TObject);
 var
   i:Integer;
   bottomLeft, topRight: TPoint;
@@ -1783,7 +1783,7 @@ var
 begin
 
 //  Pinta el fondo
-  with Form1.PaintBox1.Canvas do
+  with ScanForm.PaintBox1.Canvas do
   begin
     Pen.Color   := $808080;
     Brush.Color := Pen.Color;
@@ -1791,7 +1791,7 @@ begin
 
     // Pinto el fondo de gris. Luego lo taparé con el área de barrido permitida por los piezos
     // Si todo está bien hecho, este fondo gris no se debería ver nunca
-    FillRect(Rect(0,0,Form1.PaintBox1.Width,Form1.PaintBox1.Height));
+    FillRect(Rect(0,0,ScanForm.PaintBox1.Width,ScanForm.PaintBox1.Height));
 
     Pen.Color:= clred;//clred;
     Brush.Color:=0;
@@ -1855,7 +1855,7 @@ begin
 
 
   //Cuadrado de posición de la punta
-  with Form1.PaintBox1.Canvas do
+  with ScanForm.PaintBox1.Canvas do
   begin
     Pen.Color:= $FFFF00;
     Brush.Style:=bsClear;
@@ -1878,7 +1878,7 @@ begin
   end;
 end;
 
-procedure TForm1.Button17Click(Sender: TObject);
+procedure TScanForm.Button17Click(Sender: TObject);
 var
   bmp: TBitmap;
   uiClipboardID, hData: Cardinal;
@@ -2076,22 +2076,22 @@ begin
   end;
 end;
 
-procedure TForm1.Button18Click(Sender: TObject);
+procedure TScanForm.Button18Click(Sender: TObject);
 begin
 Form11.show;
 end;
 
-procedure TForm1.ScrollBar2Change(Sender: TObject);
+procedure TScanForm.ScrollBar2Change(Sender: TObject);
 begin
   UpdateCanvas(nil)
 end;
 
-procedure TForm1.ScrollBar3Change(Sender: TObject);
+procedure TScanForm.ScrollBar3Change(Sender: TObject);
 begin
   UpdateCanvas(nil)
 end;
 
-procedure TForm1.btnMarkNowClick(Sender: TObject);
+procedure TScanForm.btnMarkNowClick(Sender: TObject);
 var
   i: Integer;
 begin
@@ -2118,14 +2118,14 @@ begin
   UpdateCanvas(self);
 end;
 
-procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TScanForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   DestroyCitsTempFiles();
 end;
 
-// Cálculos extraidos de TForm1.PointCanvasToGlobal, igualando el punto del canvas
+// Cálculos extraidos de TScanForm.PointCanvasToGlobal, igualando el punto del canvas
 // a cero (una vez normalizado entre +/-1) y despejando scrollX o scrollY
-procedure TForm1.btnCenterAtTipClick(Sender: TObject);
+procedure TScanForm.btnCenterAtTipClick(Sender: TObject);
 var
   zoomFactor, scrollX, scrollY, halfScollRange: Double;
 begin
@@ -2151,7 +2151,7 @@ begin
   UpdateCanvas(nil);
 end;
 
-procedure TForm1.Button15Click(Sender: TObject);
+procedure TScanForm.Button15Click(Sender: TObject);
 
  var
   i: Integer;
@@ -2179,7 +2179,7 @@ begin
   UpdateCanvas(self);
 end;
 
-//procedure TForm1.SpinEdit3Change(Sender: TObject);
+//procedure TScanForm.SpinEdit3Change(Sender: TObject);
 //begin
 //SleepDo := StrtoInt(SpinEdit3.Text);
 //end;

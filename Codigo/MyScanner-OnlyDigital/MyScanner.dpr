@@ -2,7 +2,7 @@ program MyScanner;
 
 uses
   Forms,
-  Scanner1 in 'Scanner1.pas' {Form1},
+  Scanner1 in 'Scanner1.pas' {ScanForm},
   Scanning in 'Scanning.pas' {Form3},
   Trip in 'Trip.pas' {Form5},
   Liner in 'Liner.pas' {Form4},
@@ -17,7 +17,6 @@ uses
   DataAdcquisition in 'DataAdcquisition.pas' {Form10},
   PID in 'PID.pas' {FormPID},
   Config_IV in 'Config_IV.pas' {Form11},
-  //xyyGraph in 'xyyGraph.pas',
   Paste in 'Paste.pas' {FormPaste},
   ThdTimer in 'ThdTimer.pas';
 
@@ -26,7 +25,7 @@ uses
 begin
   Application.Initialize;
   Application.Title := 'WinSPM';
-  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TScanForm, ScanForm);
   Application.CreateForm(TForm6, Form6);
   Application.CreateForm(TForm3, Form3);
   Application.CreateForm(TForm4, Form4);

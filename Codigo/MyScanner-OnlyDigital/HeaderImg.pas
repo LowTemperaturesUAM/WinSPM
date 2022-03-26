@@ -79,16 +79,16 @@ begin
 
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Amplitude: %f nm', [abs(Form1.h.xend-Form1.h.xstart)*1e9*Form1.CalX]);
+  strLine := Format('    X Amplitude: %f nm', [abs(ScanForm.h.xend-ScanForm.h.xstart)*1e9*ScanForm.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Offset: %f nm', [Form1.XOffset*10*Form1.AmpX*Form1.CalX]);
+  strLine := Format('    X Offset: %f nm', [ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Amplitude: %f nm', [abs(Form1.h.yend-Form1.h.ystart)*1e9*Form1.CalY]);
+  strLine := Format('    Y Amplitude: %f nm', [abs(ScanForm.h.yend-ScanForm.h.ystart)*1e9*ScanForm.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Offset: %f nm', [Form1.YOffset*10*Form1.AmpY*Form1.CalY]);
+  strLine := Format('    Y Offset: %f nm', [ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+#13#10+
@@ -96,10 +96,10 @@ begin
         #13#10+
         '    Image Data Type: double'#13#10;
 
-  strLine := Format('    Number of columns: %d', [Form1.P_Scan_Lines]);
+  strLine := Format('    Number of columns: %d', [ScanForm.P_Scan_Lines]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Number of rows: %d', [Form1.P_Scan_Lines]);
+  strLine := Format('    Number of rows: %d', [ScanForm.P_Scan_Lines]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   strLine := Format('    Z Amplitude: 1 %s', [strUnit]); // Si se guardan como flotantes el número se ignora el valor. Se usa la unidad con el valor que venga en la matriz
@@ -110,7 +110,7 @@ begin
         '[Miscellaneous]'#13#10+
         #13#10+
         '    Comments: '+Edit1.Text+MyComments+#13#10+
-        '    Saved with version: MyScanner 1.302'#13#10+
+        '    Saved with version: MyScanner 1.3'#13#10+
         '    Version: 1.0 (August 2005)'#13#10+
         '    Z Scale Factor: 1'#13#10+
         '    Z Scale Offset: 0'#13#10+

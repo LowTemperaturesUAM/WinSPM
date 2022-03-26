@@ -14,7 +14,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, {blqloader,} var_gbl,
-  Buttons, TeeProcs, TeEngine, Chart, Series;
+  Buttons, TeeProcs, TeEngine, Chart, Series, HeaderImg ;
 
 type
   TDataCurve = Array [0..1,0..2048] of single;
@@ -50,10 +50,10 @@ type
     OpenDialog1: TOpenDialog;
     Label12: TLabel;
     Label13: TLabel;
-    Edit5: TEdit;
+    TemperatureEdit: TEdit;
     Label14: TLabel;
     Label15: TLabel;
-    Edit6: TEdit;
+    MagFieldEdit: TEdit;
     Label16: TLabel;
     scrollSizeBias: TScrollBar;
     lblColorPID: TLabel;
@@ -83,8 +83,8 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
-    procedure Edit5Enter(Sender: TObject);
-    procedure Edit6Enter(Sender: TObject);
+    procedure TemperatureEditEnter(Sender: TObject);
+    procedure MagFieldEditEnter(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
     procedure scrollSizeBiasChange(Sender: TObject);
@@ -171,14 +171,14 @@ ReadCurrent:=Form7.Checkbox2.checked;
 ReadOther:=Form7.Checkbox3.checked;
 
 PointNumber:=StrtoInt(ComboBox1.Text);  // Número de puntos de cada IV
-Form1.RedimCits(Form1.IV_Scan_Lines, PointNumber);
+ScanForm.RedimCits(ScanForm.IV_Scan_Lines, PointNumber);
 
 LinerMean:=SpinEdit3.Value;
 Jump_xAxis:=SpinEdit4.Value;
 Size_xAxis:=scrollSizeBias.Position/100;
 
-Temperature:=StrtoFloat(Edit5.Text);
-MagField:=StrtoFloat(Edit6.Text);
+Temperature:=StrtoFloat(TemperatureEdit.Text);
+MagField:=StrtoFloat(MagFieldEdit.Text);
 ChartLine.LeftAxis.AxisValuesFormat := '0.####E+0';
 StopIt:=True;
 PaintYesNo:=chkPainYesNo.checked;
@@ -328,7 +328,7 @@ end;
 procedure TForm4.ComboBox1Change(Sender: TObject);
 begin
 PointNumber:=StrtoInt(Combobox1.Text);
-Form1.RedimCits(Form1.IV_Scan_Lines, Form4.PointNumber);
+ScanForm.RedimCits(ScanForm.IV_Scan_Lines, Form4.PointNumber);
 end;
 
 //Función para derivar
@@ -542,8 +542,8 @@ BlockFileName:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
 TakeComment:=DateTimeToStr(Now)+#13+#10+
     'T(K)='+FloattoStr(Temperature)+#13+#10+
     'B(T)='+FloattoStr(MagField)+#13+#10+
-    'X(nm)='+FloattoStrF(Form1.XOffset*10*Form1.AmpX*Form1.CalX, ffGeneral, 5, 4)+#13+#10+
-    'Y(nm)='+FloattoStrF(Form1.YOffset*10*Form1.AmpY*Form1.CalY, ffGeneral, 5, 4)+#13+#10;
+    'X(nm)='+FloattoStrF(ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX, ffGeneral, 5, 4)+#13+#10+
+    'Y(nm)='+FloattoStrF(ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY, ffGeneral, 5, 4)+#13+#10;
   for k:=0 to 1 do
   begin
   BlockOffset:=k;
@@ -683,7 +683,7 @@ begin
   Write(myFile, '    Comments: ');
   WriteLn(myFile, commentsWSxM);
   WriteLn(myFile, '    First Forward: Yes');
-  WriteLn(myFile, '    Saved with version: MyScanner 1.302');
+  WriteLn(myFile, '    Saved with version: MyScanner 1.3');
   WriteLn(myFile, '    Version: 3.0 (July 2004)');
   WriteLn(myFile, '');
   WriteLn(myFile, '[Header end]');
@@ -732,18 +732,20 @@ Application.ProcessMessages;
 end;
 
 //Temperatura
-procedure TForm4.Edit5Enter(Sender: TObject);
+procedure TForm4.TemperatureEditEnter(Sender: TObject);
 begin
-if (Edit5.text='')then exit;
-Temperature:=StrtoFloat(Edit5.Text);
-MagField:=StrtoFloat(Edit6.Text);
+if (TemperatureEdit.text='')then exit;
+Temperature:=StrtoFloat(TemperatureEdit.Text);
+MagField:=StrtoFloat(MagFieldEdit.Text);
+Form8.Edit1.Text:='T='+TemperatureEdit.Text+'K,H='+MagFieldEdit.Text+'T,';
 end;
 //Campo magnético
-procedure TForm4.Edit6Enter(Sender: TObject);
+procedure TForm4.MagFieldEditEnter(Sender: TObject);
 begin
-if (Edit6.text='')then exit;
-Temperature:=StrtoFloat(Edit5.Text);
-MagField:=StrtoFloat(Edit6.Text);
+if (MagFieldEdit.text='')then exit;
+Temperature:=StrtoFloat(TemperatureEdit.Text);
+MagField:=StrtoFloat(MagFieldEdit.Text);
+Form8.Edit1.Text:='T='+TemperatureEdit.Text+'K,H='+MagFieldEdit.Text+'T,';
 end;
 
 //blq Number para guardar

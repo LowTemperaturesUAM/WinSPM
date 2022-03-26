@@ -78,7 +78,7 @@ uses Scanner1, PID;
 procedure TForm3.Button1Click(Sender: TObject);
 begin
 CheckBox1.Checked:=False;
-Form1.StopAction:=True;
+ScanForm.StopAction:=True;
 //FormPID.se1.Text:='1'; //Comentado por Fran
 end;
 
@@ -86,16 +86,16 @@ procedure TForm3.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 //xyyGraph1.Clear;
 ClearChart();
-Form1.StopAction:=True;
+ScanForm.StopAction:=True;
 //FormPID.se1.Text:='1'; //Comentado por Fran
 end;
 
 procedure TForm3.Button2Click(Sender: TObject);
 begin
-if (Form1.PauseAction) then
-begin Button2.Caption:='PAUSE'; Form1.PauseAction:=False; end
+if (ScanForm.PauseAction) then
+begin Button2.Caption:='PAUSE'; ScanForm.PauseAction:=False; end
 else
-begin Button2.Caption:='CONTINUE'; Form1.PauseAction:=True; end;
+begin Button2.Caption:='CONTINUE'; ScanForm.PauseAction:=True; end;
 end;
 
 procedure TForm3.UpdateBitmaps(Sender: TObject);
@@ -109,21 +109,21 @@ begin
     if chkFlatten.Checked then
       flatten := 1;
 
-    MakeX := (Form1.RadioGroup1.ItemIndex=0);
+    MakeX := (ScanForm.RadioGroup1.ItemIndex=0);
 
     if Form3.RadioGroup1.ItemIndex=0 then
     begin
-      Data := Form1.FilterImage(Form1.Dat_Image_Forth[1], MakeX, Form1.P_Scan_Lines, flatten);
-      FillImg(Sender,Data,Form1.P_Scan_Lines,1);
-      Data := Form1.FilterImage(Form1.Dat_Image_Back[1], MakeX, Form1.P_Scan_Lines, flatten);
-      FillImg(Sender,Data,Form1.P_Scan_Lines,2);
+      Data := ScanForm.FilterImage(ScanForm.Dat_Image_Forth[1], MakeX, ScanForm.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,ScanForm.P_Scan_Lines,1);
+      Data := ScanForm.FilterImage(ScanForm.Dat_Image_Back[1], MakeX, ScanForm.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,ScanForm.P_Scan_Lines,2);
     end
     else
     begin
-      Data := Form1.FilterImage(Form1.Dat_Image_Forth[2], MakeX, Form1.P_Scan_Lines, flatten);
-      FillImg(Sender,Data,Form1.P_Scan_Lines,1);
-      Data := Form1.FilterImage(Form1.Dat_Image_Back[2], MakeX, Form1.P_Scan_Lines, flatten);
-      FillImg(Sender,Data,Form1.P_Scan_Lines,2);
+      Data := ScanForm.FilterImage(ScanForm.Dat_Image_Forth[2], MakeX, ScanForm.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,ScanForm.P_Scan_Lines,1);
+      Data := ScanForm.FilterImage(ScanForm.Dat_Image_Back[2], MakeX, ScanForm.P_Scan_Lines, flatten);
+      FillImg(Sender,Data,ScanForm.P_Scan_Lines,2);
     end;
 end;
 
@@ -289,20 +289,20 @@ end;
 procedure TForm3.TrackBar1Change(Sender: TObject);
 begin
 Label4.Caption:=InttoStr(Trackbar1.Position);
-Form1.TrackBar1.Position:=TrackBar1.Position;
-Form1.TiempoMedio:=0;
-Form1.PuntosPonderados:=0;
-Form1.TiempoInicial:=0;
+ScanForm.TrackBar1.Position:=TrackBar1.Position;
+ScanForm.TiempoMedio:=0;
+ScanForm.PuntosPonderados:=0;
+ScanForm.TiempoInicial:=0;
 end;
 
 procedure TForm3.TrackBar2Change(Sender: TObject);
 begin
 Label5.Caption:=InttoStr(Trackbar2.Position);
 //P_Scan_Jump:= Trackbar2.Position;
-Form1.TrackBar2.Position:=TrackBar2.Position;
-Form1.TiempoMedio:=0;
-Form1.PuntosPonderados:=0;
-Form1.TiempoInicial:=0;
+ScanForm.TrackBar2.Position:=TrackBar2.Position;
+ScanForm.TiempoMedio:=0;
+ScanForm.PuntosPonderados:=0;
+ScanForm.TiempoInicial:=0;
 end;
 
 procedure TForm3.ClearChart();

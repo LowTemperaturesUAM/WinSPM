@@ -31,8 +31,8 @@ uses Scanner1, Liner;
 
 procedure TForm11.ComboBox1Change(Sender: TObject);
 begin
-Form1.IV_Scan_Lines:=StrtoInt(ComboBox1.Text);
-Form1.RedimCits(Form1.IV_Scan_Lines, Form4.PointNumber);
+ScanForm.IV_Scan_Lines:=StrtoInt(ComboBox1.Text);
+ScanForm.RedimCits(ScanForm.IV_Scan_Lines, Form4.PointNumber);
 end;
 
 end.

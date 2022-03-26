@@ -76,7 +76,7 @@ type
     function ramp_take(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
     function send_buffer(bufferToSend: PAnsiChar; bytesToSend: Integer): FTC_STATUS;
     procedure set_dio_port(value: Word);
-    // para las electrónicas con atenuador. Si Form1.VersionDivider=False, entonces es todo como
+    // para las electrónicas con atenuador. Si ScanForm.VersionDivider=False, entonces es todo como
     // cuando no hay atenuador. Si no, es que hay atenuador.
     procedure set_attenuator(DACAttNr: Integer; value: double);
     //procedure set_attenuator(value: Double);
@@ -251,7 +251,7 @@ begin
   // Escritura de valor máximo en el atenuador por posibles problemas tras reset (va a la mitad del FS)
   // El valor máximo significa que no atenua.
   // Se tiene en cuenta la versión de la electrónica
-  if Form1.Versiondivider=False then set_attenuator(0,1)
+  if ScanForm.Versiondivider=False then set_attenuator(0,1)
   else
     begin
      set_attenuator(1,1);
@@ -646,7 +646,7 @@ begin
         numres := ord(FT_In_Buffer[(j*2)])*256 +  ( ord(FT_In_Buffer[(j*2+1)]));
         if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
         resultadoooo:=numres/32768;
-        if simulating then resultadoooo := simulatedDac[Form1.XDAC]/$8000+Random/100;
+        if simulating then resultadoooo := simulatedDac[ScanForm.XDAC]/$8000+Random/100;
         datosum[j] := datosum[j] + resultadoooo ;
       end;
     end;
@@ -709,17 +709,17 @@ begin
   Step:=(value2-value1)/(npoints*jump-1);
 
   //Cogemos variables de la config del scanner
-  Loc_CalTopo:=Form1.CalTopo;
-  Loc_AmpTopo:=Form1.AmpTopo;
-  Loc_ADCTopo:=Form1.ADCTopo;
+  Loc_CalTopo:=ScanForm.CalTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_ADCTopo:=ScanForm.ADCTopo;
 
-  Loc_AmpI:=Form1.AmpI;
-  Loc_MultI:=Form1.MultI;
-  Loc_ADCI:=Form1.ADCI;
+  Loc_AmpI:=ScanForm.AmpI;
+  Loc_MultI:=ScanForm.MultI;
+  Loc_ADCI:=ScanForm.ADCI;
 
-  Loc_AmpOther:=Form1.AmpOther;
-  Loc_MultOther:=Form1.MultOther;
-  Loc_ADCOther:=Form1.ADCOther;
+  Loc_AmpOther:=ScanForm.AmpOther;
+  Loc_MultOther:=ScanForm.MultOther;
+  Loc_ADCOther:=ScanForm.ADCOther;
 
   // Lectura de UNA rampa de ida o vuelta
   BufferPtr := Addr(BufferMem[0]);
@@ -922,7 +922,7 @@ begin
   (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
   (BufferDest+i)^ := Char(2); Inc(i); // Número de bytes a transmitir menos 1
   (BufferDest+i)^ := Char(0); Inc(i);
-  if Form1.VersionDivider=False then
+  if ScanForm.VersionDivider=False then
     begin
       (BufferDest+i)^ := Char(03); // Registro: Ambos DACs (Canales 0 y 2)
       Inc(i); //No usamos DACAttNr, porque siempre cambiamos los dos canales

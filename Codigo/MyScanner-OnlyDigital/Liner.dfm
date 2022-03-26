@@ -402,7 +402,7 @@ object Form4: TForm4
     TabOrder = 19
     OnClick = Button9Click
   end
-  object Edit5: TEdit
+  object TemperatureEdit: TEdit
     Left = 112
     Top = 558
     Width = 57
@@ -415,16 +415,16 @@ object Form4: TForm4
     ParentFont = False
     TabOrder = 20
     Text = '1'
-    OnEnter = Edit5Enter
+    OnEnter = TemperatureEditEnter
   end
-  object Edit6: TEdit
+  object MagFieldEdit: TEdit
     Left = 328
     Top = 558
     Width = 57
     Height = 21
     TabOrder = 22
     Text = '0'
-    OnEnter = Edit6Enter
+    OnEnter = MagFieldEditEnter
   end
   object scrollSizeBias: TScrollBar
     Left = 16
