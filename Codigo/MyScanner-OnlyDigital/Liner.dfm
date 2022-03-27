@@ -523,7 +523,9 @@ object Form4: TForm4
     OnClick = chkPainYesNoClick
   end
   object SaveDialog1: TSaveDialog
-    Filter = 'Text files (*.txt)|*.txt|Data files (*.dat)|*.dat'
+    Filter = 
+      'BLQ files|*.blq|WSxM curve files|*.cur|WSxM spectroscopy files|*' +
+      '.gsi|All files|*.*'
     InitialDir = 'c:\Results'
     Left = 744
     Top = 8
