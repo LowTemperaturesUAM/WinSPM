@@ -290,8 +290,9 @@ procedure TForm3.TrackBar1Change(Sender: TObject);
 begin
 Label4.Caption:=InttoStr(Trackbar1.Position);
 ScanForm.TrackBar1.Position:=TrackBar1.Position;
-ScanForm.TiempoMedio:=0;
-ScanForm.PuntosPonderados:=0;
+// Lo ponemos los valores a 1 para evitar dividir por cero
+ScanForm.TiempoMedio:=1;
+ScanForm.PuntosPonderados:=1;
 ScanForm.TiempoInicial:=0;
 end;
 
@@ -300,8 +301,9 @@ begin
 Label5.Caption:=InttoStr(Trackbar2.Position);
 //P_Scan_Jump:= Trackbar2.Position;
 ScanForm.TrackBar2.Position:=TrackBar2.Position;
-ScanForm.TiempoMedio:=0;
-ScanForm.PuntosPonderados:=0;
+// Lo ponemos los valores a 1 para evitar dividir por cero
+ScanForm.TiempoMedio:=1;
+ScanForm.PuntosPonderados:=1;
 ScanForm.TiempoInicial:=0;
 end;
 

@@ -91,7 +91,7 @@ ImageBase=4194304
 ExeDescription=
 [Directories]
 OutputDir=
-UnitOutputDir=
+UnitOutputDir=.\DCUs
 PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=$(DELPHI)\Lib\Debug;C:\Program Files\NTPort Library
@@ -140,3 +140,6 @@ Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;ÿÿ
 [HistoryLists\hlSearchPath]
 Count=1
 Item0=$(DELPHI)\Lib\Debug;C:\Program Files\NTPort Library
+[HistoryLists\hlUnitOutputDirectory]
+Count=1
+Item0=.\DCUs
