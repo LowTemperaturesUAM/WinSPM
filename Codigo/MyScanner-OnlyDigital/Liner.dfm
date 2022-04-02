@@ -163,7 +163,7 @@ object Form4: TForm4
     TabOrder = 3
     OnClick = Button4Click
   end
-  object CheckBox1: TCheckBox
+  object chkSaveAllCurves: TCheckBox
     Left = 624
     Top = 34
     Width = 65

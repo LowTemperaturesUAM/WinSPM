@@ -162,10 +162,10 @@ object Form2: TForm2
       Height = 21
       ItemHeight = 13
       TabOrder = 1
-      Text = '13'
+      Text = '14'
       Items.Strings = (
-        '13'
-        '1.3')
+        '14'
+        '1.4')
     end
     object SpinEdit6: TSpinEdit
       Left = 56
@@ -202,10 +202,10 @@ object Form2: TForm2
       Height = 21
       ItemHeight = 13
       TabOrder = 8
-      Text = '13'
+      Text = '14'
       Items.Strings = (
-        '13'
-        '1.3')
+        '14'
+        '1.4')
     end
     object ComboBox7: TComboBox
       Left = 152
@@ -214,10 +214,10 @@ object Form2: TForm2
       Height = 21
       ItemHeight = 13
       TabOrder = 10
-      Text = '13'
+      Text = '14'
       Items.Strings = (
-        '13'
-        '1.3')
+        '14'
+        '1.4')
     end
     object ComboBox2: TComboBox
       Left = 152
@@ -226,10 +226,10 @@ object Form2: TForm2
       Height = 21
       ItemHeight = 13
       TabOrder = 4
-      Text = '13'
+      Text = '14'
       Items.Strings = (
-        '13'
-        '1.3')
+        '14'
+        '1.4')
     end
     object Edit2: TEdit
       Left = 296
@@ -333,10 +333,10 @@ object Form2: TForm2
       Height = 21
       ItemHeight = 13
       TabOrder = 2
-      Text = '13'
+      Text = '14'
       Items.Strings = (
-        '13'
-        '1.3')
+        '14'
+        '1.4')
     end
     object CheckBox1: TCheckBox
       Left = 8

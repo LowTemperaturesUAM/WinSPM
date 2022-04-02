@@ -25,7 +25,7 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
-    CheckBox1: TCheckBox;
+    chkSaveAllCurves: TCheckBox;
     ComboBox1: TComboBox;
     Edit1: TEdit;
     SpinEdit1: TSpinEdit;
@@ -299,7 +299,7 @@ here_previous_ctrl:=0;
 
     Application.ProcessMessages();
   end;
-  if checkBox1.checked then Button4Click(nil); //Guardar automáticamente si está chequeado
+  if chkSaveAllCurves.checked then Button4Click(nil); //Guardar automáticamente si está chequeado
   Abort_Measure:=True;
   end;
 
@@ -599,14 +599,22 @@ end;
 Presentblknumber:=Presentblknumber+2;
 Label12.Caption:=InttoStr(Presentblknumber);
 
-if ReadZ then
-  SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.zv.cur', 0, TakeComment);
+//Solo guardamos la curva para la primera que tomamos en un mismo blq,
+// para evitar sobreescribir el archivo de curvas todo el tiempo
+// si marcamos Save All no guarda ninguna
+// no deberia de afectar a si guardamos una espectro en formato WSxM
+if (Presentblknumber < 3) or not chkSaveAllCurves.Checked then    //
+begin
+  if ReadZ then
+    SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.zv.cur', 0, TakeComment);
 
-if ReadCurrent then
-  SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.iv.cur', 1, TakeComment);
+  if ReadCurrent then
+    SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.iv.cur', 1, TakeComment);
 
-if ReadOther then
-  SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.other.cur', 2, TakeComment);
+  if ReadOther then
+    SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.other.cur', 2, TakeComment);
+end;
+
 
 end;
 

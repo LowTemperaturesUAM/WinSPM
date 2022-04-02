@@ -215,7 +215,7 @@ object Form3: TForm3
     Min = 1
     Orientation = trVertical
     Frequency = 10
-    Position = 2
+    Position = 100
     SelEnd = 100
     SelStart = 1
     TabOrder = 11

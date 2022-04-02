@@ -483,6 +483,7 @@ procedure TScanForm.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
 var
 i,j,k,total,OldX,OldY,LastX,LastY, channelToPlot, flatten: Integer;
 Princ,Princ2,Fin,Step: Integer;
+hour,mnts,scnd,remtm: Integer;
 xvolt,yvolt,yFactor: single;
 MakeX,MakeY: Boolean;
 interv, zeroSingle: Single;
@@ -713,7 +714,15 @@ begin
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
   TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-  if Form3.CheckBox3.Checked then Form3.Label6.Caption:= FormatDateTime('hh:nn:ss',RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1) / SecsPerDay);
+  if Form3.CheckBox3.Checked then
+    begin
+    remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
+    hour:= remtm div 3600;
+    remtm:= remtm mod 3600;
+    mnts := remtm div 60;
+    scnd := remtm mod 60;
+    Form3.Label6.Caption :=  FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
+    end;
 
   Application.ProcessMessages;
   i:=i+1;
@@ -873,8 +882,16 @@ begin
 
     QueryPerformanceCounter(C2); // Lectura del cronómetro
     TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-    if Form3.CheckBox3.Checked then Form3.Label6.Caption:= FormatDateTime('hh:nn:ss',RoundTo((PuntosTotales-PuntosMedidos)*TiempoMedio,-1) / SecsPerDay);
-
+    if Form3.CheckBox3.Checked then
+    begin
+    remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
+    hour:= remtm div 3600;
+    remtm:= remtm mod 3600;
+    mnts := remtm div 60;
+    scnd := remtm mod 60;
+    Form3.Label6.Caption := FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
+    end;
+    
     Application.ProcessMessages;
     i:=i+1;
   end;
