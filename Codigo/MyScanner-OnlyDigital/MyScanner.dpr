@@ -10,7 +10,6 @@ uses
   Config1 in 'Config1.pas' {Form2},
   Config_Trip in 'Config_Trip.pas' {Form6},
   blqDataSet in 'blqDataSet.pas' {blqDataSetForm},
-  blqLoader in 'blqLoader.pas' {blqLoaderForm},
   var_gbl in 'var_gbl.pas',
   HeaderImg in 'HeaderImg.pas' {Form8},
   FileNames in 'FileNames.pas' {Form9},
@@ -32,7 +31,6 @@ begin
   Application.CreateForm(TForm7, Form7);
   Application.CreateForm(TForm5, Form5);
   Application.CreateForm(TblqDataSetForm, blqDataSetForm);
-  Application.CreateForm(TblqLoaderForm, blqLoaderForm);
   Application.CreateForm(TForm8, Form8);
   Application.CreateForm(TForm9, Form9);
   Application.CreateForm(TForm10, Form10);
