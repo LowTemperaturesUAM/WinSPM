@@ -75,7 +75,7 @@ begin
   if (FormPID = nil) then
     strLine :='    Set Point: ?? %'
   else
-    strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
+    strLine := Format('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
 
   WSxMHeader := WSxMHeader+strLine+#13#10;
 

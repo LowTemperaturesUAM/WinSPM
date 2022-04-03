@@ -26,7 +26,7 @@ type
     ScrollBar3: TScrollBar;
     Label10: TLabel;
     Label11: TLabel;
-    ScrollBar4: TScrollBar;
+    scrlbrSetPoint: TScrollBar;
     Label12: TLabel;
     Label13: TLabel;
     CheckBox2: TCheckBox;
@@ -51,11 +51,13 @@ type
     lbl1: TLabel;
     Button1: TButton;
     SpinEdit6: TSpinEdit;
+    lblCurrentLabel: TLabel;
+    lblCurrentSetPoint: TLabel;
     procedure SpinEdit3Change(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     procedure ScrollBar2Change(Sender: TObject);
     procedure ScrollBar3Change(Sender: TObject);
-    procedure ScrollBar4Change(Sender: TObject);
+    procedure scrlbrSetPointChange(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
@@ -123,11 +125,23 @@ D_PID:=ScrollBar3.Position;
 Label10.Caption:=InttoStr(ScrollBar3.Position);
 end;
 
-procedure TFormPID.ScrollBar4Change(Sender: TObject);
+procedure TFormPID.scrlbrSetPointChange(Sender: TObject);
 begin
-Set_PID:=ScrollBar4.Position;
-Label12.Caption:=InttoStr(ScrollBar4.Position);
+Set_PID:=scrlbrSetPoint.Position;
+Label12.Caption:=InttoStr(scrlbrSetPoint.Position);
+if (InPID_ADC = ScanForm.ADCI) then
+  begin
+  lblCurrentLabel.Visible := True;
+  lblCurrentSetPoint.Visible := True;
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 10 *1e9* ScanForm.AmpI] )
+  end
+else
+  begin
+  lblCurrentLabel.Visible := False;
+  lblCurrentSetPoint.Visible := False;
+  end
 end;
+
 
 procedure TFormPID.CheckBox1Click(Sender: TObject);
 begin
@@ -137,8 +151,8 @@ end;
 procedure TFormPID.FormShow(Sender: TObject);
 begin
 Check_Show:=CheckBox1.checked;
-Set_PID:=ScrollBar4.Position;
-Label12.Caption:=InttoStr(ScrollBar4.Position);
+Set_PID:=scrlbrSetPoint.Position;
+Label12.Caption:=InttoStr(scrlbrSetPoint.Position);
 D_PID:=ScrollBar3.Position;
 Label10.Caption:=InttoStr(ScrollBar3.Position);
 I_PID:=ScrollBar2.Position;
@@ -156,6 +170,19 @@ MeanReadI:=SpinEdit5.Value;
 //previous_ctrl:=0;
 Count_Live:= FormPID.SpinEdit4.Value;
 
+if (InPID_ADC = ScanForm.ADCI) then
+  begin
+  lblCurrentLabel.Visible := True;
+  lblCurrentSetPoint.Visible := True;
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 10 *1e9* ScanForm.AmpI] )
+  end
+else
+  begin
+  lblCurrentLabel.Visible := False;
+  lblCurrentSetPoint.Visible := False;
+  end;
+
+
 // Activamos el hilo que hará el control cuando se habilite su flag
 thrdtmr1.Enabled:=True;
 end;
@@ -163,6 +190,18 @@ end;
 procedure TFormPID.SpinEdit1Change(Sender: TObject);
 begin
   TryStrToInt(SpinEdit1.Text, InPID_ADC);
+  if (InPID_ADC = ScanForm.ADCI) then
+  begin
+  lblCurrentLabel.Visible := True;
+  lblCurrentSetPoint.Visible := True;
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 10 *1e9* ScanForm.AmpI])
+  end
+  else
+  begin
+  lblCurrentLabel.Visible := False;
+  lblCurrentSetPoint.Visible := False;
+  end;
+
 end;
 
 procedure TFormPID.SpinEdit2Change(Sender: TObject);
@@ -332,5 +371,7 @@ var
  application.ProcessMessages;
  Until (GetTickCount - Past) >= TickTime;
 end;
+
+
 
 end.

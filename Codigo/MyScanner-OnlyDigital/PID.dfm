@@ -147,6 +147,22 @@ object FormPID: TFormPID
     Height = 13
     Caption = 'Timer in ms'
   end
+  object lblCurrentLabel: TLabel
+    Left = 16
+    Top = 408
+    Width = 105
+    Height = 13
+    Caption = 'Current set point (nA) :'
+    Visible = False
+  end
+  object lblCurrentSetPoint: TLabel
+    Left = 128
+    Top = 408
+    Width = 34
+    Height = 13
+    Caption = 'Current'
+    Visible = False
+  end
   object CheckBox1: TCheckBox
     Left = 128
     Top = 304
@@ -222,7 +238,7 @@ object FormPID: TFormPID
     TabOrder = 6
     OnChange = ScrollBar3Change
   end
-  object ScrollBar4: TScrollBar
+  object scrlbrSetPoint: TScrollBar
     Left = 168
     Top = 112
     Width = 17
@@ -233,7 +249,7 @@ object FormPID: TFormPID
     PageSize = 0
     Position = 6
     TabOrder = 7
-    OnChange = ScrollBar4Change
+    OnChange = scrlbrSetPointChange
   end
   object CheckBox2: TCheckBox
     Left = 24

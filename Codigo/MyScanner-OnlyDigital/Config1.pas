@@ -98,6 +98,7 @@ ScanForm.CalY:=StrtoFloat(Edit2.Text);
 ScanForm.ADCTopo:=SpinEdit3.Value;
 ScanForm.ADCI:=SpinEdit4.Value;
 ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
+//Aqui hemos puesto un -1 al guardar la amplificacion
 ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1)); //Le resto 1 a mano porque hay un factor 10 colgando por cómo se interpreta la lectura del adc
 ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
 ScanForm.MultI:=StrtoInt(Edit4.Text);
@@ -201,6 +202,7 @@ ScanForm.CalY:=StrtoFloat(Edit2.Text);
 ScanForm.ADCTopo:=SpinEdit3.Value;
 ScanForm.ADCI:=SpinEdit4.Value;
 ScanForm.AmpTopo:=StrtoFloat(Form2.Combobox3.Text);
+//Aqui no hemos puesto un -1 al guardar la amplificacion. Uno de los dos esta haciendolo de forma incorrecta
 ScanForm.AmpI:=power(10,-1*StrtoFloat(Form2.Combobox4.Text));
 ScanForm.CalTopo:=StrtoFloat(Form2.Edit3.Text);
 ScanForm.MultI:=StrtoInt(Form2.Edit4.Text);

@@ -1370,7 +1370,7 @@ begin
   F.Write('[Control]'#13#10, 2+Length('[Control]'));
   F.Write(''#13#10, 2+Length(''));
 
-  strLine := Format('    Set Point: %d %%', [FormPID.ScrollBar4.Position]);
+  strLine := Format('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := Format('    X Amplitude: %f nm', [abs(ScanForm.h.xend-ScanForm.h.xstart)*1e9*CalX]);
