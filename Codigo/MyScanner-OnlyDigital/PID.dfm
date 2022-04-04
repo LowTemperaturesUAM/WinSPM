@@ -174,7 +174,7 @@ object FormPID: TFormPID
     TabOrder = 0
     OnClick = CheckBox1Click
   end
-  object SpinEdit1: TSpinEdit
+  object spinPID_In: TSpinEdit
     Left = 56
     Top = 328
     Width = 41
@@ -183,7 +183,7 @@ object FormPID: TFormPID
     MinValue = 0
     TabOrder = 1
     Value = 0
-    OnChange = SpinEdit1Change
+    OnChange = spinPID_InChange
   end
   object SpinEdit2: TSpinEdit
     Left = 56

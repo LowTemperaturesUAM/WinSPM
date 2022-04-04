@@ -98,8 +98,8 @@ ScanForm.CalY:=StrtoFloat(Edit2.Text);
 ScanForm.ADCTopo:=SpinEdit3.Value;
 ScanForm.ADCI:=SpinEdit4.Value;
 ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
-//Aqui hemos puesto un -1 al guardar la amplificacion
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1)); //Le resto 1 a mano porque hay un factor 10 colgando por cómo se interpreta la lectura del adc
+//La amplificacion introducida es en V que va entre +-10, pero el valor que leemos de los ADC es entre +-1, asi que restamos 1
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1));
 ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
 ScanForm.MultI:=StrtoInt(Edit4.Text);
 ScanForm.ReadTopo:=Checkbox1.checked;
@@ -134,6 +134,20 @@ else
   end;
 ScanForm.TrackBar3Change(self);
 
+if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
+  begin
+  FormPID.lblCurrentLabel.Visible := True;
+  FormPID.lblCurrentSetPoint.Visible := True;
+  //Conversion a corriente en nA:
+  //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
+  //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
+  FormPID.lblCurrentSetPoint.Caption :=Format('%2.2f',[FormPID.scrlbrSetPoint.Position/FormPID.scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
+  end
+else
+  begin
+  FormPID.lblCurrentLabel.Visible := False;
+  FormPID.lblCurrentSetPoint.Visible := False;
+  end;
 
 end;
 
@@ -185,7 +199,7 @@ try
   Form6.CheckBox1.Checked := IniFile.ReadBool(String(iniTrip), 'ZPInverse', False);
   Form6.CheckBox2.Checked := IniFile.ReadBool(String(iniTrip), 'CurrentInverse', False);
   //Parametros PID
-  FormPID.SpinEdit1.Value := SpinEdit4.Value;
+  FormPID.spinPID_In.Value := SpinEdit4.Value;
   FormPID.SpinEdit2.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
   FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', True);
 finally
@@ -202,12 +216,12 @@ ScanForm.CalY:=StrtoFloat(Edit2.Text);
 ScanForm.ADCTopo:=SpinEdit3.Value;
 ScanForm.ADCI:=SpinEdit4.Value;
 ScanForm.AmpTopo:=StrtoFloat(Form2.Combobox3.Text);
-//Aqui no hemos puesto un -1 al guardar la amplificacion. Uno de los dos esta haciendolo de forma incorrecta
-ScanForm.AmpI:=power(10,-1*StrtoFloat(Form2.Combobox4.Text));
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1));
 ScanForm.CalTopo:=StrtoFloat(Form2.Edit3.Text);
 ScanForm.MultI:=StrtoInt(Form2.Edit4.Text);
 ScanForm.ReadTopo:=Checkbox1.checked;
 ScanForm.ReadCurrent:=Checkbox2.checked;
+
 end;
 
 procedure TForm2.SaveCfgClick(Sender: TObject);

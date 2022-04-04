@@ -9,7 +9,7 @@ uses
 type
   TFormPID = class(TForm)
     CheckBox1: TCheckBox;
-    SpinEdit1: TSpinEdit;
+    spinPID_In: TSpinEdit;
     SpinEdit2: TSpinEdit;
     Label1: TLabel;
     Label2: TLabel;
@@ -60,7 +60,7 @@ type
     procedure scrlbrSetPointChange(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure SpinEdit1Change(Sender: TObject);
+    procedure spinPID_InChange(Sender: TObject);
     procedure SpinEdit2Change(Sender: TObject);
     procedure SpinEdit4Change(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
@@ -133,7 +133,10 @@ if (InPID_ADC = ScanForm.ADCI) then
   begin
   lblCurrentLabel.Visible := True;
   lblCurrentSetPoint.Visible := True;
-  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 10 *1e9* ScanForm.AmpI] )
+  //Conversion a corriente en nA:
+  //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
+  //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
   end
 else
   begin
@@ -162,7 +165,7 @@ Gain_of_I:=Power(10,Gain_I.Value);
 Gain_of_D:=Power(10,Gain_D.Value);
 P_PID:=ScrollBar1.Position;
 Label6.Caption:=InttoStr(ScrollBar1.Position);
-InPID_ADC:=SpinEdit1.Value;
+InPID_ADC:=spinPID_In.Value;
 OutPID_DAC:=SpinEdit2.Value;
 if checkbox2.checked then reverse:=1 else reverse:=-1;
 //PIDReset:=True; // Mejor que resetee la primera vez, para que inicialice todos los acumuladores
@@ -174,7 +177,7 @@ if (InPID_ADC = ScanForm.ADCI) then
   begin
   lblCurrentLabel.Visible := True;
   lblCurrentSetPoint.Visible := True;
-  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 10 *1e9* ScanForm.AmpI] )
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
   end
 else
   begin
@@ -187,14 +190,14 @@ else
 thrdtmr1.Enabled:=True;
 end;
 
-procedure TFormPID.SpinEdit1Change(Sender: TObject);
+procedure TFormPID.spinPID_InChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit1.Text, InPID_ADC);
+  TryStrToInt(spinPID_In.Text, InPID_ADC);
   if (InPID_ADC = ScanForm.ADCI) then
   begin
   lblCurrentLabel.Visible := True;
   lblCurrentSetPoint.Visible := True;
-  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 10 *1e9* ScanForm.AmpI])
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI]);
   end
   else
   begin
