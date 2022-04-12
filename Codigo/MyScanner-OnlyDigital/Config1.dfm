@@ -1,6 +1,6 @@
 object Form2: TForm2
-  Left = 239
-  Top = 118
+  Left = 432
+  Top = 633
   Width = 410
   Height = 414
   Caption = 'WinSPMConfig'

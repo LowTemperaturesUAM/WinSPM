@@ -48,7 +48,7 @@ type
     SaveDialog1: TSaveDialog;
     Button9: TButton;
     OpenDialog1: TOpenDialog;
-    Label12: TLabel;
+    lblCurveCount: TLabel;
     Label13: TLabel;
     TemperatureEdit: TEdit;
     Label14: TLabel;
@@ -597,13 +597,13 @@ WriteDataSetInBlock(BlockFileName,DS,False);
 DS.Free;
 end;
 Presentblknumber:=Presentblknumber+2;
-Label12.Caption:=InttoStr(Presentblknumber);
+lblCurveCount.Caption:=InttoStr(Presentblknumber);
 
 //Solo guardamos la curva para la primera que tomamos en un mismo blq,
 // para evitar sobreescribir el archivo de curvas todo el tiempo
 // si marcamos Save All no guarda ninguna
 // no deberia de afectar a si guardamos una espectro en formato WSxM
-if (Presentblknumber < 3) or not chkSaveAllCurves.Checked then    //
+if (Presentblknumber < 3) and (not chkSaveAllCurves.Checked) then    //
 begin
   if ReadZ then
     SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.zv.cur', 0, TakeComment);
@@ -716,7 +716,7 @@ if SaveDialog1.Execute then
   begin
   SaveDialog1.FileName:=SaveDialog1.FileName;
   Presentblknumber:=0;
-  Label12.Caption:=InttoStr(Presentblknumber);
+  lblCurveCount.Caption:=InttoStr(Presentblknumber);
   Form9.Label6.Caption:=ExtractFileDir(SaveDialog1.FileName);
   end;
 
@@ -760,7 +760,7 @@ end;
 procedure TForm4.SpinEdit1Change(Sender: TObject);
 begin
   Presentblknumber:=0;
-  Label12.Caption:=InttoStr(Presentblknumber);
+  lblCurveCount.Caption:=InttoStr(Presentblknumber);
 end;
 
 //Pintar cada vez que pulsamos "Direct" o "Derivative"

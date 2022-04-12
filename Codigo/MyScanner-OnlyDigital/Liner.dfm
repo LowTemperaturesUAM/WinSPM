@@ -1,6 +1,6 @@
 object Form4: TForm4
-  Left = 395
-  Top = 97
+  Left = 23
+  Top = 24
   Width = 852
   Height = 649
   Caption = 'Bias Module'
@@ -41,11 +41,12 @@ object Form4: TForm4
     Height = 13
     Caption = 'Der. Points'
   end
-  object Label12: TLabel
+  object lblCurveCount: TLabel
     Left = 600
-    Top = 32
+    Top = 35
     Width = 6
     Height = 13
+    Alignment = taRightJustify
     Caption = '0'
   end
   object Label13: TLabel
@@ -158,7 +159,7 @@ object Form4: TForm4
     Left = 616
     Top = 8
     Width = 75
-    Height = 25
+    Height = 22
     Caption = 'Save present'
     TabOrder = 3
     OnClick = Button4Click
@@ -396,7 +397,7 @@ object Form4: TForm4
   object Button9: TButton
     Left = 408
     Top = 32
-    Width = 177
+    Width = 137
     Height = 17
     Caption = 'Set File Name'
     TabOrder = 19
@@ -452,6 +453,7 @@ object Form4: TForm4
     Title.Font.Style = [fsBold, fsItalic]
     Title.Text.Strings = (
       'Ramp')
+    BottomAxis.AxisValuesFormat = '#,##0.#####'
     DepthAxis.Automatic = False
     DepthAxis.AutomaticMaximum = False
     DepthAxis.AutomaticMinimum = False

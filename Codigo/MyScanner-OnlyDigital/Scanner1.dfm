@@ -1,6 +1,6 @@
 object ScanForm: TScanForm
-  Left = 890
-  Top = 148
+  Left = 861
+  Top = 24
   Width = 603
   Height = 634
   Caption = 'WinSPM'

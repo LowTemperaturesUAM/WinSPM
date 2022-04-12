@@ -74,8 +74,9 @@ begin
 
   if (FormPID = nil) then
     strLine :='    Set Point: ?? %'
-  else
-    strLine := Format('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
+  else if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
+  strLine := Format('    Set Point: %s nA', [FormPID.lblCurrentSetPoint.Caption])
+  else strLine := Format('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
 
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
