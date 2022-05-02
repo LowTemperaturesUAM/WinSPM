@@ -91,7 +91,8 @@ type
     { Private declarations }
   public
     { Public declarations }
-    attenuator: Double;
+    scan_attenuator: Double;
+    bias_attenuator: Double;
     StopAction: Boolean;
   end;
 
@@ -926,6 +927,7 @@ begin
     begin
       (BufferDest+i)^ := Char(03); // Registro: Ambos DACs (Canales 0 y 2)
       Inc(i); //No usamos DACAttNr, porque siempre cambiamos los dos canales
+      scan_attenuator := value;
     end
   else
     begin
@@ -935,7 +937,7 @@ begin
       //else if (DACAttNr=4) then (BufferDest+i)^ := Char(03); // Registro: DAC D (Canal 6)
       // Case es totalmente equivalente. Dejo los if por si no funciona correctamente
       case DACAttNr of
-        1: (BufferDest+i)^ := Char(00); // Registro: DAC A (Canal 0)
+        1: begin (BufferDest+i)^ := Char(00); scan_attenuator:=value; end; // Registro: DAC A (Canal 0)
         2: (BufferDest+i)^ := Char(01); // Registro: DAC B (Canal 2)
         3: (BufferDest+i)^ := Char(02); // Registro: DAC C (Canal 5)
         4: (BufferDest+i)^ := Char(03); // Registro: DAC D (Canal 6)
@@ -954,7 +956,7 @@ begin
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
      if not simulating then MessageDlg('error al escribir el atenuador', mtError, [mbOk], 0);
 
-  attenuator := value;
+  //attenuator := value;
 end;
 
 

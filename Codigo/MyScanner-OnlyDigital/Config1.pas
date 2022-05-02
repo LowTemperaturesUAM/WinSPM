@@ -119,6 +119,8 @@ begin
     begin
        Form10.set_attenuator(1,0.1);
        Form10.set_attenuator(2,0.1);
+       Form10.set_attenuator(3,1);
+       Form10.set_attenuator(4,1);
     end;
 //  ScanForm.AmpX:= ScanForm.AmpX*0.1;
 //  ScanForm.AmpY:= ScanForm.AmpY*0.1;
@@ -130,6 +132,8 @@ else
   begin
        Form10.set_attenuator(1,1);
        Form10.set_attenuator(2,1);
+       Form10.set_attenuator(3,1);
+       Form10.set_attenuator(4,1);
   end;
   end;
 ScanForm.TrackBar3Change(self);
@@ -221,7 +225,16 @@ ScanForm.CalTopo:=StrtoFloat(Form2.Edit3.Text);
 ScanForm.MultI:=StrtoInt(Form2.Edit4.Text);
 ScanForm.ReadTopo:=Checkbox1.checked;
 ScanForm.ReadCurrent:=Checkbox2.checked;
-
+// Inicializamos los atenuadores al abrir el programa
+// Los atenuadores fucionan correctamente cuando cerramos el config, pero no al inicial el programa
+if ScanForm.Versiondivider=False then Form10.set_attenuator(0,1)
+  else
+  begin
+       Form10.set_attenuator(1,1);
+       Form10.set_attenuator(2,1);
+       Form10.set_attenuator(3,1);
+       Form10.set_attenuator(4,1);
+  end;
 end;
 
 procedure TForm2.SaveCfgClick(Sender: TObject);

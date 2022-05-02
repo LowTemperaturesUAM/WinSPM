@@ -244,8 +244,8 @@ contadorIV:=1;
 
 PuntosTotales:=P_Scan_Lines*P_Scan_Lines*2;
 
-Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10,ffFixed,2,1);
-Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10*CalX,ffFixed,2,1);
+Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10,ffFixed,2,1);
+Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10*CalX,ffFixed,2,1);
 TrackBar3Change(nil); // Simulo que se ha cambiado el tamaño para que acutalice la interfaz
 SizeOfWindow:=400;
 StopAction:=True;
@@ -308,8 +308,8 @@ begin
 P_Scan_Size_Old:=P_Scan_Size;
 Label8.Caption:=InttoStr(Trackbar3.Position);
 P_Scan_Size:=Trackbar3.Position/1000;
-Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10,ffFixed,3,1);
-Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.attenuator*10*CalX,ffFixed,3,1);
+Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10,ffFixed,3,1);
+Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10*CalX,ffFixed,3,1);
 UpdateCanvas(nil);
 end;
 
@@ -554,7 +554,7 @@ begin
   RedimCits(IV_Scan_Lines, Form4.PointNumber);
 end;
 
-Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Princ, Fin)/32768*AmpX*10*CalX);
+Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*Form10.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*Form10.scan_attenuator*10*CalX);
 
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
 begin
@@ -1092,10 +1092,10 @@ repeat
   TiempoMedio:=0;
   TiempoInicial:=0;
 
-  h.xstart:=DacValX/32768*Form10.attenuator*AmpX*10*1e-9;
-  h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*Form10.attenuator*10*1e-9;
-  h.ystart:=DacValY/32768*Form10.attenuator*AmpX*10*1e-9;
-  h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*Form10.attenuator*10*1e-9;
+  h.xstart:=DacValX/32768*Form10.scan_attenuator*AmpX*10*1e-9;
+  h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*Form10.scan_attenuator*10*1e-9;
+  h.ystart:=DacValY/32768*Form10.scan_attenuator*AmpX*10*1e-9;
+  h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*Form10.scan_attenuator*10*1e-9;
   h.xn:=P_Scan_Lines;
   h.yn:=P_Scan_Lines;
 
@@ -1198,8 +1198,8 @@ repeat
 
        bitmapPasteList[i].x := XOffset;
        bitmapPasteList[i].y := YOffset;
-       bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.attenuator;
-       bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.attenuator;
+       bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.scan_attenuator;
+       bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.scan_attenuator;
        bitmapPasteList[i].bitmap := TBitmap.Create;
        try
          with bitmapPasteList[i].bitmap do
@@ -1880,10 +1880,10 @@ begin
     Brush.Style:=bsClear;
 
     // Dibujo el recuadro que indica el área de barrido seleccionada
-    bottomLeftFloat.X := XOffset-P_Scan_Size*Form10.attenuator;
-    bottomLeftFloat.Y := YOffset-P_Scan_Size*Form10.attenuator;
-    topRightFloat.X   := XOffset+P_Scan_Size*Form10.attenuator;
-    topRightFloat.Y   := YOffset+P_Scan_Size*Form10.attenuator;
+    bottomLeftFloat.X := XOffset-P_Scan_Size*Form10.scan_attenuator;
+    bottomLeftFloat.Y := YOffset-P_Scan_Size*Form10.scan_attenuator;
+    topRightFloat.X   := XOffset+P_Scan_Size*Form10.scan_attenuator;
+    topRightFloat.Y   := YOffset+P_Scan_Size*Form10.scan_attenuator;
     bottomLeft := PointGlobalToCanvas(bottomLeftFloat, SizeOfWindow);
     topRight := PointGlobalToCanvas(topRightFloat, SizeOfWindow);
     Rectangle(Rect(bottomLeft, topRight));
@@ -1914,8 +1914,8 @@ begin
   szFileName := '';
 
   // Valores por defecto para el pegado
-  sizeX := 2*10*P_Scan_Size*AmpX*Form10.attenuator*CalX; // Rango del DAC en V * ganancia del amplificador * Calibracion en nm/V
-  sizeY := 2*10*P_Scan_Size*AmpY*Form10.attenuator*CalY;
+  sizeX := 2*10*P_Scan_Size*AmpX*Form10.scan_attenuator*CalX; // Rango del DAC en V * ganancia del amplificador * Calibracion en nm/V
+  sizeY := 2*10*P_Scan_Size*AmpY*Form10.scan_attenuator*CalY;
   x := XOffset*10*AmpX*CalX;
   y := YOffset*10*AmpY*CalY;
   numParamsRead := 0;
@@ -2121,8 +2121,8 @@ begin
 
   bitmapPasteList[i].x := XOffset;
   bitmapPasteList[i].y := YOffset;
-  bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.attenuator;
-  bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.attenuator;
+  bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.scan_attenuator;
+  bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.scan_attenuator;
 
   // En el caso de mark now no habrá bitmap, sólo un recuadro
   bitmapPasteList[i].bitmap := nil;
@@ -2182,8 +2182,8 @@ begin
 
   bitmapPasteList2[i].x := XOffset;
   bitmapPasteList2[i].y := YOffset;
-  bitmapPasteList2[i].sizeX := 2*P_Scan_Size*Form10.attenuator;
-  bitmapPasteList2[i].sizeY := 2*P_Scan_Size*Form10.attenuator;
+  bitmapPasteList2[i].sizeX := 2*P_Scan_Size*Form10.scan_attenuator;
+  bitmapPasteList2[i].sizeY := 2*P_Scan_Size*Form10.scan_attenuator;
 
   // En el caso de mark now no habrá bitmap, sólo un recuadro
   bitmapPasteList2[i].bitmap := nil;
