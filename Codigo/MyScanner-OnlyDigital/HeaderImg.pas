@@ -111,7 +111,7 @@ begin
         '[Miscellaneous]'#13#10+
         #13#10+
         '    Comments: '+Edit1.Text+MyComments+#13#10+
-        '    Saved with version: MyScanner 1.3'#13#10+
+        '    Saved with version: MyScanner 1.4'#13#10+
         '    Version: 1.0 (August 2005)'#13#10+
         '    Z Scale Factor: 1'#13#10+
         '    Z Scale Offset: 0'#13#10+

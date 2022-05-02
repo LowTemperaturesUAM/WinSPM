@@ -352,8 +352,8 @@ object FormPID: TFormPID
     Top = 280
     Width = 33
     Height = 22
-    MaxValue = 3
-    MinValue = -3
+    MaxValue = 6
+    MinValue = -6
     TabOrder = 18
     Value = 0
     OnChange = Gain_IChange
@@ -363,8 +363,8 @@ object FormPID: TFormPID
     Top = 280
     Width = 41
     Height = 22
-    MaxValue = 3
-    MinValue = -3
+    MaxValue = 6
+    MinValue = -6
     TabOrder = 19
     Value = 0
     OnChange = Gain_DChange

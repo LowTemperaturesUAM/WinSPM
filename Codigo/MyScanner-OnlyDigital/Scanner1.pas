@@ -1409,7 +1409,7 @@ begin
 
   F.Write('[Miscellaneous]'#13#10, 2+Length('[Miscellaneous]'));
   F.Write(''#13#10, 2+Length(''));
-  F.Write('    Saved with version: MyScanner 1.3'#13#10, 2+Length('    Saved with version: MyScanner 1.3'));
+  F.Write('    Saved with version: MyScanner 1.4'#13#10, 2+Length('    Saved with version: MyScanner 1.4'));
   F.Write('    Version: 1.0 (August 2005)'#13#10, 2+Length('    Version: 1.0 (August 2005)'));
   F.Write('    Z Scale Factor: 1'#13#10, 2+Length('    Z Scale Factor: 1'));
   F.Write('    Z Scale Offset: 0'#13#10, 2+Length('    Z Scale Offset: 0'));

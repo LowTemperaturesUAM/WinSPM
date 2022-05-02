@@ -691,7 +691,7 @@ begin
   Write(myFile, '    Comments: ');
   WriteLn(myFile, commentsWSxM);
   WriteLn(myFile, '    First Forward: Yes');
-  WriteLn(myFile, '    Saved with version: MyScanner 1.3');
+  WriteLn(myFile, '    Saved with version: MyScanner 1.4');
   WriteLn(myFile, '    Version: 3.0 (July 2004)');
   WriteLn(myFile, '');
   WriteLn(myFile, '[Header end]');
