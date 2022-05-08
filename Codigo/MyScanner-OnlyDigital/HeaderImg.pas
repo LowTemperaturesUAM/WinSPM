@@ -17,13 +17,16 @@ type
     Label2: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure SPMVersion(FileName:string; var Major,Minor, Release, Build: Integer);
   private
     { Private declarations }
   public
     { Public declarations }
-  ZAmplitude: Single;
-  PosFin:Integer;
-  WSxMHeader: String;
+    ZAmplitude: Single;
+    PosFin:Integer;
+    WSxMHeader: String;
+    Version: String;
+    MajorVer,MinorVer,ReleaseVer,BuildVer:Integer;
   end;
 
 var
@@ -46,6 +49,10 @@ MyComments, strLine, strUnit: string;
 
 begin
   DecimalSeparator := '.';
+
+  //Obtenemos la version del programa para incluirlo en los header
+  SPMVersion(ExtractFileName(ParamStr(0)),MajorVer,MinorVer,ReleaseVer,BuildVer);
+  Version := FloatToStr(MajorVer) + '.' +FloatToStr(MinorVer) + '.'+FloatToStr(ReleaseVer);
 
   if RadioGroup1.ItemIndex=0 then MyComments:='Forth'
   else MyComments:='Back';
@@ -111,7 +118,7 @@ begin
         '[Miscellaneous]'#13#10+
         #13#10+
         '    Comments: '+Edit1.Text+MyComments+#13#10+
-        '    Saved with version: MyScanner 1.4'#13#10+
+        '    Saved with version: MyScanner '+Version+#13#10+
         '    Version: 1.0 (August 2005)'#13#10+
         '    Z Scale Factor: 1'#13#10+
         '    Z Scale Offset: 0'#13#10+
@@ -122,6 +129,39 @@ begin
   PosFin := Length(WSxMHeader);
   RichEdit1.Text:= WSxMHeader;
   Label2.Caption:=InttoStr(PosFin);
+end;
+
+procedure TForm8.SPMVersion(FileName: string; var Major,Minor, Release, Build: Integer);
+var
+  Info:Pointer;
+  InfoSize:Dword;
+  FileInfo: PVSFixedFileInfo;
+  FileSize: DWORD;
+  Temp: DWORD;
+begin
+  //Funcion para obtener la version del programa usando la API de windows
+  InfoSize := GetFileVersionInfoSize(PAnsiChar(FileName), Temp);
+  if not(InfoSize =0) then
+  begin
+  GetMem(Info,InfoSize);
+    try
+      GetFileVersionInfo(PAnsiChar(FileName), 0, InfoSize, Info);
+      VerQueryValue(Info, PathDelim, Pointer(FileInfo), FileSize);
+      Major := FileInfo.dwFileVersionMS div $FFFF;
+      Minor := FileInfo.dwFileVersionMS and $FFFF;
+      Release := FileInfo.dwFileVersionLS div $FFFF;
+      Build := FileInfo.dwFileVersionLS and $FFFF;
+    finally
+      FreeMem(Info, FileSize);
+    end;
+  end
+  else
+  begin //Si no lo consigue lo introducimos a mano
+    Major :=1 ;
+    Minor :=4 ;
+    Release :=1 ;
+    Build :=0 ;
+  end;
 end;
 
 end.

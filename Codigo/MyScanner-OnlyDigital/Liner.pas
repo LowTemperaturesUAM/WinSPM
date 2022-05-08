@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, {blqloader,} var_gbl,
+  StdCtrls, ExtCtrls, Menus, Spin, blqdataset, var_gbl,
   Buttons, TeeProcs, TeEngine, Chart, Series, HeaderImg ;
 
 type
@@ -691,7 +691,7 @@ begin
   Write(myFile, '    Comments: ');
   WriteLn(myFile, commentsWSxM);
   WriteLn(myFile, '    First Forward: Yes');
-  WriteLn(myFile, '    Saved with version: MyScanner 1.4');
+  WriteLn(myFile, '    Saved with version: MyScanner '+Form8.Version);
   WriteLn(myFile, '    Version: 3.0 (July 2004)');
   WriteLn(myFile, '');
   WriteLn(myFile, '[Header end]');

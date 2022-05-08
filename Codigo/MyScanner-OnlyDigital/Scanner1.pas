@@ -8,7 +8,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, {xyyGraph,} var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series,
+  StdCtrls, ExtCtrls, ComCtrls, var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series,
   Buttons;
 
 type
@@ -1409,7 +1409,8 @@ begin
 
   F.Write('[Miscellaneous]'#13#10, 2+Length('[Miscellaneous]'));
   F.Write(''#13#10, 2+Length(''));
-  F.Write('    Saved with version: MyScanner 1.4'#13#10, 2+Length('    Saved with version: MyScanner 1.4'));
+  strLine:= Format('    Saved with version: MyScanner %s',[Form8.Version]);
+  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
   F.Write('    Version: 1.0 (August 2005)'#13#10, 2+Length('    Version: 1.0 (August 2005)'));
   F.Write('    Z Scale Factor: 1'#13#10, 2+Length('    Z Scale Factor: 1'));
   F.Write('    Z Scale Offset: 0'#13#10, 2+Length('    Z Scale Offset: 0'));
