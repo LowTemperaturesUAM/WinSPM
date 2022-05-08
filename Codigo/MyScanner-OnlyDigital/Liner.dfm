@@ -416,16 +416,16 @@ object Form4: TForm4
     ParentFont = False
     TabOrder = 20
     Text = '1'
-    OnEnter = TemperatureEditEnter
+    OnChange = TemperatureEditEnter
   end
   object MagFieldEdit: TEdit
     Left = 328
     Top = 558
     Width = 57
     Height = 21
-    TabOrder = 22
+    TabOrder = 21
     Text = '0'
-    OnEnter = MagFieldEditEnter
+    OnChange = MagFieldEditEnter
   end
   object scrollSizeBias: TScrollBar
     Left = 16
@@ -434,7 +434,7 @@ object Form4: TForm4
     Height = 25
     PageSize = 0
     Position = 100
-    TabOrder = 21
+    TabOrder = 22
     OnChange = scrollSizeBiasChange
   end
   object chartLine: TChart

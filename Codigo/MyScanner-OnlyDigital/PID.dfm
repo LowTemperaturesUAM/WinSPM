@@ -16,14 +16,14 @@ object FormPID: TFormPID
   TextHeight = 13
   object Label1: TLabel
     Left = 24
-    Top = 336
+    Top = 332
     Width = 24
     Height = 13
     Caption = 'Input'
   end
   object Label2: TLabel
     Left = 16
-    Top = 360
+    Top = 356
     Width = 32
     Height = 13
     Caption = 'Output'
@@ -35,67 +35,74 @@ object FormPID: TFormPID
     Height = 13
     Caption = 'Gain 10^'
   end
-  object Label4: TLabel
-    Left = 128
-    Top = 336
-    Width = 9
+  object lblInValue: TLabel
+    Left = 158
+    Top = 332
+    Width = 3
     Height = 13
-    Caption = 'In'
+    Alignment = taRightJustify
+    Caption = '-'
   end
-  object Label5: TLabel
-    Left = 128
-    Top = 360
-    Width = 17
+  object lblOutValue: TLabel
+    Left = 158
+    Top = 356
+    Width = 3
     Height = 13
-    Caption = 'Out'
+    Alignment = taRightJustify
+    Caption = '-'
   end
-  object Label6: TLabel
-    Left = 32
+  object lblPValue: TLabel
+    Left = 28
     Top = 248
-    Width = 18
+    Width = 12
     Height = 13
-    Caption = '100'
+    Alignment = taRightJustify
+    Caption = '10'
   end
   object Label7: TLabel
-    Left = 24
+    Left = 28
     Top = 88
-    Width = 7
+    Width = 9
     Height = 13
     Caption = 'P'
   end
-  object Label8: TLabel
-    Left = 72
+  object lblIValue: TLabel
+    Left = 66
     Top = 248
-    Width = 18
+    Width = 12
     Height = 13
-    Caption = '100'
+    Alignment = taRightJustify
+    Caption = '10'
   end
   object Label9: TLabel
-    Left = 64
+    Left = 69
     Top = 88
-    Width = 3
+    Width = 4
     Height = 13
+    Alignment = taRightJustify
     Caption = 'I'
   end
-  object Label10: TLabel
-    Left = 112
+  object lblDValue: TLabel
+    Left = 108
     Top = 248
-    Width = 18
+    Width = 12
     Height = 13
-    Caption = '100'
+    Alignment = taRightJustify
+    Caption = '10'
   end
   object Label11: TLabel
-    Left = 104
+    Left = 108
     Top = 88
-    Width = 8
+    Width = 9
     Height = 13
     Caption = 'D'
   end
   object Label12: TLabel
-    Left = 176
+    Left = 178
     Top = 248
     Width = 6
     Height = 13
+    Alignment = taRightJustify
     Caption = '0'
   end
   object Label13: TLabel
@@ -113,15 +120,15 @@ object FormPID: TFormPID
     Caption = 'Live'
   end
   object Label15: TLabel
-    Left = 184
-    Top = 336
+    Left = 104
+    Top = 332
     Width = 9
     Height = 13
     Caption = 'In'
   end
   object Label16: TLabel
-    Left = 184
-    Top = 360
+    Left = 104
+    Top = 356
     Width = 17
     Height = 13
     Caption = 'Out'
@@ -163,16 +170,16 @@ object FormPID: TFormPID
     Caption = 'Current'
     Visible = False
   end
-  object CheckBox1: TCheckBox
-    Left = 128
-    Top = 304
-    Width = 65
+  object chkShowValues: TCheckBox
+    Left = 104
+    Top = 308
+    Width = 57
     Height = 17
     Caption = 'ShowIt'
     Checked = True
     State = cbChecked
     TabOrder = 0
-    OnClick = CheckBox1Click
+    OnClick = chkShowValuesClick
   end
   object spinPID_In: TSpinEdit
     Left = 56
@@ -185,7 +192,7 @@ object FormPID: TFormPID
     Value = 0
     OnChange = spinPID_InChange
   end
-  object SpinEdit2: TSpinEdit
+  object spinPID_Out: TSpinEdit
     Left = 56
     Top = 352
     Width = 41
@@ -194,20 +201,20 @@ object FormPID: TFormPID
     MinValue = 0
     TabOrder = 2
     Value = 6
-    OnChange = SpinEdit2Change
+    OnChange = spinPID_OutChange
   end
-  object SpinEdit3: TSpinEdit
+  object Gain_P: TSpinEdit
     Left = 16
     Top = 280
-    Width = 33
+    Width = 32
     Height = 22
     MaxValue = 3
     MinValue = -3
     TabOrder = 3
     Value = -1
-    OnChange = SpinEdit3Change
+    OnChange = Gain_PChange
   end
-  object ScrollBar1: TScrollBar
+  object scrlbrP: TScrollBar
     Left = 24
     Top = 112
     Width = 17
@@ -216,9 +223,9 @@ object FormPID: TFormPID
     PageSize = 0
     Position = 31
     TabOrder = 4
-    OnChange = ScrollBar1Change
+    OnChange = scrlbrPChange
   end
-  object ScrollBar2: TScrollBar
+  object scrlbrI: TScrollBar
     Left = 64
     Top = 112
     Width = 17
@@ -226,9 +233,9 @@ object FormPID: TFormPID
     Kind = sbVertical
     PageSize = 0
     TabOrder = 5
-    OnChange = ScrollBar2Change
+    OnChange = scrlbrIChange
   end
-  object ScrollBar3: TScrollBar
+  object scrlbrD: TScrollBar
     Left = 104
     Top = 112
     Width = 17
@@ -236,7 +243,7 @@ object FormPID: TFormPID
     Kind = sbVertical
     PageSize = 0
     TabOrder = 6
-    OnChange = ScrollBar3Change
+    OnChange = scrlbrDChange
   end
   object scrlbrSetPoint: TScrollBar
     Left = 168
@@ -348,9 +355,9 @@ object FormPID: TFormPID
     OnClick = Button9Click
   end
   object Gain_I: TSpinEdit
-    Left = 64
+    Left = 56
     Top = 280
-    Width = 33
+    Width = 32
     Height = 22
     MaxValue = 6
     MinValue = -6
@@ -359,9 +366,9 @@ object FormPID: TFormPID
     OnChange = Gain_IChange
   end
   object Gain_D: TSpinEdit
-    Left = 104
+    Left = 96
     Top = 280
-    Width = 41
+    Width = 32
     Height = 22
     MaxValue = 6
     MinValue = -6

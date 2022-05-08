@@ -140,7 +140,7 @@ var
 
 implementation
 
-uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1, FileNames;
+uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1, FileNames, Math;
 
 {$R *.DFM}
 
@@ -540,8 +540,8 @@ number: Double;
 begin
 BlockFileName:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
 TakeComment:=DateTimeToStr(Now)+#13+#10+
-    'T(K)='+FloattoStr(Temperature)+#13+#10+
-    'B(T)='+FloattoStr(MagField)+#13+#10+
+    'T(K)='+FloattoStrF(Temperature,ffGeneral,5,2)+#13+#10+
+    'B(T)='+FloattoStrF(MagField,ffGeneral,5,2)+#13+#10+
     'X(nm)='+FloattoStrF(ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX, ffGeneral, 5, 4)+#13+#10+
     'Y(nm)='+FloattoStrF(ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY, ffGeneral, 5, 4)+#13+#10;
   for k:=0 to 1 do
@@ -741,19 +741,27 @@ end;
 
 //Temperatura
 procedure TForm4.TemperatureEditEnter(Sender: TObject);
+var
+  YesField,YesTemp: Boolean;
 begin
 if (TemperatureEdit.text='')then exit;
-Temperature:=StrtoFloat(TemperatureEdit.Text);
-MagField:=StrtoFloat(MagFieldEdit.Text);
-Form8.Edit1.Text:='T='+TemperatureEdit.Text+'K,H='+MagFieldEdit.Text+'T,';
+YesTemp := TryStrToFloat(TemperatureEdit.Text,Temperature);
+YesField :=TryStrToFloat(MagFieldEdit.Text, MagField);
+if YesTemp and YesField then
+  Form8.Edit1.Text:='T='+FloatToStrF(Temperature,ffGeneral,5,2)+'K,H='+FloatToStrF(MagField,ffGeneral,5,2)+'T,'
+else exit;
 end;
 //Campo magnético
 procedure TForm4.MagFieldEditEnter(Sender: TObject);
+var
+  YesField,YesTemp: Boolean;
 begin
 if (MagFieldEdit.text='')then exit;
-Temperature:=StrtoFloat(TemperatureEdit.Text);
-MagField:=StrtoFloat(MagFieldEdit.Text);
-Form8.Edit1.Text:='T='+TemperatureEdit.Text+'K,H='+MagFieldEdit.Text+'T,';
+YesTemp := TryStrToFloat(TemperatureEdit.Text,Temperature);
+YesField :=TryStrToFloat(MagFieldEdit.Text, MagField);
+if YesTemp and YesField then
+  Form8.Edit1.Text:='T='+FloatToStrF(Temperature,ffGeneral,5,2)+'K,H='+FloatToStrF(MagField,ffGeneral,5,2)+'T,'
+else exit;
 end;
 
 //blq Number para guardar

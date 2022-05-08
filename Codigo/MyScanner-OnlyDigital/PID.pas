@@ -8,23 +8,23 @@ uses
 
 type
   TFormPID = class(TForm)
-    CheckBox1: TCheckBox;
+    chkShowValues: TCheckBox;
     spinPID_In: TSpinEdit;
-    SpinEdit2: TSpinEdit;
+    spinPID_Out: TSpinEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
-    SpinEdit3: TSpinEdit;
-    Label4: TLabel;
-    Label5: TLabel;
-    ScrollBar1: TScrollBar;
-    Label6: TLabel;
+    Gain_P: TSpinEdit;
+    lblInValue: TLabel;
+    lblOutValue: TLabel;
+    scrlbrP: TScrollBar;
+    lblPValue: TLabel;
     Label7: TLabel;
-    ScrollBar2: TScrollBar;
-    Label8: TLabel;
+    scrlbrI: TScrollBar;
+    lblIValue: TLabel;
     Label9: TLabel;
-    ScrollBar3: TScrollBar;
-    Label10: TLabel;
+    scrlbrD: TScrollBar;
+    lblDValue: TLabel;
     Label11: TLabel;
     scrlbrSetPoint: TScrollBar;
     Label12: TLabel;
@@ -53,15 +53,10 @@ type
     SpinEdit6: TSpinEdit;
     lblCurrentLabel: TLabel;
     lblCurrentSetPoint: TLabel;
-    procedure SpinEdit3Change(Sender: TObject);
-    procedure ScrollBar1Change(Sender: TObject);
-    procedure ScrollBar2Change(Sender: TObject);
-    procedure ScrollBar3Change(Sender: TObject);
-    procedure scrlbrSetPointChange(Sender: TObject);
-    procedure CheckBox1Click(Sender: TObject);
+    procedure chkShowValuesClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure spinPID_InChange(Sender: TObject);
-    procedure SpinEdit2Change(Sender: TObject);
+    procedure spinPID_OutChange(Sender: TObject);
     procedure SpinEdit4Change(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -74,6 +69,11 @@ type
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure scrlbrPChange(Sender: TObject);
+    procedure scrlbrIChange(Sender: TObject);
+    procedure scrlbrDChange(Sender: TObject);
+    procedure scrlbrSetPointChange(Sender: TObject);
+    procedure Gain_PChange(Sender: TObject);
     procedure Gain_IChange(Sender: TObject);
     procedure Gain_DChange(Sender: TObject);
     procedure thrdtmr1Timer(Sender: TObject);
@@ -88,6 +88,7 @@ type
 var
   FormPID: TFormPID;
   InPID_ADC,OutPID_DAC: Integer;
+  showValues, showInterval: Integer;
   Gain,Gain_of_I,Gain_of_D: Double;
   P_PID,I_PID,D_PID,MeanReadI: Integer;
   Set_PID, Read_PID, Action_PID,Count_Live, reverse : Integer;
@@ -101,72 +102,28 @@ uses DataAdcquisition, Scanner1, Config1;
 
 {$R *.DFM}
 
-procedure TFormPID.SpinEdit3Change(Sender: TObject);
+procedure TFormPID.chkShowValuesClick(Sender: TObject);
 begin
-  TryStrToFloat(SpinEdit3.Text, Gain);
-  Gain:=power(10,Gain);
-end;
-
-procedure TFormPID.ScrollBar1Change(Sender: TObject);
-begin
-P_PID:=ScrollBar1.Position;
-Label6.Caption:=InttoStr(ScrollBar1.Position);
-end;
-
-procedure TFormPID.ScrollBar2Change(Sender: TObject);
-begin
-I_PID:=ScrollBar2.Position;
-Label8.Caption:=InttoStr(ScrollBar2.Position);
-end;
-
-procedure TFormPID.ScrollBar3Change(Sender: TObject);
-begin
-D_PID:=ScrollBar3.Position;
-Label10.Caption:=InttoStr(ScrollBar3.Position);
-end;
-
-procedure TFormPID.scrlbrSetPointChange(Sender: TObject);
-begin
-Set_PID:=scrlbrSetPoint.Position;
-Label12.Caption:=InttoStr(scrlbrSetPoint.Position);
-if (InPID_ADC = ScanForm.ADCI) then
-  begin
-  lblCurrentLabel.Visible := True;
-  lblCurrentSetPoint.Visible := True;
-  //Conversion a corriente en nA:
-  //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
-  //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
-  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
-  end
-else
-  begin
-  lblCurrentLabel.Visible := False;
-  lblCurrentSetPoint.Visible := False;
-  end
-end;
-
-
-procedure TFormPID.CheckBox1Click(Sender: TObject);
-begin
-Check_Show:=CheckBox1.checked;
+Check_Show:=chkShowValues.checked;
 end;
 
 procedure TFormPID.FormShow(Sender: TObject);
 begin
-Check_Show:=CheckBox1.checked;
+FormPID.DoubleBuffered := True; //Evitamos parpadeos con In y Out
+Check_Show:=chkShowValues.checked;
 Set_PID:=scrlbrSetPoint.Position;
 Label12.Caption:=InttoStr(scrlbrSetPoint.Position);
-D_PID:=ScrollBar3.Position;
-Label10.Caption:=InttoStr(ScrollBar3.Position);
-I_PID:=ScrollBar2.Position;
-Label8.Caption:=InttoStr(ScrollBar2.Position);
-Gain:=Power(10,SpinEdit3.Value);
+D_PID:=scrlbrD.Position;
+lblDValue.Caption:=InttoStr(scrlbrD.Position);
+I_PID:=scrlbrI.Position;
+lblIValue.Caption:=InttoStr(scrlbrI.Position);
+Gain:=Power(10,Gain_P.Value);
 Gain_of_I:=Power(10,Gain_I.Value);
 Gain_of_D:=Power(10,Gain_D.Value);
-P_PID:=ScrollBar1.Position;
-Label6.Caption:=InttoStr(ScrollBar1.Position);
+P_PID:=scrlbrP.Position;
+lblPValue.Caption:=InttoStr(scrlbrP.Position);
 InPID_ADC:=spinPID_In.Value;
-OutPID_DAC:=SpinEdit2.Value;
+OutPID_DAC:=spinPID_out.Value;
 if checkbox2.checked then reverse:=1 else reverse:=-1;
 //PIDReset:=True; // Mejor que resetee la primera vez, para que inicialice todos los acumuladores
 MeanReadI:=SpinEdit5.Value;
@@ -188,6 +145,9 @@ else
 
 // Activamos el hilo que hará el control cuando se habilite su flag
 thrdtmr1.Enabled:=True;
+//Limitamos el numero de veces que actualizamos los valores de In y Out
+showValues:=0;
+showInterval:=51;
 end;
 
 procedure TFormPID.spinPID_InChange(Sender: TObject);
@@ -207,9 +167,9 @@ begin
 
 end;
 
-procedure TFormPID.SpinEdit2Change(Sender: TObject);
+procedure TFormPID.spinPID_OutChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit2.Text, OutPID_DAC);
+  TryStrToInt(spinPID_out.Text, OutPID_DAC);
 end;
 
 procedure TFormPID.SpinEdit4Change(Sender: TObject);
@@ -279,7 +239,7 @@ begin
   i:=0;
   while (i<NumberC) do
   begin
-    if (PIDReset) then
+    if (PIDReset) then //no podemos hacer esto antes del bucle y ya esta?
     begin
       prevError:=0;
       lastIntegral:=0;
@@ -308,10 +268,13 @@ begin
     i:=i+1;
   end;
 
-  if (Check_Show and updateUI) then
+  //Representamos los valores con menor periodicidad que el timer
+  showValues:=showValues +1;
+  if ((Check_Show and updateUI) and (showValues = showInterval))  then
   begin
-    Label4.Caption:=InttoStr(Read_PID);
-    Label5.Caption:=InttoStr(Action_PID);
+    lblInValue.Caption:=InttoStr(Read_PID);
+    lblOutValue.Caption:=InttoStr(Action_PID);
+    showValues := 0;
   end;
 
   Result:=prevError;
@@ -338,6 +301,49 @@ begin
   previous_ctrl:=FormPID.Controla(Count_Live,previous_ctrl, True);
 end;
 
+procedure TFormPID.scrlbrPChange(Sender: TObject);
+begin
+P_PID:=scrlbrP.Position;
+lblPValue.Caption:=InttoStr(scrlbrP.Position);
+end;
+
+procedure TFormPID.scrlbrIChange(Sender: TObject);
+begin
+I_PID:=scrlbrI.Position;
+lblIValue.Caption:=InttoStr(scrlbrI.Position);
+end;
+
+procedure TFormPID.scrlbrDChange(Sender: TObject);
+begin
+D_PID:=scrlbrD.Position;
+lblDValue.Caption:=InttoStr(scrlbrD.Position);
+end;
+
+procedure TFormPID.scrlbrSetPointChange(Sender: TObject);
+begin
+Set_PID:=scrlbrSetPoint.Position;
+Label12.Caption:=InttoStr(scrlbrSetPoint.Position);
+if (InPID_ADC = ScanForm.ADCI) then
+  begin
+  lblCurrentLabel.Visible := True;
+  lblCurrentSetPoint.Visible := True;
+  //Conversion a corriente en nA:
+  //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
+  //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
+  end
+else
+  begin
+  lblCurrentLabel.Visible := False;
+  lblCurrentSetPoint.Visible := False;
+  end
+end;
+procedure TFormPID.Gain_PChange(Sender: TObject);
+begin
+  TryStrToFloat(Gain_P.Text, Gain);
+  Gain:=power(10,Gain);
+end;
+
 procedure TFormPID.Gain_IChange(Sender: TObject);
 begin
   TryStrToFloat(Gain_I.Text, Gain_of_I);
@@ -361,6 +367,12 @@ begin
   TryStrToInt64(se1.Text, temp64);
   thrdtmr1.Interval := temp64;
   Application.ProcessMessages;
+  //Vamos a limitarlo a 5Hz (200ms) para representarlo.
+  //Ponemos un numero de intervalos que no acabe en cero, para que todas las cifras cambien y no parezca raro
+  if temp64=0 then showInterval:=403
+  else showInterval:=Round(51/temp64);
+  showValues:=0;
+
 end;
 
 procedure TFormPID.Button1Click(Sender: TObject);

@@ -204,7 +204,7 @@ try
   Form6.CheckBox2.Checked := IniFile.ReadBool(String(iniTrip), 'CurrentInverse', False);
   //Parametros PID
   FormPID.spinPID_In.Value := SpinEdit4.Value;
-  FormPID.SpinEdit2.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
+  FormPID.spinPID_Out.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
   FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', True);
 finally
   IniFile.Free;
@@ -275,7 +275,7 @@ try
   IniFile.WriteBool(String(iniTrip), 'ZPInverse', Form6.CheckBox1.Checked);
   IniFile.WriteBool(String(iniTrip), 'CurrentInverse', Form6.CheckBox2.Checked);
   //Parametros PID
-  IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.SpinEdit2.Value);
+  IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.spinPID_Out.Value);
   IniFile.WriteBool(String(iniPID), 'PIDReverseOut', FormPID.CheckBox2.Checked);
 finally
   IniFile.UpdateFile;

@@ -1590,7 +1590,8 @@ end;
 
 procedure TScanForm.CheckBox1Click(Sender: TObject);
 begin
-Button3Click(nil);
+  if CheckBox1.Checked  = True then Button3Click(nil);
+
 end;
 
 procedure TScanForm.Button6Click(Sender: TObject);
