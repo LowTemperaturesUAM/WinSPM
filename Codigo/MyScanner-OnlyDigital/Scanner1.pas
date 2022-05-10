@@ -554,7 +554,7 @@ begin
   RedimCits(IV_Scan_Lines, Form4.PointNumber);
 end;
 
-Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*Form10.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*Form10.scan_attenuator*10*CalX);
+Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Princ, Fin)/32768*AmpX*10*CalX);
 
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
 begin
