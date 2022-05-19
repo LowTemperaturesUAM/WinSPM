@@ -53,8 +53,8 @@ type
     SpinEdit6: TSpinEdit;
     lblCurrentLabel: TLabel;
     lblCurrentSetPoint: TLabel;
-    procedure chkShowValuesClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure chkShowValuesClick(Sender: TObject);
     procedure spinPID_InChange(Sender: TObject);
     procedure spinPID_OutChange(Sender: TObject);
     procedure SpinEdit4Change(Sender: TObject);
@@ -102,11 +102,6 @@ uses DataAdcquisition, Scanner1, Config1;
 
 {$R *.DFM}
 
-procedure TFormPID.chkShowValuesClick(Sender: TObject);
-begin
-Check_Show:=chkShowValues.checked;
-end;
-
 procedure TFormPID.FormShow(Sender: TObject);
 begin
 FormPID.DoubleBuffered := True; //Evitamos parpadeos con In y Out
@@ -148,6 +143,12 @@ thrdtmr1.Enabled:=True;
 //Limitamos el numero de veces que actualizamos los valores de In y Out
 showValues:=0;
 showInterval:=51;
+end;
+
+procedure TFormPID.chkShowValuesClick(Sender: TObject);
+begin
+Check_Show:=chkShowValues.checked;
+showValues:=0;
 end;
 
 procedure TFormPID.spinPID_InChange(Sender: TObject);
@@ -269,7 +270,7 @@ begin
   end;
 
   //Representamos los valores con menor periodicidad que el timer
-  showValues:=showValues +1;
+  Inc(showValues);
   if ((Check_Show and updateUI) and (showValues = showInterval))  then
   begin
     lblInValue.Caption:=InttoStr(Read_PID);

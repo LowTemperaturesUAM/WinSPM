@@ -62,7 +62,7 @@ object FormPID: TFormPID
   object Label7: TLabel
     Left = 28
     Top = 88
-    Width = 9
+    Width = 7
     Height = 13
     Caption = 'P'
   end
@@ -75,9 +75,9 @@ object FormPID: TFormPID
     Caption = '10'
   end
   object Label9: TLabel
-    Left = 69
+    Left = 70
     Top = 88
-    Width = 4
+    Width = 3
     Height = 13
     Alignment = taRightJustify
     Caption = 'I'
@@ -93,7 +93,7 @@ object FormPID: TFormPID
   object Label11: TLabel
     Left = 108
     Top = 88
-    Width = 9
+    Width = 8
     Height = 13
     Caption = 'D'
   end

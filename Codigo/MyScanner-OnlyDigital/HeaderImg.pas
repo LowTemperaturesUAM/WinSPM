@@ -147,10 +147,10 @@ begin
     try
       GetFileVersionInfo(PAnsiChar(FileName), 0, InfoSize, Info);
       VerQueryValue(Info, PathDelim, Pointer(FileInfo), FileSize);
-      Major := FileInfo.dwFileVersionMS div $FFFF;
-      Minor := FileInfo.dwFileVersionMS and $FFFF;
-      Release := FileInfo.dwFileVersionLS div $FFFF;
-      Build := FileInfo.dwFileVersionLS and $FFFF;
+      Major := HiWord(FileInfo.dwFileVersionMS);
+      Minor := LoWord(FileInfo.dwFileVersionMS);
+      Release := HiWord(FileInfo.dwFileVersionLS);
+      Build := LoWord(FileInfo.dwFileVersionLS);
     finally
       FreeMem(Info, FileSize);
     end;
