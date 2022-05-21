@@ -434,9 +434,16 @@ end;
 
 procedure TScanForm.TestButtonClick(Sender: TObject);
 var
-k, Prin: Integer;
+k, Prin,OldEraseLines: Integer;
 A:Boolean;
 begin
+TryStrToInt(Form3.SpinEdit1.Text, OldEraseLines);;
+//Si no mostramos ninguna linea en el scan, lo cambiamos a 2 para test
+if OldEraseLines = 0 then
+  begin
+  EraseLines := 2;
+  Form3.SpinEdit1.Text := FloattoStr(EraseLines);
+  end;
 
 //FormPID.se1.Text:='0';    //Comentado por Fran
 
@@ -475,6 +482,11 @@ Button10.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
 //CrossPosY:=Round(-DacValY/32768*200+200);
 //ScanForm.PaintBox1DblClick(nil);  No descomentar estas línea tal cual. En lugar de eso usar la función SetNewOffset calculando previamente el punto. (0, 0) si es ir al centro.
+
+//Volvemos a la configuracion del scan previa
+EraseLines := OldEraseLines;
+Form3.SpinEdit1.Text := FloattoStr(EraseLines);
+
 Form3.Close;
 if A=True then CheckBox2.Checked:=True;
 end;
