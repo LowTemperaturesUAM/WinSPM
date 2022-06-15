@@ -108,7 +108,7 @@ ScanForm.ReadCurrent:=Checkbox2.checked;
 //añadido para poder leer other
 ScanForm.ReadOther:=Checkbox3.checked;
 ScanForm.ADCOther:=SpinEdit5.Value;
-ScanForm.AmpOther:=StrtoFloat(ComboBox5.Text);
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Form2.Combobox5.Text)-1));
 ScanForm.MultOther:=StrtoInt(Edit5.Text);
 
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
@@ -225,6 +225,13 @@ ScanForm.CalTopo:=StrtoFloat(Form2.Edit3.Text);
 ScanForm.MultI:=StrtoInt(Form2.Edit4.Text);
 ScanForm.ReadTopo:=Checkbox1.checked;
 ScanForm.ReadCurrent:=Checkbox2.checked;
+
+//añadido para poder leer other
+//ScanForm.ReadOther:=Checkbox3.checked;
+ScanForm.ADCOther:=SpinEdit5.Value;
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Form2.Combobox5.Text)-1));
+ScanForm.MultOther:=StrtoInt(Edit5.Text);
+
 // Inicializamos los atenuadores al abrir el programa
 // Los atenuadores fucionan correctamente cuando cerramos el config, pero no al inicial el programa
 if ScanForm.Versiondivider=False then Form10.set_attenuator(0,1)
