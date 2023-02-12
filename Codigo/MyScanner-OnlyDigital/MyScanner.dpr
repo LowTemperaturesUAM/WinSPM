@@ -13,7 +13,7 @@ uses
   var_gbl in 'var_gbl.pas',
   HeaderImg in 'HeaderImg.pas' {Form8},
   FileNames in 'FileNames.pas' {Form9},
-  DataAdcquisition in 'DataAdcquisition.pas' {Form10},
+  DataAdcquisition in 'DataAdcquisition.pas' {DataForm},
   PID in 'PID.pas' {FormPID},
   Config_IV in 'Config_IV.pas' {Form11},
   Paste in 'Paste.pas' {FormPaste},
@@ -33,7 +33,7 @@ begin
   Application.CreateForm(TblqDataSetForm, blqDataSetForm);
   Application.CreateForm(TForm8, Form8);
   Application.CreateForm(TForm9, Form9);
-  Application.CreateForm(TForm10, Form10);
+  Application.CreateForm(TDataForm, DataForm);
   Application.CreateForm(TFormPID, FormPID);
   Application.CreateForm(TForm11, Form11);
   Application.CreateForm(TFormConfig, FormConfig);
