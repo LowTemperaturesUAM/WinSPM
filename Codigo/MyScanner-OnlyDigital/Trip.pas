@@ -136,13 +136,13 @@ begin
   punto_salida:=false;
   while (punto_salida=false) do
   begin
-    Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,ScanForm.P_Scan_Mean);
+    Strom_jetzt:=  DataForm.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,ScanForm.P_Scan_Mean);
     //Label7.caption:=Floattostr(Strom_jetzt);
     //times:=1000;
     while (abs(Strom_jetzt)<(Form6.spinCurrentLimit.Value/100)) and (StopTrip=False) do
     begin
       MakeSteps(times, 1);
-      Strom_jetzt:=  Form10.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,ScanForm.P_Scan_Mean);
+      Strom_jetzt:=  DataForm.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,ScanForm.P_Scan_Mean);
     end;
     punto_salida:=True;
     //times:=Spinedit1.Value;
@@ -194,13 +194,13 @@ begin
       if Frac(j/Speed)=0 then
       begin
         enviaZ:=direction*Mult*Round(j*Size/10);
-        Form10.dac_set(ZPDac,enviaZ, nil);
+        DataForm.dac_set(ZPDac,enviaZ, nil);
       end;
     end;
     Application.ProcessMessages;
     i:=i+1;
   end;
-  Form10.dac_set(ZPDac,0, nil);
+  DataForm.dac_set(ZPDac,0, nil);
 end;
 
 end.

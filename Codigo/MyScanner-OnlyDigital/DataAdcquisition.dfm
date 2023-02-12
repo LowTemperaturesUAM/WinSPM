@@ -1,4 +1,4 @@
-object Form10: TForm10
+object DataForm: TDataForm
   Left = -6
   Top = 260
   Width = 1547

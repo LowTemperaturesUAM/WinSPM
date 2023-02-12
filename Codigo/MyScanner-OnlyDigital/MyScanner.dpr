@@ -7,7 +7,7 @@ uses
   Trip in 'Trip.pas' {Form5},
   Liner in 'Liner.pas' {Form4},
   Config_Liner in 'Config_Liner.pas' {Form7},
-  Config1 in 'Config1.pas' {Form2},
+  Config1 in 'Config1.pas' {FormConfig},
   Config_Trip in 'Config_Trip.pas' {Form6},
   blqDataSet in 'blqDataSet.pas' {blqDataSetForm},
   var_gbl in 'var_gbl.pas',
@@ -36,7 +36,7 @@ begin
   Application.CreateForm(TForm10, Form10);
   Application.CreateForm(TFormPID, FormPID);
   Application.CreateForm(TForm11, Form11);
-  Application.CreateForm(TForm2, Form2);
+  Application.CreateForm(TFormConfig, FormConfig);
   Application.CreateForm(TFormPaste, FormPaste);
   Application.Run;
 end.

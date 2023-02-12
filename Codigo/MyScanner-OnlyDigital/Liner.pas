@@ -249,11 +249,11 @@ here_previous_ctrl:=0;
 
     // Forth (Rampa de ida)
     // Lectura de UNA rampa de ida
-    Form10.ramp_take(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
+    DataForm.ramp_take(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
 
     // Back (rampa de vuelta)
     //Lectura de UNA rampa de vuelta
-    Form10.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
+    DataForm.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
 
     {FormPID.Button8Click(nil);
     sleep(20);
@@ -278,7 +278,7 @@ here_previous_ctrl:=0;
       if Form7.CheckBox4.Checked then Princ:=Round(-32768*Size_xAxis)
       else Princ:=Round(32768*Size_xAxis);
 
-    Form10.dac_set(x_axisDAC,Princ, nil);
+    DataForm.dac_set(x_axisDAC,Princ, nil);
 
     // Vamos a dejar funcionar el control durante 2 s
     if (j>=0) then
@@ -782,9 +782,9 @@ procedure TForm4.scrollSizeBiasChange(Sender: TObject);
 begin
 Size_xAxis:=scrollSizeBias.Position/100;
 if Form7.CheckBox4.Checked then
-Form10.dac_set(Form7.SpinEdit1.Value, Round(-32767*Size_xAxis), nil)
+DataForm.dac_set(Form7.SpinEdit1.Value, Round(-32767*Size_xAxis), nil)
 else
-Form10.dac_set(Form7.SpinEdit1.Value, Round(32767*Size_xAxis), nil);
+DataForm.dac_set(Form7.SpinEdit1.Value, Round(32767*Size_xAxis), nil);
 
 Label18.Caption:=IntToStr(scrollSizeBias.Position);
 end;

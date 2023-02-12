@@ -189,7 +189,7 @@ var
 
 procedure TScanForm.Button4Click(Sender: TObject);
 begin
-Form2.Show;
+FormConfig.Show;
 end;
 
 procedure TScanForm.FormShow(Sender: TObject);
@@ -199,28 +199,28 @@ if Application.MessageBox('LHA Version with extra attenuators?','LHA version', M
   then VersionDivider:=True
   else VersionDivider:=False;
 
-Form2.Show;
-XDAC:=Form2.SpinEdit1.Value;
-YDAC:=Form2.SpinEdit2.Value;
-XDAC_Pos:=Form2.SpinEdit6.Value;
-YDAC_Pos:=Form2.SpinEdit7.Value;
-AmpX:=StrtoFloat(Form2.Combobox1.Text);
-AmpY:=StrtoFloat(Form2.Combobox2.Text);
-AmpX_Pos:=StrtoFloat(Form2.Combobox6.Text);
-AmpY_Pos:=StrtoFloat(Form2.Combobox7.Text);
-CalX:=StrtoFloat(Form2.Edit1.Text);
-CalY:=StrtoFloat(Form2.Edit2.Text);
-ADCTopo:=Form2.SpinEdit3.Value;
-ADCI:=Form2.SpinEdit4.Value;
-AmpTopo:=StrtoFloat(Form2.Combobox3.Text);
-AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1)); //El valor que leemos del ADC va entre +-1, no entre +-10 como el voltaje, asi que restamos 1
-CalTopo:=StrtoFloat(Form2.Edit3.Text);
-MultI:=StrtoInt(Form2.Edit4.Text);
-ReadTopo:=Form2.Checkbox1.checked;
-ReadCurrent:=Form2.Checkbox2.checked;
+FormConfig.Show;
+XDAC:=FormConfig.SpinEdit1.Value;
+YDAC:=FormConfig.SpinEdit2.Value;
+XDAC_Pos:=FormConfig.SpinEdit6.Value;
+YDAC_Pos:=FormConfig.SpinEdit7.Value;
+AmpX:=StrtoFloat(FormConfig.Combobox1.Text);
+AmpY:=StrtoFloat(FormConfig.Combobox2.Text);
+AmpX_Pos:=StrtoFloat(FormConfig.Combobox6.Text);
+AmpY_Pos:=StrtoFloat(FormConfig.Combobox7.Text);
+CalX:=StrtoFloat(FormConfig.Edit1.Text);
+CalY:=StrtoFloat(FormConfig.Edit2.Text);
+ADCTopo:=FormConfig.SpinEdit3.Value;
+ADCI:=FormConfig.SpinEdit4.Value;
+AmpTopo:=StrtoFloat(FormConfig.Combobox3.Text);
+AmpI:=power(10,-1*(StrtoFloat(FormConfig.Combobox4.Text)-1)); //El valor que leemos del ADC va entre +-1, no entre +-10 como el voltaje, asi que restamos 1
+CalTopo:=StrtoFloat(FormConfig.Edit3.Text);
+MultI:=StrtoInt(FormConfig.Edit4.Text);
+ReadTopo:=FormConfig.Checkbox1.checked;
+ReadCurrent:=FormConfig.Checkbox2.checked;
 
 
-//Form2.Hide;
+//FormConfig.Hide;
 XOffset := 0;
 YOffset := 0;
 PosXSTM:=0;
@@ -244,8 +244,8 @@ contadorIV:=1;
 
 PuntosTotales:=P_Scan_Lines*P_Scan_Lines*2;
 
-Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10,ffFixed,2,1);
-Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10*CalX,ffFixed,2,1);
+Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*DataForm.scan_attenuator*10,ffFixed,2,1);
+Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*DataForm.scan_attenuator*10*CalX,ffFixed,2,1);
 TrackBar3Change(nil); // Simulo que se ha cambiado el tamaño para que acutalice la interfaz
 SizeOfWindow:=400;
 StopAction:=True;
@@ -308,8 +308,8 @@ begin
 P_Scan_Size_Old:=P_Scan_Size;
 Label8.Caption:=InttoStr(Trackbar3.Position);
 P_Scan_Size:=Trackbar3.Position/1000;
-Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10,ffFixed,3,1);
-Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*Form10.scan_attenuator*10*CalX,ffFixed,3,1);
+Label30.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*DataForm.scan_attenuator*10,ffFixed,3,1);
+Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*DataForm.scan_attenuator*10*CalX,ffFixed,3,1);
 UpdateCanvas(nil);
 end;
 
@@ -571,7 +571,7 @@ Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Pri
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
 begin
   channelToPlot := 1;
-  yFactor := StrtoFloat(Form2.Edit3.Text)*StrtoFloat(Form2.Combobox3.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
+  yFactor := StrtoFloat(FormConfig.Edit3.Text)*StrtoFloat(FormConfig.Combobox3.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
 end
 else // Current
 begin
@@ -644,7 +644,7 @@ begin
     end
     else
     begin
-      adcRead:=Form10.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
 
       if ReadTopo=True then
       begin
@@ -709,7 +709,7 @@ begin
     end
     else
     begin
-        adcRead:=Form10.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+        adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       if ReadTopo=True then
       begin
         //if (DigitalPID) then
@@ -811,7 +811,7 @@ begin
     end
     else
     begin
-      adcRead:=Form10.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       if ReadTopo=True then
       begin
         //if (DigitalPID) then
@@ -877,7 +877,7 @@ begin
     end
     else
     begin
-      adcRead:=Form10.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       if ReadTopo=True then
       begin
         //if (DigitalPID) then
@@ -1104,10 +1104,10 @@ repeat
   TiempoMedio:=0;
   TiempoInicial:=0;
 
-  h.xstart:=DacValX/32768*Form10.scan_attenuator*AmpX*10*1e-9;
-  h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*Form10.scan_attenuator*10*1e-9;
-  h.ystart:=DacValY/32768*Form10.scan_attenuator*AmpX*10*1e-9;
-  h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*Form10.scan_attenuator*10*1e-9;
+  h.xstart:=DacValX/32768*DataForm.scan_attenuator*AmpX*10*1e-9;
+  h.xend:=Round(DacValX+int(65535*P_Scan_Size))/32768*AmpX*DataForm.scan_attenuator*10*1e-9;
+  h.ystart:=DacValY/32768*DataForm.scan_attenuator*AmpX*10*1e-9;
+  h.yend:=Round(DacValY+int(65535*P_Scan_Size))/32768*AmpY*DataForm.scan_attenuator*10*1e-9;
   h.xn:=P_Scan_Lines;
   h.yn:=P_Scan_Lines;
 
@@ -1210,8 +1210,8 @@ repeat
 
        bitmapPasteList[i].x := XOffset;
        bitmapPasteList[i].y := YOffset;
-       bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.scan_attenuator;
-       bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.scan_attenuator;
+       bitmapPasteList[i].sizeX := 2*P_Scan_Size*DataForm.scan_attenuator;
+       bitmapPasteList[i].sizeY := 2*P_Scan_Size*DataForm.scan_attenuator;
        bitmapPasteList[i].bitmap := TBitmap.Create;
        try
          with bitmapPasteList[i].bitmap do
@@ -1256,7 +1256,7 @@ begin
   while (j<jump+1) do
   begin
   Go_jump:=Round(init+j*interv);
-  Form10.dac_set(DacNr,Go_jump, BufferOut);
+  DataForm.dac_set(DacNr,Go_jump, BufferOut);
   j:=j+1;
   Application.ProcessMessages;
   end;
@@ -1271,12 +1271,12 @@ begin
   while (j<StepNumr+1) do
   begin
   Go_jump:=Round(init+StepSign*j*jump);
-  Form10.dac_set(DacNr,Go_jump, BufferOut);
+  DataForm.dac_set(DacNr,Go_jump, BufferOut);
   j:=j+1;
   Application.ProcessMessages;
   end;
   
-  Form10.dac_set(DacNr,fin, BufferOut);
+  DataForm.dac_set(DacNr,fin, BufferOut);
   Application.ProcessMessages;
 end;
 
@@ -1615,7 +1615,7 @@ end;
 procedure TScanForm.Button13Click(Sender: TObject);
 begin
 //take_initialize;
-Form10.InitDataAcq;
+DataForm.InitDataAcq;
 end;
 
 procedure TScanForm.Button14Click(Sender: TObject);
@@ -1631,12 +1631,12 @@ dac_num, enviaDac:SmallInt;
 begin
 dac_num:=SpinEdit2.Value;
 enviaDac:=ScrollBar1.Position;
-Form10.dac_set(dac_num,enviaDac, nil);
+DataForm.dac_set(dac_num,enviaDac, nil);
 end;
 
 procedure TScanForm.Button16Click(Sender: TObject);
 begin
-Form10.Show;
+DataForm.Show;
 end;
 
 procedure TScanForm.ResizeBitmap(Bitmap: TBitmap; Width, Height: Integer; Background: TColor);
@@ -1707,11 +1707,11 @@ procedure TScanForm.CheckBox2Click(Sender: TObject);
 begin
 if Checkbox2.Checked then
   begin
-    Form2.Checkbox4.Checked:=True;
+    FormConfig.Checkbox4.Checked:=True;
   end
 else
   begin
-    Form2.Checkbox4.Checked:=False;
+    FormConfig.Checkbox4.Checked:=False;
   end;
 end;
 
@@ -1894,10 +1894,10 @@ begin
     Brush.Style:=bsClear;
 
     // Dibujo el recuadro que indica el área de barrido seleccionada
-    bottomLeftFloat.X := XOffset-P_Scan_Size*Form10.scan_attenuator;
-    bottomLeftFloat.Y := YOffset-P_Scan_Size*Form10.scan_attenuator;
-    topRightFloat.X   := XOffset+P_Scan_Size*Form10.scan_attenuator;
-    topRightFloat.Y   := YOffset+P_Scan_Size*Form10.scan_attenuator;
+    bottomLeftFloat.X := XOffset-P_Scan_Size*DataForm.scan_attenuator;
+    bottomLeftFloat.Y := YOffset-P_Scan_Size*DataForm.scan_attenuator;
+    topRightFloat.X   := XOffset+P_Scan_Size*DataForm.scan_attenuator;
+    topRightFloat.Y   := YOffset+P_Scan_Size*DataForm.scan_attenuator;
     bottomLeft := PointGlobalToCanvas(bottomLeftFloat, SizeOfWindow);
     topRight := PointGlobalToCanvas(topRightFloat, SizeOfWindow);
     Rectangle(Rect(bottomLeft, topRight));
@@ -1928,8 +1928,8 @@ begin
   szFileName := '';
 
   // Valores por defecto para el pegado
-  sizeX := 2*10*P_Scan_Size*AmpX*Form10.scan_attenuator*CalX; // Rango del DAC en V * ganancia del amplificador * Calibracion en nm/V
-  sizeY := 2*10*P_Scan_Size*AmpY*Form10.scan_attenuator*CalY;
+  sizeX := 2*10*P_Scan_Size*AmpX*DataForm.scan_attenuator*CalX; // Rango del DAC en V * ganancia del amplificador * Calibracion en nm/V
+  sizeY := 2*10*P_Scan_Size*AmpY*DataForm.scan_attenuator*CalY;
   x := XOffset*10*AmpX*CalX;
   y := YOffset*10*AmpY*CalY;
   numParamsRead := 0;
@@ -2135,8 +2135,8 @@ begin
 
   bitmapPasteList[i].x := XOffset;
   bitmapPasteList[i].y := YOffset;
-  bitmapPasteList[i].sizeX := 2*P_Scan_Size*Form10.scan_attenuator;
-  bitmapPasteList[i].sizeY := 2*P_Scan_Size*Form10.scan_attenuator;
+  bitmapPasteList[i].sizeX := 2*P_Scan_Size*DataForm.scan_attenuator;
+  bitmapPasteList[i].sizeY := 2*P_Scan_Size*DataForm.scan_attenuator;
 
   // En el caso de mark now no habrá bitmap, sólo un recuadro
   bitmapPasteList[i].bitmap := nil;
@@ -2196,8 +2196,8 @@ begin
 
   bitmapPasteList2[i].x := XOffset;
   bitmapPasteList2[i].y := YOffset;
-  bitmapPasteList2[i].sizeX := 2*P_Scan_Size*Form10.scan_attenuator;
-  bitmapPasteList2[i].sizeY := 2*P_Scan_Size*Form10.scan_attenuator;
+  bitmapPasteList2[i].sizeX := 2*P_Scan_Size*DataForm.scan_attenuator;
+  bitmapPasteList2[i].sizeY := 2*P_Scan_Size*DataForm.scan_attenuator;
 
   // En el caso de mark now no habrá bitmap, sólo un recuadro
   bitmapPasteList2[i].bitmap := nil;

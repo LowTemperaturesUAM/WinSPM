@@ -7,7 +7,7 @@ uses
   StdCtrls, ExtCtrls, Spin, Math, IniFiles, Buttons;
 
 type
-  TForm2 = class(TForm)
+  TFormConfig = class(TForm)
     Panel1: TPanel;
     Label1: TLabel;
     Label2: TLabel;
@@ -79,7 +79,7 @@ type
   end;
 
 var
-  Form2: TForm2;
+  FormConfig: TFormConfig;
 
 implementation
 
@@ -87,7 +87,7 @@ uses Scanner1, DataAdcquisition, Config_Liner, Config_Trip, PID;
 
 {$R *.DFM}
 
-procedure TForm2.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TFormConfig.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 ScanForm.XDAC:=SpinEdit1.Value;
 ScanForm.YDAC:=SpinEdit2.Value;
@@ -101,7 +101,7 @@ ScanForm.ADCTopo:=SpinEdit3.Value;
 ScanForm.ADCI:=SpinEdit4.Value;
 ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
 //La amplificacion introducida es en V que va entre +-10, pero el valor que leemos de los ADC es entre +-1, asi que restamos 1
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1));
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(Combobox4.Text)-1));
 ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
 ScanForm.MultI:=StrtoInt(Edit4.Text);
 ScanForm.ReadTopo:=Checkbox1.checked;
@@ -110,32 +110,32 @@ ScanForm.ReadCurrent:=Checkbox2.checked;
 //añadido para poder leer other
 ScanForm.ReadOther:=Checkbox3.checked;
 ScanForm.ADCOther:=SpinEdit5.Value;
-ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Form2.Combobox5.Text)-1));
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Combobox5.Text)-1));
 ScanForm.MultOther:=StrtoInt(Edit5.Text);
 
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
 begin
-  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
+  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
   else
     begin
-       Form10.set_attenuator(1,0.1);
-       Form10.set_attenuator(2,0.1);
-       Form10.set_attenuator(3,1);
-       Form10.set_attenuator(4,1);
+       DataForm.set_attenuator(1,0.1);
+       DataForm.set_attenuator(2,0.1);
+       DataForm.set_attenuator(3,1);
+       DataForm.set_attenuator(4,1);
     end;
 //  ScanForm.AmpX:= ScanForm.AmpX*0.1;
 //  ScanForm.AmpY:= ScanForm.AmpY*0.1;
 end
 else
   begin
-  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,1)
+  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)
   else
   begin
-       Form10.set_attenuator(1,1);
-       Form10.set_attenuator(2,1);
-       Form10.set_attenuator(3,1);
-       Form10.set_attenuator(4,1);
+       DataForm.set_attenuator(1,1);
+       DataForm.set_attenuator(2,1);
+       DataForm.set_attenuator(3,1);
+       DataForm.set_attenuator(4,1);
   end;
   end;
 ScanForm.TrackBar3Change(self);
@@ -157,7 +157,7 @@ else
 
 end;
 
-procedure TForm2.FormCreate(Sender: TObject);
+procedure TFormConfig.FormCreate(Sender: TObject);
 begin
 // Leemos los datos del fichero de configuración
 iniTitle := 'Channels';
@@ -221,32 +221,32 @@ ScanForm.CalX:=StrtoFloat(Edit1.Text);
 ScanForm.CalY:=StrtoFloat(Edit2.Text);
 ScanForm.ADCTopo:=SpinEdit3.Value;
 ScanForm.ADCI:=SpinEdit4.Value;
-ScanForm.AmpTopo:=StrtoFloat(Form2.Combobox3.Text);
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1));
-ScanForm.CalTopo:=StrtoFloat(Form2.Edit3.Text);
-ScanForm.MultI:=StrtoInt(Form2.Edit4.Text);
+ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(Combobox4.Text)-1));
+ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
+ScanForm.MultI:=StrtoInt(Edit4.Text);
 ScanForm.ReadTopo:=Checkbox1.checked;
 ScanForm.ReadCurrent:=Checkbox2.checked;
 
 //añadido para poder leer other
 //ScanForm.ReadOther:=Checkbox3.checked;
 ScanForm.ADCOther:=SpinEdit5.Value;
-ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Form2.Combobox5.Text)-1));
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Combobox5.Text)-1));
 ScanForm.MultOther:=StrtoInt(Edit5.Text);
 
 // Inicializamos los atenuadores al abrir el programa
 // Los atenuadores fucionan correctamente cuando cerramos el config, pero no al inicial el programa
-if ScanForm.Versiondivider=False then Form10.set_attenuator(0,1)
+if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)
   else
   begin
-       Form10.set_attenuator(1,1);
-       Form10.set_attenuator(2,1);
-       Form10.set_attenuator(3,1);
-       Form10.set_attenuator(4,1);
+       DataForm.set_attenuator(1,1);
+       DataForm.set_attenuator(2,1);
+       DataForm.set_attenuator(3,1);
+       DataForm.set_attenuator(4,1);
   end;
 end;
 
-procedure TForm2.SaveCfgClick(Sender: TObject);
+procedure TFormConfig.SaveCfgClick(Sender: TObject);
 begin
 // Guardamos los datos en el fichero de configuración
 // Leemos los datos del fichero de configuración
@@ -292,7 +292,7 @@ finally
 end;
 end;
 
-procedure TForm2.CheckBox4Click(Sender: TObject);
+procedure TFormConfig.CheckBox4Click(Sender: TObject);
 begin
 if Checkbox4.Checked then
   begin
@@ -306,7 +306,7 @@ else
   end;
 end;
 
-procedure TForm2.UpdateCfgClick(Sender: TObject);
+procedure TFormConfig.UpdateCfgClick(Sender: TObject);
 begin
 ScanForm.XDAC:=SpinEdit1.Value;
 ScanForm.YDAC:=SpinEdit2.Value;
@@ -320,7 +320,7 @@ ScanForm.ADCTopo:=SpinEdit3.Value;
 ScanForm.ADCI:=SpinEdit4.Value;
 ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
 //La amplificacion introducida es en V que va entre +-10, pero el valor que leemos de los ADC es entre +-1, asi que restamos 1
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1));
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(Combobox4.Text)-1));
 ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
 ScanForm.MultI:=StrtoInt(Edit4.Text);
 ScanForm.ReadTopo:=Checkbox1.checked;
@@ -329,32 +329,32 @@ ScanForm.ReadCurrent:=Checkbox2.checked;
 //añadido para poder leer other
 ScanForm.ReadOther:=Checkbox3.checked;
 ScanForm.ADCOther:=SpinEdit5.Value;
-ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Form2.Combobox5.Text)-1));
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Combobox5.Text)-1));
 ScanForm.MultOther:=StrtoInt(Edit5.Text);
 
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
 begin
-  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
+  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
   else
     begin
-       Form10.set_attenuator(1,0.1);
-       Form10.set_attenuator(2,0.1);
-       Form10.set_attenuator(3,1);
-       Form10.set_attenuator(4,1);
+       DataForm.set_attenuator(1,0.1);
+       DataForm.set_attenuator(2,0.1);
+       DataForm.set_attenuator(3,1);
+       DataForm.set_attenuator(4,1);
     end;
 //  ScanForm.AmpX:= ScanForm.AmpX*0.1;
 //  ScanForm.AmpY:= ScanForm.AmpY*0.1;
 end
 else
   begin
-  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,1)
+  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)
   else
   begin
-       Form10.set_attenuator(1,1);
-       Form10.set_attenuator(2,1);
-       Form10.set_attenuator(3,1);
-       Form10.set_attenuator(4,1);
+       DataForm.set_attenuator(1,1);
+       DataForm.set_attenuator(2,1);
+       DataForm.set_attenuator(3,1);
+       DataForm.set_attenuator(4,1);
   end;
   end;
 ScanForm.TrackBar3Change(self);

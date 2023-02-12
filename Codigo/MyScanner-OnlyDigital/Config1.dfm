@@ -1,4 +1,4 @@
-object Form2: TForm2
+object FormConfig: TFormConfig
   Left = 432
   Top = 633
   Width = 410
