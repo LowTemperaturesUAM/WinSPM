@@ -16,12 +16,30 @@ object Form2: TForm2
   PixelsPerInch = 96
   TextHeight = 13
   object SaveCfg: TSpeedButton
-    Left = 147
+    Left = 59
     Top = 336
     Width = 100
     Height = 25
+    Hint = 
+      'Saves the new configuration to the config file.'#13#10'These are the n' +
+      'ew default values.'
     Caption = 'Save Config to File'
+    ParentShowHint = False
+    ShowHint = True
     OnClick = SaveCfgClick
+  end
+  object UpdateCfg: TSpeedButton
+    Left = 232
+    Top = 336
+    Width = 100
+    Height = 25
+    Hint = 
+      'Applies the new configuration.'#13#10'Closing the window has the same ' +
+      'effect.'
+    Caption = 'Update Config'
+    ParentShowHint = False
+    ShowHint = True
+    OnClick = UpdateCfgClick
   end
   object Panel1: TPanel
     Left = 16

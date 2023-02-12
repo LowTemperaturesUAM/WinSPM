@@ -195,7 +195,7 @@ end;
 procedure TScanForm.FormShow(Sender: TObject);
 begin
   //control sobre si la versión del LHA contiene divisores o no
-if Application.MessageBox('LHA Version with multiple dividers ?','LHA version', MB_YESNO)=IDYES
+if Application.MessageBox('LHA Version with extra attenuators?','LHA version', MB_YESNO)=IDYES
   then VersionDivider:=True
   else VersionDivider:=False;
 

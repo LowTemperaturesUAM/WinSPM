@@ -59,10 +59,12 @@ type
     ComboBox7: TComboBox;
     Edit2: TEdit;
     SaveCfg: TSpeedButton;
+    UpdateCfg: TSpeedButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure CheckBox4Click(Sender: TObject);
     procedure SaveCfgClick(Sender: TObject);
+    procedure UpdateCfgClick(Sender: TObject);
   private
     { Private declarations }
     IniFile: TMemIniFile;
@@ -302,6 +304,76 @@ else
 //  Checkbox4.Checked:=True;
   ScanForm.CheckBox2.Checked:=False;
   end;
+end;
+
+procedure TForm2.UpdateCfgClick(Sender: TObject);
+begin
+ScanForm.XDAC:=SpinEdit1.Value;
+ScanForm.YDAC:=SpinEdit2.Value;
+ScanForm.XDAC_Pos:=SpinEdit6.Value;
+ScanForm.YDAC_Pos:=SpinEdit7.Value;
+ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
+ScanForm.AmpY:=StrtoFloat(Combobox2.Text);
+ScanForm.CalX:=StrtoFloat(Edit1.Text);
+ScanForm.CalY:=StrtoFloat(Edit2.Text);
+ScanForm.ADCTopo:=SpinEdit3.Value;
+ScanForm.ADCI:=SpinEdit4.Value;
+ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
+//La amplificacion introducida es en V que va entre +-10, pero el valor que leemos de los ADC es entre +-1, asi que restamos 1
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(Form2.Combobox4.Text)-1));
+ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
+ScanForm.MultI:=StrtoInt(Edit4.Text);
+ScanForm.ReadTopo:=Checkbox1.checked;
+ScanForm.ReadCurrent:=Checkbox2.checked;
+
+//añadido para poder leer other
+ScanForm.ReadOther:=Checkbox3.checked;
+ScanForm.ADCOther:=SpinEdit5.Value;
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Form2.Combobox5.Text)-1));
+ScanForm.MultOther:=StrtoInt(Edit5.Text);
+
+// Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
+if (chkAttenuator.Checked) then
+begin
+  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
+  else
+    begin
+       Form10.set_attenuator(1,0.1);
+       Form10.set_attenuator(2,0.1);
+       Form10.set_attenuator(3,1);
+       Form10.set_attenuator(4,1);
+    end;
+//  ScanForm.AmpX:= ScanForm.AmpX*0.1;
+//  ScanForm.AmpY:= ScanForm.AmpY*0.1;
+end
+else
+  begin
+  if ScanForm.Versiondivider=False then Form10.set_attenuator(0,1)
+  else
+  begin
+       Form10.set_attenuator(1,1);
+       Form10.set_attenuator(2,1);
+       Form10.set_attenuator(3,1);
+       Form10.set_attenuator(4,1);
+  end;
+  end;
+ScanForm.TrackBar3Change(self);
+
+if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
+  begin
+  FormPID.lblCurrentLabel.Visible := True;
+  FormPID.lblCurrentSetPoint.Visible := True;
+  //Conversion a corriente en nA:
+  //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
+  //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
+  FormPID.lblCurrentSetPoint.Caption :=Format('%2.2f',[FormPID.scrlbrSetPoint.Position/FormPID.scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
+  end
+else
+  begin
+  FormPID.lblCurrentLabel.Visible := False;
+  FormPID.lblCurrentSetPoint.Visible := False;
+  end;
+
 end;
 
 end.
