@@ -104,7 +104,7 @@ var
 
 implementation
 
-uses Config_Liner;
+uses Config_Liner,Config1;
   Function SPI_GetHiSpeedDeviceNameLocIDChannel(dwDeviceNameIndex: DWORD; lpDeviceNameBuffer: LPSTR; dwDeviceNameBufferSize: DWORD; lpdwLocationID: LPDWORD; lpChannelBuffer: LPSTR; dwChannelBufferSize: DWORD; lpdwHiSpeedDeviceType: LPDWORD):FTC_STATUS; stdcall ; External FT2232CSPI_DLL_Name name 'SPI_GetHiSpeedDeviceNameLocIDChannel';
   Function SPI_OpenHiSpeedDevice( DeviceName:String;  LocationID:Integer;Channel: String; ftHandle:pointer):FTC_STATUS;     stdcall ; External FT2232CSPI_DLL_Name name 'SPI_OpenHiSpeedDevice';
   Function SPI_InitDevice  (ftHandle:dword; ClockDivisor:Dword ) : FTC_STATUS;    stdcall ; External FT2232CSPI_DLL_Name name 'SPI_InitDevice' ;
@@ -250,14 +250,38 @@ begin
   // Escritura de valor máximo en el atenuador por posibles problemas tras reset (va a la mitad del FS)
   // El valor máximo significa que no atenua.
   // Se tiene en cuenta la versión de la electrónica
-  if ScanForm.Versiondivider=False then set_attenuator(0,1)
-  else
-    begin
-     set_attenuator(1,1);
-     set_attenuator(2,1);
-     set_attenuator(3,1);
-     set_attenuator(4,1);
-    end;
+  //if ScanForm.Versiondivider=False then set_attenuator(0,1)
+  //else
+  //  begin
+  //   set_attenuator(1,1);
+  //   set_attenuator(2,1);
+  //   set_attenuator(3,1);
+  //   set_attenuator(4,1);
+  //  end;
+
+case ScanForm.LHARev of
+  1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+    set_attenuator(0,1);
+    //DataForm.scan_attenuator:=1;
+    //DataForm.bias_attenuator:=1;
+  end;
+  2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+    set_attenuator(1,1);
+    set_attenuator(2,1);
+    set_attenuator(3,1);
+    set_attenuator(4,1);
+    //DataForm.scan_attenuator:=1;
+    //DataForm.bias_attenuator:=1;
+  end;
+  3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+    set_attenuator_14b(1,1);
+    set_attenuator_14b(2,1);
+    set_attenuator_14b(3,1);
+    set_attenuator_14b(4,1);
+    //DataForm.scan_attenuator:=1;
+    //DataForm.bias_attenuator:=1;
+  end;
+end;
   // Configuración de la salidas digitales
 
  Buffer:=HexToString('80FEFB8200FF110200400000878208FF80FFFB');
@@ -925,15 +949,19 @@ begin
   (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
   (BufferDest+i)^ := Char(2); Inc(i); // Número de bytes a transmitir menos 1
   (BufferDest+i)^ := Char(0); Inc(i);
-  if ScanForm.VersionDivider=False then
-    begin
-      (BufferDest+i)^ := Char(03); // Registro: Ambos DACs (Canales 0 y 2)
-      Inc(i); //No usamos DACAttNr, porque siempre cambiamos los dos canales
-      scan_attenuator := value;
-    end
-  else
-    begin
+  //if ScanForm.VersionDivider=False then
+  //if ScanForm.LHARev = 1 then
+  //  begin
+  //    (BufferDest+i)^ := Char(03); // Registro: Ambos DACs (Canales 0 y 2)
+  //    Inc(i); //No usamos DACAttNr, porque siempre cambiamos los dos canales
+  //    scan_attenuator := value;
+  //  end
+  //else
+  //  begin
       case DACAttNr of
+        // Version con solo 2 atenuadores:
+        0: begin (BufferDest+i)^ := Char(03); scan_attenuator:=value; end; // Registro: Ambos DACs (Canales 0 y 2)
+        // Version con 4 atenuadores:
         // La variable que guarda el factor de atenuacion de escaneo solo se cambia
         // una vez al llamar la funcion para el DAC A, pero afecta tambien al DAC B
         // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
@@ -943,7 +971,7 @@ begin
         4: begin (BufferDest+i)^ := Char(03); bias_attenuator:=value; end// Registro: DAC D (Canal 6)
       end;
       Inc(i);
-    end;
+  //  end;
   (BufferDest+i)^ := Char(Hi(valueDAC)); Inc(i);  // Parte alta del valor del DAC
   (BufferDest+i)^ := Char(Lo(valueDAC)); Inc(i); // Parte baja del valor del DAC
   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);

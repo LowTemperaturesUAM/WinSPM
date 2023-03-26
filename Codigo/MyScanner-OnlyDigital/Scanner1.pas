@@ -170,7 +170,8 @@ type
   TiempoMedio: Single;
   TiempoInicial: Int64;
   XOffset, YOffset: Double; // Posición central del área de barrido entre -1 y 1
-  VersionDivider: Boolean; // si la versión del LHA contiene divisores o no
+  //VersionDivider: Boolean; // si la versión del LHA contiene divisores o no
+  LHARev: Byte; //Version de la electronica para tratar los atenuadores
   end;
 
 var
@@ -195,9 +196,9 @@ end;
 procedure TScanForm.FormShow(Sender: TObject);
 begin
   //control sobre si la versión del LHA contiene divisores o no
-if Application.MessageBox('LHA Version with extra attenuators?','LHA version', MB_YESNO)=IDYES
-  then VersionDivider:=True
-  else VersionDivider:=False;
+//if Application.MessageBox('LHA Version with extra attenuators?','LHA version', MB_YESNO)=IDYES
+//  then VersionDivider:=True
+//  else VersionDivider:=False;
 
 FormConfig.Show;
 XDAC:=FormConfig.SpinEdit1.Value;
@@ -210,14 +211,14 @@ AmpX_Pos:=StrtoFloat(FormConfig.Combobox6.Text);
 AmpY_Pos:=StrtoFloat(FormConfig.Combobox7.Text);
 CalX:=StrtoFloat(FormConfig.Edit1.Text);
 CalY:=StrtoFloat(FormConfig.Edit2.Text);
-ADCTopo:=FormConfig.SpinEdit3.Value;
-ADCI:=FormConfig.SpinEdit4.Value;
-AmpTopo:=StrtoFloat(FormConfig.Combobox3.Text);
-AmpI:=power(10,-1*(StrtoFloat(FormConfig.Combobox4.Text)-1)); //El valor que leemos del ADC va entre +-1, no entre +-10 como el voltaje, asi que restamos 1
-CalTopo:=StrtoFloat(FormConfig.Edit3.Text);
-MultI:=StrtoInt(FormConfig.Edit4.Text);
-ReadTopo:=FormConfig.Checkbox1.checked;
-ReadCurrent:=FormConfig.Checkbox2.checked;
+ADCTopo:=FormConfig.TopoChanEdit.Value;
+ADCI:=FormConfig.CurrentChanEdit.Value;
+AmpTopo:=StrtoFloat(FormConfig.TopoAmpBox.Text);
+AmpI:=power(10,-1*(StrtoFloat(FormConfig.CurrentAmpBox.Text)-1)); //El valor que leemos del ADC va entre +-1, no entre +-10 como el voltaje, asi que restamos 1
+CalTopo:=StrtoFloat(FormConfig.TopoCalEdit.Text);
+MultI:=StrtoInt(FormConfig.CurrentMultEdit.Text);
+ReadTopo:=FormConfig.TopoCheck.checked;
+ReadCurrent:=FormConfig.CurrentCheck.checked;
 
 
 //FormConfig.Hide;
@@ -571,7 +572,7 @@ Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Pri
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
 begin
   channelToPlot := 1;
-  yFactor := StrtoFloat(FormConfig.Edit3.Text)*StrtoFloat(FormConfig.Combobox3.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
+  yFactor := StrtoFloat(FormConfig.TopoCalEdit.Text)*StrtoFloat(FormConfig.TopoAmpBox.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
 end
 else // Current
 begin

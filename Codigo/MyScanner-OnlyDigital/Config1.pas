@@ -23,29 +23,29 @@ type
     ComboBox2: TComboBox;
     Label10: TLabel;
     Label11: TLabel;
-    Panel2: TPanel;
-    Label12: TLabel;
-    Label14: TLabel;
-    SpinEdit3: TSpinEdit;
-    Label15: TLabel;
-    ComboBox3: TComboBox;
-    CheckBox1: TCheckBox;
-    Label13: TLabel;
-    Edit3: TEdit;
-    CheckBox2: TCheckBox;
-    Label16: TLabel;
-    SpinEdit4: TSpinEdit;
-    Label17: TLabel;
-    ComboBox4: TComboBox;
-    Label18: TLabel;
-    Edit4: TEdit;
-    Label22: TLabel;
-    Label23: TLabel;
-    Label24: TLabel;
-    CheckBox3: TCheckBox;
-    SpinEdit5: TSpinEdit;
-    ComboBox5: TComboBox;
-    Edit5: TEdit;
+    ReadPanel: TPanel;
+    ReadTitle: TLabel;
+    TopoChanLbl: TLabel;
+    TopoChanEdit: TSpinEdit;
+    TopoAmpLbl: TLabel;
+    TopoAmpBox: TComboBox;
+    TopoCheck: TCheckBox;
+    TopoCalLbl: TLabel;
+    TopoCalEdit: TEdit;
+    CurrentCheck: TCheckBox;
+    CurrentChanLbl: TLabel;
+    CurrentChanEdit: TSpinEdit;
+    CurrentAmpLbl: TLabel;
+    CurrentAmpBox: TComboBox;
+    CurrentMultLbl: TLabel;
+    CurrentMultEdit: TEdit;
+    OtherChanLbl: TLabel;
+    OtherAmpLbl: TLabel;
+    OtherMultLbl: TLabel;
+    OtherCheck: TCheckBox;
+    OtherChanEdit: TSpinEdit;
+    OtherAmpBox: TComboBox;
+    OtherMultEdit: TEdit;
     CheckBox4: TCheckBox;
     Label19: TLabel;
     Label20: TLabel;
@@ -72,10 +72,13 @@ type
     iniLiner: AnsiString;
     iniTrip: AnsiString;
     iniPID: AnsiString;
+    iniRev: AnsiString;
     ConfigDir: String;
 //    const string iniTitle := 'Channels';
   public
     { Public declarations }
+    //LHARev: Byte;
+
   end;
 
 var
@@ -97,47 +100,62 @@ ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
 ScanForm.AmpY:=StrtoFloat(Combobox2.Text);
 ScanForm.CalX:=StrtoFloat(Edit1.Text);
 ScanForm.CalY:=StrtoFloat(Edit2.Text);
-ScanForm.ADCTopo:=SpinEdit3.Value;
-ScanForm.ADCI:=SpinEdit4.Value;
-ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
+ScanForm.ADCTopo:=TopoChanEdit.Value;
+ScanForm.ADCI:=CurrentChanEdit.Value;
+ScanForm.AmpTopo:=StrtoFloat(TopoAmpBox.Text);
 //La amplificacion introducida es en V que va entre +-10, pero el valor que leemos de los ADC es entre +-1, asi que restamos 1
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(Combobox4.Text)-1));
-ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
-ScanForm.MultI:=StrtoInt(Edit4.Text);
-ScanForm.ReadTopo:=Checkbox1.checked;
-ScanForm.ReadCurrent:=Checkbox2.checked;
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(CurrentAmpBox.Text)-1));
+ScanForm.CalTopo:=StrtoFloat(TopoCalEdit.Text);
+ScanForm.MultI:=StrtoInt(CurrentMultEdit.Text);
+ScanForm.ReadTopo:=TopoCheck.checked;
+ScanForm.ReadCurrent:=CurrentCheck.checked;
 
 //añadido para poder leer other
-ScanForm.ReadOther:=Checkbox3.checked;
-ScanForm.ADCOther:=SpinEdit5.Value;
-ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Combobox5.Text)-1));
-ScanForm.MultOther:=StrtoInt(Edit5.Text);
+ScanForm.ReadOther:=OtherCheck.checked;
+ScanForm.ADCOther:=OtherChanEdit.Value;
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(OtherAmpBox.Text)-1));
+ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
 
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
-begin
-  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
-  else
-    begin
-       DataForm.set_attenuator(1,0.1);
-       DataForm.set_attenuator(2,0.1);
-       DataForm.set_attenuator(3,1);
-       DataForm.set_attenuator(4,1);
+  begin
+    case ScanForm.LHARev of
+    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+      DataForm.set_attenuator(0,0.1);
+      //DataForm.scan_attenuator:=0.1;
     end;
-//  ScanForm.AmpX:= ScanForm.AmpX*0.1;
-//  ScanForm.AmpY:= ScanForm.AmpY*0.1;
-end
+    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+      DataForm.set_attenuator(1,0.1);
+      DataForm.set_attenuator(2,0.1);
+      //DataForm.scan_attenuator:=0.1;
+    end;
+    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+      DataForm.set_attenuator_14b(1,0.1);
+      DataForm.set_attenuator_14b(2,0.1);
+      //DataForm.scan_attenuator:=0.1;
+    end;
+    end;
+  end
 else
   begin
-  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)
-  else
-  begin
-       DataForm.set_attenuator(1,1);
-       DataForm.set_attenuator(2,1);
-       DataForm.set_attenuator(3,1);
-       DataForm.set_attenuator(4,1);
-  end;
-  end;
+    case ScanForm.LHARev of
+    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+      DataForm.set_attenuator(0,1);
+      //DataForm.scan_attenuator:=1;
+    end;
+    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+      DataForm.set_attenuator(1,1);
+      DataForm.set_attenuator(2,1);
+      //DataForm.scan_attenuator:=1;
+    end;
+    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+      DataForm.set_attenuator_14b(1,1);
+      DataForm.set_attenuator_14b(2,1);
+      //DataForm.scan_attenuator:=1;
+    end;
+    end;
+end;
+
 ScanForm.TrackBar3Change(self);
 
 if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
@@ -164,6 +182,7 @@ iniTitle := 'Channels';
 iniLiner := 'Liner';
 iniTrip := 'Trip';
 iniPID := 'PID';
+iniRev := 'Hardware Information';
 ConfigDir := GetCurrentDir;
 IniFile := TMemIniFile.Create(ConfigDir+'\Config.ini');
 try
@@ -179,16 +198,16 @@ try
   Edit1.Text := IniFile.ReadString(String(iniTitle), 'XYCalibration', '5');
   Edit2.Text := Edit1.Text;
   //Parametros de topo y corriente
-  SpinEdit3.Value := IniFile.ReadInteger(String(iniTitle), 'TopoAdc', 2);
-  Combobox3.Text := IniFile.ReadString(String(iniTitle), 'TopoAmp', '13');
-  Edit3.Text := IniFile.ReadString(String(iniTitle), 'TopoCalibration', '1');
-  SpinEdit4.Value := IniFile.ReadInteger(String(iniTitle), 'CurrentAdc', 0);
-  Combobox4.Text := IniFile.ReadString(String(iniTitle), 'CurrentAmp', '8');
-  Edit4.Text := IniFile.ReadString(String(iniTitle), 'CurrentMult', '-1');
+  TopoChanEdit.Value := IniFile.ReadInteger(String(iniTitle), 'TopoAdc', 2);
+  TopoAmpBox.Text := IniFile.ReadString(String(iniTitle), 'TopoAmp', '13');
+  TopoCalEdit.Text := IniFile.ReadString(String(iniTitle), 'TopoCalibration', '1');
+  CurrentChanEdit.Value := IniFile.ReadInteger(String(iniTitle), 'CurrentAdc', 0);
+  CurrentAmpBox.Text := IniFile.ReadString(String(iniTitle), 'CurrentAmp', '8');
+  CurrentMultEdit.Text := IniFile.ReadString(String(iniTitle), 'CurrentMult', '-1');
   //Incluyo los parametros para una tercera entrada pero hay que activarla manualmente
-  SpinEdit5.Value := IniFile.ReadInteger(String(iniTitle), 'OtherAdc', 1);
-  Combobox5.Text := IniFile.ReadString(String(iniTitle), 'OtherAmp', '9');
-  Edit5.Text := IniFile.ReadString(String(iniTitle), 'OtherMult', '1');
+  OtherChanEdit.Value := IniFile.ReadInteger(String(iniTitle), 'OtherAdc', 1);
+  OtherAmpBox.Text := IniFile.ReadString(String(iniTitle), 'OtherAmp', '9');
+  OtherMultEdit.Text := IniFile.ReadString(String(iniTitle), 'OtherMult', '1');
   //Parametros de Liner
   Form7.SpinEdit1.Value := IniFile.ReadInteger(String(iniLiner), 'IVRampDac', 5);
   Form7.CheckBox4.Checked := IniFile.ReadBool(String(iniLiner), 'IVReverseDac', False);
@@ -200,14 +219,16 @@ try
 
   //Parametros de Trip
   Form6.SpinEdit1.Value := IniFile.ReadInteger(String(iniTrip), 'CoarseDac', 4);
-  Form6.SpinEdit2.Value := SpinEdit4.Value;
+  Form6.SpinEdit2.Value := CurrentChanEdit.Value;
   Form6.spinCurrentLimit.Value := IniFile.ReadInteger(String(iniTrip), 'CurrentLim', 50);
   Form6.CheckBox1.Checked := IniFile.ReadBool(String(iniTrip), 'ZPInverse', False);
   Form6.CheckBox2.Checked := IniFile.ReadBool(String(iniTrip), 'CurrentInverse', False);
   //Parametros PID
-  FormPID.spinPID_In.Value := SpinEdit4.Value;
+  FormPID.spinPID_In.Value := CurrentChanEdit.Value;
   FormPID.spinPID_Out.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
   FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', True);
+  //Informatcion sobre la version de la electronica LHA, devolvemos 0 si no se indica
+  ScanForm.LHARev := IniFile.ReadInteger(String(iniRev), 'Revision', 0);
 finally
   IniFile.Free;
 end;
@@ -219,31 +240,74 @@ ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
 ScanForm.AmpY:=StrtoFloat(Combobox2.Text);
 ScanForm.CalX:=StrtoFloat(Edit1.Text);
 ScanForm.CalY:=StrtoFloat(Edit2.Text);
-ScanForm.ADCTopo:=SpinEdit3.Value;
-ScanForm.ADCI:=SpinEdit4.Value;
-ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(Combobox4.Text)-1));
-ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
-ScanForm.MultI:=StrtoInt(Edit4.Text);
-ScanForm.ReadTopo:=Checkbox1.checked;
-ScanForm.ReadCurrent:=Checkbox2.checked;
+ScanForm.ADCTopo:=TopoChanEdit.Value;
+ScanForm.ADCI:=CurrentChanEdit.Value;
+ScanForm.AmpTopo:=StrtoFloat(TopoAmpBox.Text);
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(CurrentAmpBox.Text)-1));
+ScanForm.CalTopo:=StrtoFloat(TopoCalEdit.Text);
+ScanForm.MultI:=StrtoInt(CurrentMultEdit.Text);
+ScanForm.ReadTopo:=TopoCheck.checked;
+ScanForm.ReadCurrent:=CurrentCheck.checked;
 
 //añadido para poder leer other
-//ScanForm.ReadOther:=Checkbox3.checked;
-ScanForm.ADCOther:=SpinEdit5.Value;
-ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Combobox5.Text)-1));
-ScanForm.MultOther:=StrtoInt(Edit5.Text);
+//ScanForm.ReadOther:=OtherCheck.checked;
+ScanForm.ADCOther:=OtherChanEdit.Value;
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(OtherAmpBox.Text)-1));
+ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
 
 // Inicializamos los atenuadores al abrir el programa
 // Los atenuadores fucionan correctamente cuando cerramos el config, pero no al inicial el programa
-if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)
-  else
+//if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)
+//  else
+//  begin
+//       DataForm.set_attenuator(1,1);
+//       DataForm.set_attenuator(2,1);
+//       DataForm.set_attenuator(3,1);
+//       DataForm.set_attenuator(4,1);
+//  end;
+
+// Comprobamos si la revision indicada es valida o no
+// Si no, preguntamos al usuario
+if (ScanForm.LHARev <1) or (ScanForm.LHARev > 3) then
   begin
-       DataForm.set_attenuator(1,1);
-       DataForm.set_attenuator(2,1);
-       DataForm.set_attenuator(3,1);
-       DataForm.set_attenuator(4,1);
+    if Application.MessageBox('LHA Version with 4 attenuators?','LHA version', MB_YESNO)=IDYES
+    then
+      begin
+         //ScanForm.VersionDivider:=True;
+         if Application.MessageBox('LHA Version uses 16bit attenuators?','Attenuator bits', MB_YESNO)=IDYES
+         then ScanForm.LHARev := 3
+         else ScanForm.LHARev := 2;
+      end
+    else
+      begin
+           //ScanForm.VersionDivider:=False;
+           ScanForm.LHARev := 1;
+      end;
+end;
+
+case ScanForm.LHARev of
+  1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+    DataForm.set_attenuator(0,1);
+    //DataForm.scan_attenuator:=1;
+    //DataForm.bias_attenuator:=1;
   end;
+  2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+    DataForm.set_attenuator(1,1);
+    DataForm.set_attenuator(2,1);
+    DataForm.set_attenuator(3,1);
+    DataForm.set_attenuator(4,1);
+    //DataForm.scan_attenuator:=1;
+    //DataForm.bias_attenuator:=1;
+  end;
+  3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+    DataForm.set_attenuator_14b(1,1);
+    DataForm.set_attenuator_14b(2,1);
+    DataForm.set_attenuator_14b(3,1);
+    DataForm.set_attenuator_14b(4,1);
+    //DataForm.scan_attenuator:=1;
+    //DataForm.bias_attenuator:=1;
+  end;
+end;
 end;
 
 procedure TFormConfig.SaveCfgClick(Sender: TObject);
@@ -264,15 +328,15 @@ try
   IniFile.WriteString(String(iniTitle), 'XYPosAmp', Combobox6.Text);
   IniFile.WriteString(String(iniTitle), 'XYCalibration', Edit1.Text);
   //Parametros de topo y corriente
-  IniFile.WriteInteger(String(iniTitle), 'TopoAdc', SpinEdit3.Value);
-  IniFile.WriteString(String(iniTitle), 'TopoAmp', Combobox3.Text);
-  IniFile.WriteString(String(iniTitle), 'TopoCalibration', Edit3.Text);
-  IniFile.WriteInteger(String(iniTitle), 'CurrentAdc', SpinEdit4.Value);
-  IniFile.WriteString(String(iniTitle), 'CurrentAmp', Combobox4.Text);
-  IniFile.WriteString(String(iniTitle), 'CurrentMult', Edit4.Text);
-  IniFile.WriteInteger(String(iniTitle), 'OtherAdc', SpinEdit5.Value);
-  IniFile.WriteString(String(iniTitle), 'OtherAmp', Combobox5.Text);
-  IniFile.WriteString(String(iniTitle), 'OtherMult', Edit5.Text);
+  IniFile.WriteInteger(String(iniTitle), 'TopoAdc', TopoChanEdit.Value);
+  IniFile.WriteString(String(iniTitle), 'TopoAmp', TopoAmpBox.Text);
+  IniFile.WriteString(String(iniTitle), 'TopoCalibration', TopoCalEdit.Text);
+  IniFile.WriteInteger(String(iniTitle), 'CurrentAdc', CurrentChanEdit.Value);
+  IniFile.WriteString(String(iniTitle), 'CurrentAmp', CurrentAmpBox.Text);
+  IniFile.WriteString(String(iniTitle), 'CurrentMult', CurrentMultEdit.Text);
+  IniFile.WriteInteger(String(iniTitle), 'OtherAdc', OtherChanEdit.Value);
+  IniFile.WriteString(String(iniTitle), 'OtherAmp', OtherAmpBox.Text);
+  IniFile.WriteString(String(iniTitle), 'OtherMult', OtherMultEdit.Text);
   //Parametros de Liner
   IniFile.WriteInteger(String(iniLiner), 'IVRampDac', Form7.SpinEdit1.Value);
   IniFile.WriteBool(String(iniLiner), 'IVReverseDac', Form7.CheckBox4.Checked);
@@ -286,6 +350,9 @@ try
   //Parametros PID
   IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.spinPID_Out.Value);
   IniFile.WriteBool(String(iniPID), 'PIDReverseOut', FormPID.CheckBox2.Checked);
+  //Si la revision contiene un valor valido, la escribimos
+  if (ScanForm.LHARev >0 ) and (ScanForm.LHARev <= 3) then
+  IniFile.WriteInteger(String(iniRev), 'Revision', ScanForm.LHARev);
 finally
   IniFile.UpdateFile;
   IniFile.Free;
@@ -316,47 +383,62 @@ ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
 ScanForm.AmpY:=StrtoFloat(Combobox2.Text);
 ScanForm.CalX:=StrtoFloat(Edit1.Text);
 ScanForm.CalY:=StrtoFloat(Edit2.Text);
-ScanForm.ADCTopo:=SpinEdit3.Value;
-ScanForm.ADCI:=SpinEdit4.Value;
-ScanForm.AmpTopo:=StrtoFloat(Combobox3.Text);
+ScanForm.ADCTopo:=TopoChanEdit.Value;
+ScanForm.ADCI:=CurrentChanEdit.Value;
+ScanForm.AmpTopo:=StrtoFloat(TopoAmpBox.Text);
 //La amplificacion introducida es en V que va entre +-10, pero el valor que leemos de los ADC es entre +-1, asi que restamos 1
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(Combobox4.Text)-1));
-ScanForm.CalTopo:=StrtoFloat(Edit3.Text);
-ScanForm.MultI:=StrtoInt(Edit4.Text);
-ScanForm.ReadTopo:=Checkbox1.checked;
-ScanForm.ReadCurrent:=Checkbox2.checked;
+ScanForm.AmpI:=power(10,-1*(StrtoFloat(CurrentAmpBox.Text)-1));
+ScanForm.CalTopo:=StrtoFloat(TopoCalEdit.Text);
+ScanForm.MultI:=StrtoInt(CurrentMultEdit.Text);
+ScanForm.ReadTopo:=TopoCheck.checked;
+ScanForm.ReadCurrent:=CurrentCheck.checked;
 
 //añadido para poder leer other
-ScanForm.ReadOther:=Checkbox3.checked;
-ScanForm.ADCOther:=SpinEdit5.Value;
-ScanForm.AmpOther:=power(10,-1*(StrtoFloat(Combobox5.Text)-1));
-ScanForm.MultOther:=StrtoInt(Edit5.Text);
+ScanForm.ReadOther:=OtherCheck.checked;
+ScanForm.ADCOther:=OtherChanEdit.Value;
+ScanForm.AmpOther:=power(10,-1*(StrtoFloat(OtherAmpBox.Text)-1));
+ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
 
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
-begin
-  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,0.1)// ponemos 0, pero no lo usamos
-  else
-    begin
-       DataForm.set_attenuator(1,0.1);
-       DataForm.set_attenuator(2,0.1);
-       DataForm.set_attenuator(3,1);
-       DataForm.set_attenuator(4,1);
+  begin
+    case ScanForm.LHARev of
+    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+      DataForm.set_attenuator(0,0.1);
+      //DataForm.scan_attenuator:=0.1;
     end;
-//  ScanForm.AmpX:= ScanForm.AmpX*0.1;
-//  ScanForm.AmpY:= ScanForm.AmpY*0.1;
-end
+    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+      DataForm.set_attenuator(1,0.1);
+      DataForm.set_attenuator(2,0.1);
+      //DataForm.scan_attenuator:=0.1;
+    end;
+    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+      DataForm.set_attenuator_14b(1,0.1);
+      DataForm.set_attenuator_14b(2,0.1);
+      //DataForm.scan_attenuator:=0.1;
+    end;
+    end;
+  end
 else
   begin
-  if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)
-  else
-  begin
-       DataForm.set_attenuator(1,1);
-       DataForm.set_attenuator(2,1);
-       DataForm.set_attenuator(3,1);
-       DataForm.set_attenuator(4,1);
-  end;
-  end;
+    case ScanForm.LHARev of
+    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+      DataForm.set_attenuator(0,1);
+      //DataForm.scan_attenuator:=1;
+    end;
+    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+      DataForm.set_attenuator(1,1);
+      DataForm.set_attenuator(2,1);
+      //DataForm.scan_attenuator:=1;
+    end;
+    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+      DataForm.set_attenuator_14b(1,1);
+      DataForm.set_attenuator_14b(2,1);
+      //DataForm.scan_attenuator:=1;
+    end;
+    end;
+end;
+
 ScanForm.TrackBar3Change(self);
 
 if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then

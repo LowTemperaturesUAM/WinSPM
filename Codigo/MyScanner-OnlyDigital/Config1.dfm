@@ -3,6 +3,7 @@ object FormConfig: TFormConfig
   Top = 633
   Width = 410
   Height = 414
+  ActiveControl = OtherChanEdit
   Caption = 'WinSPMConfig'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -44,12 +45,12 @@ object FormConfig: TFormConfig
   object Panel1: TPanel
     Left = 16
     Top = 8
-    Width = 370
+    Width = 362
     Height = 145
     TabOrder = 0
     object Label1: TLabel
       Left = 8
-      Top = 8
+      Top = 4
       Width = 25
       Height = 13
       Caption = 'Scan'
@@ -258,83 +259,83 @@ object FormConfig: TFormConfig
       Text = '5'
     end
   end
-  object Panel2: TPanel
+  object ReadPanel: TPanel
     Left = 16
     Top = 160
-    Width = 361
-    Height = 161
+    Width = 362
+    Height = 145
     TabOrder = 1
-    object Label12: TLabel
+    object ReadTitle: TLabel
       Left = 8
-      Top = 8
+      Top = 4
       Width = 26
       Height = 13
       Caption = 'Read'
     end
-    object Label14: TLabel
+    object TopoChanLbl: TLabel
       Left = 64
       Top = 24
       Width = 22
       Height = 13
       Caption = 'ADC'
     end
-    object Label15: TLabel
+    object TopoAmpLbl: TLabel
       Left = 152
       Top = 24
       Width = 39
       Height = 13
       Caption = 'Amplifier'
     end
-    object Label13: TLabel
+    object TopoCalLbl: TLabel
       Left = 240
       Top = 24
       Width = 84
       Height = 13
       Caption = 'Calibration (nm/V)'
     end
-    object Label16: TLabel
+    object CurrentChanLbl: TLabel
       Left = 72
       Top = 56
       Width = 22
       Height = 13
       Caption = 'ADC'
     end
-    object Label17: TLabel
+    object CurrentAmpLbl: TLabel
       Left = 136
       Top = 56
       Width = 60
       Height = 13
       Caption = 'Amplifier 10^'
     end
-    object Label18: TLabel
+    object CurrentMultLbl: TLabel
       Left = 248
       Top = 56
       Width = 41
       Height = 13
       Caption = 'Multiplier'
     end
-    object Label22: TLabel
+    object OtherChanLbl: TLabel
       Left = 64
       Top = 88
       Width = 22
       Height = 13
       Caption = 'ADC'
     end
-    object Label23: TLabel
+    object OtherAmpLbl: TLabel
       Left = 136
       Top = 88
       Width = 60
       Height = 13
       Caption = 'Amplifier 10^'
     end
-    object Label24: TLabel
+    object OtherMultLbl: TLabel
       Left = 248
       Top = 88
       Width = 41
       Height = 13
       Caption = 'Multiplier'
     end
-    object SpinEdit3: TSpinEdit
+    object TopoChanEdit: TSpinEdit
       Left = 88
       Top = 16
       Width = 33
@@ -344,7 +345,7 @@ object FormConfig: TFormConfig
       TabOrder = 1
       Value = 2
     end
-    object ComboBox3: TComboBox
+    object TopoAmpBox: TComboBox
       Left = 200
       Top = 16
       Width = 41
@@ -356,7 +357,7 @@ object FormConfig: TFormConfig
         '14'
         '1.4')
     end
-    object CheckBox1: TCheckBox
+    object TopoCheck: TCheckBox
       Left = 8
       Top = 24
       Width = 49
@@ -366,7 +367,7 @@ object FormConfig: TFormConfig
       State = cbChecked
       TabOrder = 0
     end
-    object Edit3: TEdit
+    object TopoCalEdit: TEdit
       Left = 320
       Top = 16
       Width = 33
@@ -374,7 +375,7 @@ object FormConfig: TFormConfig
       TabOrder = 3
       Text = '1'
     end
-    object CheckBox2: TCheckBox
+    object CurrentCheck: TCheckBox
       Left = 8
       Top = 56
       Width = 57
@@ -384,7 +385,7 @@ object FormConfig: TFormConfig
       State = cbChecked
       TabOrder = 4
     end
-    object SpinEdit4: TSpinEdit
+    object CurrentChanEdit: TSpinEdit
       Left = 96
       Top = 48
       Width = 33
@@ -394,7 +395,7 @@ object FormConfig: TFormConfig
       TabOrder = 5
       Value = 0
     end
-    object ComboBox4: TComboBox
+    object CurrentAmpBox: TComboBox
       Left = 200
       Top = 48
       Width = 41
@@ -412,7 +413,7 @@ object FormConfig: TFormConfig
         '5'
         '4')
     end
-    object Edit4: TEdit
+    object CurrentMultEdit: TEdit
       Left = 304
       Top = 48
       Width = 49
@@ -420,7 +421,7 @@ object FormConfig: TFormConfig
       TabOrder = 7
       Text = '-1'
     end
-    object CheckBox3: TCheckBox
+    object OtherCheck: TCheckBox
       Left = 8
       Top = 88
       Width = 49
@@ -428,7 +429,7 @@ object FormConfig: TFormConfig
       Caption = 'Other'
       TabOrder = 8
     end
-    object SpinEdit5: TSpinEdit
+    object OtherChanEdit: TSpinEdit
       Left = 96
       Top = 80
       Width = 33
@@ -438,7 +439,7 @@ object FormConfig: TFormConfig
       TabOrder = 9
       Value = 1
     end
-    object ComboBox5: TComboBox
+    object OtherAmpBox: TComboBox
       Left = 200
       Top = 80
       Width = 41
@@ -459,7 +460,7 @@ object FormConfig: TFormConfig
         '1'
         '0')
     end
-    object Edit5: TEdit
+    object OtherMultEdit: TEdit
       Left = 304
       Top = 80
       Width = 49
