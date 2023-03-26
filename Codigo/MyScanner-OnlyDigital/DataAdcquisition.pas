@@ -76,10 +76,8 @@ type
     function ramp_take(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
     function send_buffer(bufferToSend: PAnsiChar; bytesToSend: Integer): FTC_STATUS;
     procedure set_dio_port(value: Word);
-    // para las electrónicas con atenuador. Si ScanForm.VersionDivider=False, entonces es todo como
-    // cuando no hay atenuador. Si no, es que hay atenuador.
     procedure set_attenuator(DACAttNr: Integer; value: double);
-    //procedure set_attenuator(value: Double);
+    procedure set_attenuator_14b(DACAttNr: Integer; value: double);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -906,11 +904,15 @@ var
   i: Integer;
   SPI_Ret, BytesWritten: Integer;
   BufferOut: array [0..20] of Byte;
-  valueDAC: Integer;
+  valueDAC: Word;
 begin
   BufferDest := Addr(BufferOut[0]);
 
   // El atenuador se implementa mediante un DAC de 16 bits sin signo que usa la señal a atenuar como referencia.
+  // Para establecer el factor de atenuacion, mandamos una secuencia de 18 bits (2+18)
+  // Los dos bit superiores indican el canal de destino, y el resto el valor de atenuacion
+  // en la escala de salida del DAC comprendida entre 0 y 2^16 (65536 o $FFFF)
+
   // Para el valor máximo del DAC la salida será igual a la referencia.
   valueDAC := Round(value*$FFFF);
 
@@ -931,16 +933,14 @@ begin
     end
   else
     begin
-      //if (DACAttNr=1) then (BufferDest+i)^ := Char(00) // Registro: DAC A (Canal 0)
-      //else if (DACAttNr=2) then (BufferDest+i)^ := Char(01) // Registro: DAC B (Canal 2)
-      //else if (DACAttNr=3) then (BufferDest+i)^ := Char(02) // Registro: DAC C (Canal 5)
-      //else if (DACAttNr=4) then (BufferDest+i)^ := Char(03); // Registro: DAC D (Canal 6)
-      // Case es totalmente equivalente. Dejo los if por si no funciona correctamente
       case DACAttNr of
+        // La variable que guarda el factor de atenuacion de escaneo solo se cambia
+        // una vez al llamar la funcion para el DAC A, pero afecta tambien al DAC B
+        // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
         1: begin (BufferDest+i)^ := Char(00); scan_attenuator:=value; end; // Registro: DAC A (Canal 0)
         2: (BufferDest+i)^ := Char(01); // Registro: DAC B (Canal 2)
         3: (BufferDest+i)^ := Char(02); // Registro: DAC C (Canal 5)
-        4: (BufferDest+i)^ := Char(03); // Registro: DAC D (Canal 6)
+        4: begin (BufferDest+i)^ := Char(03); bias_attenuator:=value; end// Registro: DAC D (Canal 6)
       end;
       Inc(i);
     end;
@@ -955,17 +955,68 @@ begin
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
      if not simulating then MessageDlg('error al escribir el atenuador', mtError, [mbOk], 0);
+end;
 
-  //attenuator := value;
+procedure TDataForm.set_attenuator_14b(DACAttNr: Integer; value: double);
+var
+  BufferDest: PAnsiChar;
+  i: Integer;
+  SPI_Ret, BytesWritten: Integer;
+  BufferOut: array [0..20] of Byte;
+  valueDAC: Word;
+  shortValueDAC: Word;
+begin
+  BufferDest := Addr(BufferOut[0]);
+
+  // El atenuador se implementa mediante un DAC de 14 bits sin signo que usa la señal a atenuar como referencia.
+  // Para establecer el factor de atenuacion, mandamos una secuencia de 16 bits (2+14)
+  // Los dos bit superiores indican el canal de destino, y el resto el valor de atenuacion
+  // en la escala de salida del DAC comprendida entre 0 y 2^14 (16384 o $3FFF)
+  
+  // Para el valor máximo del DAC la salida será igual a la referencia.
+  valueDAC := Round(value*$3FFF);
+  shortValueDAC := valueDAC and $3FFF; //Limpiamos los bits 14 y 15
+  //Ahora introducimos el valor del DAC de destino en estos dos ultimos bits
+  shortValueDAC := shortValueDAC or (Word(DACAttNr) shl 14);
+  //Aqui introducirmos el resto de la logica que dependa del canal
+  case DACAttNr of
+    // La variable que guarda el factor de atenuacion de escaneo solo se cambia
+    // una vez al llamar la funcion para el DAC A, pero afecta tambien al DAC B
+    // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
+    1: scan_attenuator:=value; // Registro: DAC A (Canal 0)
+    //2: // Registro: DAC B (Canal 2)
+    //3: // Registro: DAC C (Canal 5)
+    4: bias_attenuator:=value; // Registro: DAC D (Canal 6)
+  end;
+  // Construyo la cadena que se enviará
+  // esto habrá que cambiarlo todo para pasar a unicode
+  i := 0;
+  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := Char($FE-Integer(pAttcs)); Inc(i);
+  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
+  (BufferDest+i)^ := Char(1); Inc(i); // Número de bytes a transmitir menos 1
+  (BufferDest+i)^ := Char(0); Inc(i);
+  (BufferDest+i)^ := Char(Hi(shortValueDAC )); Inc(i);  // Parte alta del valor del DAC
+  (BufferDest+i)^ := Char(Lo(shortValueDAC)); Inc(i); // Parte baja del valor del DAC
+  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := Char($FE); Inc(i);
+  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+
+  SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
+  If (SPI_Ret <> 0) or (i <> BytesWritten) then
+     if not simulating then MessageDlg('error al escribir el atenuador', mtError, [mbOk], 0);
 end;
 
 
-//Esta se quedA
+//Esta se queda
 procedure TDataForm.Button1Click(Sender: TObject);
 begin
 InitDataAcq;
 end;
-//Esta se quedA
+//Esta se queda
 procedure TDataForm.ScrollBar1Change(Sender: TObject);
 var
 numdac:SmallInt;
@@ -977,14 +1028,14 @@ Value:=Scrollbar1.Position;
 dac_set(numdac,Value, nil);
 Label5.Caption:= FloatToStrF(10*Value/32768,ffGeneral,4,4);
 end;
-//Esta se quedA
+//Esta se queda
 procedure TDataForm.FormCreate(Sender: TObject);
 begin
 InitDataAcq;
 end;
 
 
-//Esta se quedA
+//Esta se queda
 procedure TDataForm.Button2Click(Sender: TObject);
 var
 mux,n: SmallInt;
