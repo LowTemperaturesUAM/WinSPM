@@ -213,9 +213,9 @@ try
   OtherMultEdit.Text := IniFile.ReadString(String(iniTitle), 'OtherMult', '1');
   //Parametros de Liner
   Form7.SpinEdit1.Value := IniFile.ReadInteger(String(iniLiner), 'IVRampDac', 5);
-  Form7.CheckBox4.Checked := IniFile.ReadBool(String(iniLiner), 'IVReverseDac', False);
+  Form7.ReverseCheck.Checked := IniFile.ReadBool(String(iniLiner), 'IVReverseDac', False);
   Form7.seADCxaxis.Value := IniFile.ReadInteger(String(iniLiner), 'IVReadAdc', 0);
-  Form7.Edit1.Text := IniFile.ReadString(String(iniLiner), 'IVMult', '10');
+  Form7.xDACMultiplier.Text := IniFile.ReadString(String(iniLiner), 'IVMult', '10');
   //En principio es mejor no cambiar este valor por defecto y solo cambiarlo manualmente
   //Podriamos leer un valor por defecto para las curvas reducidas pero que haya que marcar la casilla manualmente
   //Form7.seReduceRampFactor.Value := IniFile.ReadInteger(String(iniLiner)), 'ReduceRamp', 1);
@@ -347,9 +347,9 @@ try
   IniFile.WriteString(String(iniTitle), 'OtherMult', OtherMultEdit.Text);
   //Parametros de Liner
   IniFile.WriteInteger(String(iniLiner), 'IVRampDac', Form7.SpinEdit1.Value);
-  IniFile.WriteBool(String(iniLiner), 'IVReverseDac', Form7.CheckBox4.Checked);
+  IniFile.WriteBool(String(iniLiner), 'IVReverseDac', Form7.ReverseCheck.Checked);
   IniFile.WriteInteger(String(iniLiner), 'IVReadAdc', Form7.seADCxaxis.Value);
-  IniFile.WriteString(String(iniLiner), 'IVMult', Form7.Edit1.Text);
+  IniFile.WriteString(String(iniLiner), 'IVMult', Form7.xDACMultiplier.Text);
   //Parametros de Trip
   IniFile.WriteInteger(String(iniTrip), 'CoarseDac', Form6.SpinEdit1.Value);
   IniFile.WriteInteger(String(iniTrip), 'CurrentLim', Form6.spinCurrentLimit.Value);

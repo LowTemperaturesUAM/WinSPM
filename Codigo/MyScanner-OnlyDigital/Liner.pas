@@ -161,7 +161,7 @@ if Form7.RadioGroup1.ItemIndex=0 then ReadXfromADC:=True else
 ReadXfromADC:=False;
 x_axisDac:=Form7.SpinEdit1.Value;
 x_axisAdc:=Form7.seADCxaxis.Value;
-x_axisMult:=StrtoFloat(Form7.Edit1.Text);
+x_axisMult:=StrtoFloat(Form7.xDACMultiplier.Text);
 NumCol:=1;
 if Form7.Checkbox1.checked then NumCol:=NumCol+1;
 if Form7.Checkbox2.checked then NumCol:=NumCol+1;
@@ -228,7 +228,7 @@ here_previous_ctrl:=0;
   begin
 
     // Be careful with the following things, because the voltage will be suddenly modified
-    if Form7.CheckBox4.Checked then   // This is when we want to reverse the bias
+    if Form7.ReverseCheck.Checked then   // This is when we want to reverse the bias
     begin
       if Form7.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
         Princ:=Round(-32768/Form7.seReduceRampFactor.Value*Size_xAxis)
@@ -275,7 +275,7 @@ here_previous_ctrl:=0;
     // Esto es peligroso, pero lo hacemos, a ver si no da problemas ...
     // volvemos a poner Princ al valor máximo antes de hacer funcionar el control otra vez
     if Form7.chkReduceRamp.Checked then
-      if Form7.CheckBox4.Checked then Princ:=Round(-32768*Size_xAxis)
+      if Form7.ReverseCheck.Checked then Princ:=Round(-32768*Size_xAxis)
       else Princ:=Round(32768*Size_xAxis);
 
     DataForm.dac_set(x_axisDAC,Princ, nil);
@@ -781,7 +781,7 @@ end;
 procedure TForm4.scrollSizeBiasChange(Sender: TObject);
 begin
 Size_xAxis:=scrollSizeBias.Position/100;
-if Form7.CheckBox4.Checked then
+if Form7.ReverseCheck.Checked then
 DataForm.dac_set(Form7.SpinEdit1.Value, Round(-32767*Size_xAxis), nil)
 else
 DataForm.dac_set(Form7.SpinEdit1.Value, Round(32767*Size_xAxis), nil);

@@ -72,23 +72,24 @@ object Form7: TForm7
       TabOrder = 1
       OnClick = RadioGroup1Click
     end
-    object Edit1: TEdit
+    object xDACMultiplier: TEdit
       Left = 296
       Top = 48
       Width = 49
       Height = 21
       TabOrder = 2
       Text = '10'
-      OnChange = Edit1Change
+      OnChange = xDACMultiplierChange
+      OnExit = xDACMultiplierCheck
     end
-    object CheckBox4: TCheckBox
+    object ReverseCheck: TCheckBox
       Left = 8
       Top = 48
       Width = 65
       Height = 17
       Caption = 'Reverse'
       TabOrder = 3
-      OnClick = CheckBox4Click
+      OnClick = ReverseCheckClick
     end
     object seADCxaxis: TSpinEdit
       Left = 288
@@ -191,7 +192,7 @@ object Form7: TForm7
       MaxValue = 20
       MinValue = 1
       TabOrder = 0
-      Value = 0
+      Value = 1
     end
     object chkReduceRamp: TCheckBox
       Left = 24
