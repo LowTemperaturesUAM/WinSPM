@@ -42,7 +42,7 @@ object FormConfig: TFormConfig
     ShowHint = True
     OnClick = UpdateCfgClick
   end
-  object Panel1: TPanel
+  object ScanPanel: TPanel
     Left = 16
     Top = 8
     Width = 362
@@ -335,6 +335,13 @@ object FormConfig: TFormConfig
       Height = 13
       Caption = 'Multiplier'
     end
+    object LHAVerLbl: TLabel
+      Left = 96
+      Top = 120
+      Width = 114
+      Height = 13
+      Caption = 'LHA Hardware Revision'
+    end
     object TopoChanEdit: TSpinEdit
       Left = 88
       Top = 16
@@ -468,14 +475,31 @@ object FormConfig: TFormConfig
       TabOrder = 11
       Text = '1'
     end
-    object CheckBox4: TCheckBox
+    object MakeIVCheck: TCheckBox
       Left = 8
       Top = 120
       Width = 73
       Height = 17
       Caption = 'MakeIV'
       TabOrder = 12
-      OnClick = CheckBox4Click
+      OnClick = MakeIVCheckClick
+    end
+    object LHAVersionSel: TComboBox
+      Left = 224
+      Top = 116
+      Width = 90
+      Height = 21
+      Hint = 
+        'rev B: 2 attenuators on channel 0,2'#13#10'rev D: 4 attenuators on cha' +
+        'nnel 0,2,5,6'#13#10'rev D 14bit: same 4 attenuators with 14bit scale'
+      Style = csDropDownList
+      ItemHeight = 13
+      TabOrder = 13
+      OnChange = LHAVersionSelChange
+      Items.Strings = (
+        'rev B'
+        'rev D'
+        'rev D 14bit')
     end
   end
 end

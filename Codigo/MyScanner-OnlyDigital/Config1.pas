@@ -8,7 +8,7 @@ uses
 
 type
   TFormConfig = class(TForm)
-    Panel1: TPanel;
+    ScanPanel: TPanel;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
@@ -46,7 +46,7 @@ type
     OtherChanEdit: TSpinEdit;
     OtherAmpBox: TComboBox;
     OtherMultEdit: TEdit;
-    CheckBox4: TCheckBox;
+    MakeIVCheck: TCheckBox;
     Label19: TLabel;
     Label20: TLabel;
     Label21: TLabel;
@@ -60,11 +60,14 @@ type
     Edit2: TEdit;
     SaveCfg: TSpeedButton;
     UpdateCfg: TSpeedButton;
+    LHAVersionSel: TComboBox;
+    LHAVerLbl: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
-    procedure CheckBox4Click(Sender: TObject);
+    procedure MakeIVCheckClick(Sender: TObject);
     procedure SaveCfgClick(Sender: TObject);
     procedure UpdateCfgClick(Sender: TObject);
+    procedure LHAVersionSelChange(Sender: TObject);
   private
     { Private declarations }
     IniFile: TMemIniFile;
@@ -275,8 +278,8 @@ if (ScanForm.LHARev <1) or (ScanForm.LHARev > 3) then
       begin
          //ScanForm.VersionDivider:=True;
          if Application.MessageBox('LHA Version uses 16bit attenuators?','Attenuator bits', MB_YESNO)=IDYES
-         then ScanForm.LHARev := 3
-         else ScanForm.LHARev := 2;
+         then ScanForm.LHARev := 2
+         else ScanForm.LHARev := 3;
       end
     else
       begin
@@ -288,6 +291,7 @@ end;
 case ScanForm.LHARev of
   1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
     DataForm.set_attenuator(0,1);
+    LHAVersionSel.ItemIndex := 0;
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
@@ -296,6 +300,7 @@ case ScanForm.LHARev of
     DataForm.set_attenuator(2,1);
     DataForm.set_attenuator(3,1);
     DataForm.set_attenuator(4,1);
+    LHAVersionSel.ItemIndex := 1;
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
@@ -304,10 +309,13 @@ case ScanForm.LHARev of
     DataForm.set_attenuator_14b(2,1);
     DataForm.set_attenuator_14b(3,1);
     DataForm.set_attenuator_14b(4,1);
+    LHAVersionSel.ItemIndex := 2;
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
 end;
+
+
 end;
 
 procedure TFormConfig.SaveCfgClick(Sender: TObject);
@@ -359,16 +367,14 @@ finally
 end;
 end;
 
-procedure TFormConfig.CheckBox4Click(Sender: TObject);
+procedure TFormConfig.MakeIVCheckClick(Sender: TObject);
 begin
-if Checkbox4.Checked then
+if MakeIVCheck.Checked then
   begin
-//    Checkbox4.Checked:=False;
     ScanForm.CheckBox2.Checked:=True;
   end
 else
   begin
-//  Checkbox4.Checked:=True;
   ScanForm.CheckBox2.Checked:=False;
   end;
 end;
@@ -456,6 +462,18 @@ else
   FormPID.lblCurrentSetPoint.Visible := False;
   end;
 
+end;
+
+
+
+procedure TFormConfig.LHAVersionSelChange(Sender: TObject);
+begin
+  // Actualmente las revisiones disponibles son las siguientes, en este mismo orden:
+  // rev B (LHARev :=1)
+  // rev D (LHARev :=2)
+  // rev D 14bit (LHARev :=3)
+  // Podemos por tanto establecer el valor a partir del indice correspondiente
+  ScanForm.LHARev := LHAVersionSel.ItemIndex+1;
 end;
 
 end.

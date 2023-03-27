@@ -1708,11 +1708,11 @@ procedure TScanForm.CheckBox2Click(Sender: TObject);
 begin
 if Checkbox2.Checked then
   begin
-    FormConfig.Checkbox4.Checked:=True;
+    FormConfig.MakeIVCheck.Checked:=True;
   end
 else
   begin
-    FormConfig.Checkbox4.Checked:=False;
+    FormConfig.MakeIVCheck.Checked:=False;
   end;
 end;
 
