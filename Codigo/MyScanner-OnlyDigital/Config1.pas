@@ -474,6 +474,7 @@ begin
   // rev D 14bit (LHARev :=3)
   // Podemos por tanto establecer el valor a partir del indice correspondiente
   ScanForm.LHARev := LHAVersionSel.ItemIndex+1;
+  DataForm.InitDataAcq; //Inicializamos para que los atenuadores queden debidamente configurados
 end;
 
 end.
