@@ -78,6 +78,8 @@ type
     procedure set_dio_port(value: Word);
     procedure set_attenuator(DACAttNr: Integer; value: double);
     procedure set_attenuator_14b(DACAttNr: Integer; value: double);
+    procedure dac_gain(ndac, offset: ShortInt; BufferOut: PAnsiChar);
+    procedure dac_zero_offset(ndac, offset:ShortInt; BufferOut: PAnsiChar);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -316,6 +318,7 @@ end  ;
  //////////////// FUNCIÓN DAC_SET
  // Devuelve el número de caracteres que ocupa la cadena que envía por USB o
  // -1 en caso de error (donde se controle)
+ // No encuentro la situacion en la que devolvemos -1
 function TDataForm.dac_set(ndac, valor:integer; BufferOut: PAnsiChar) : Integer ;
 Var sTexto:String;
 Var sTexto2:String;
@@ -337,11 +340,14 @@ begin
   // Si vamos a invertir el valor, lo hacemos antes de saturar para evitar desbordamientos con -(-32768)
   //if (ndac> 4) then valor:=-valor;    // No están invertidos, así que se puede hacer por SW para coherencia con las otras salidas del DAC
   if (ndac < 5) then valor:=-valor;    // Es mejor que un nº positivo ofrezca una salida positiva, de modo que se hace de este modo en vez de como estaba inicialmente previsto en la línea anterior
-
+  // No estoy seguro de si esto corresponde con la configuracion actual, y no nos sirve para las nuevas versiones con 4 atenuadores
 // Se saturan los valores según indicaciones de Isabel
   if valor>32767 then valor:=32767 ;
   if valor<-32768 then valor:=-32768 ;
 
+  // El los registros para enviar la señal a los Canales 0 a 3 de cada DAC son respectivamente 4 a 7
+  // Para los primeros 4 canales de la electronica, tenemos que sumar 4 al valor que usamos,
+  // y para los siguientes 4 podemos dejarlo tal cual
   if (ndac  > 3) then
   begin
     CadenaCS:=$FF-Integer(pDAC2cs);  //DF
@@ -370,9 +376,9 @@ begin
    (BufferDest+i)^ := Char(CadenaCS); Inc(i);
    (BufferDest+i)^ := Char($FB); Inc(i);
    (BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
-   (BufferDest+i)^ := Char($02); Inc(i);
+   (BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
    (BufferDest+i)^ := Char($00); Inc(i);
-   (BufferDest+i)^ := Char(sele_dac); Inc(i);
+   (BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
    (BufferDest+i)^ := Char(valor shr 8); Inc(i); // Byte más significativo del valor
    (BufferDest+i)^ := Char(valor and $FF); Inc(i); // Byte menos significativo del valor
    (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
@@ -405,7 +411,7 @@ if TRAZAS then MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtE
 
   Result:=i;
 
-end  ;
+end;
 
 ////////////  FUNCIÓN ADC_take    ///////////
 function TDataForm.adc_take(chn,mux,n:integer) : double ;
@@ -419,7 +425,7 @@ var SPI_Ret:Integer;
 var BytesToWrite: Integer;
 var BytesWritten:Integer;
 var BytesToReceive:Integer;
-var numADCChannels:Integer;
+//var numADCChannels:Integer;
 var ReceivesBytes:Integer;
 var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
 var BytesReturned:Integer;
@@ -435,7 +441,7 @@ begin
 // if (n<1) or (chn<0) or (chn>7) or (mux<0) or (mux>31) then Exit ; ;
 // Las cuales se adaptan a:
 
-
+// Solo los canales 0 a 5 tienen salida en la electronica
 if (n<1) or (chn<0) or (chn>5)  then Exit ;
 
          //MessageDlg(IntToStr(chn), mtError, [mbOk], 0);
@@ -463,9 +469,9 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
    if not simulating then MessageDlg('Error al preparar los datos para escribir ', mtError, [mbOk], 0);
 
 
-  numADCChannels:=6;
+  //numADCChannels:=6;
   ReceivesBytes:=0;
-  BytesToReceive := 2 * numADCChannels ;   //   Por cada canal A/D debo recibir 2 bytes, 6Ch x 2 =12bytes
+  BytesToReceive := 2 * NUM_ADCs ;   //   Por cada canal A/D debo recibir 2 bytes, 6Ch x 2 =12bytes
 
 
   Repeat
@@ -536,7 +542,7 @@ var SPI_Ret:Integer;
 var BytesToWrite: Integer;
 var BytesWritten:Integer;
 var BytesToReceive:Integer;
-var numADCChannels:Integer;
+//var numADCChannels:Integer;
 var ReceivesBytes:Integer;
 var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
 var BytesReturned:Integer;
@@ -913,7 +919,7 @@ begin
   (BufferDest+i)^ := Char(value); Inc(i); // Valores de cada bit
   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(Integer(pDIOcs)); Inc(i);
+  (BufferDest+i)^ := Char(Integer(pDIOcs)); Inc(i); //No estoy seguro de que esto sea correcto
   (BufferDest+i)^ := Char($FF); Inc(i);
   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
 
@@ -1025,7 +1031,7 @@ begin
   (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
   (BufferDest+i)^ := Char(1); Inc(i); // Número de bytes a transmitir menos 1
   (BufferDest+i)^ := Char(0); Inc(i);
-  (BufferDest+i)^ := Char(Hi(shortValueDAC )); Inc(i);  // Parte alta del valor del DAC
+  (BufferDest+i)^ := Char(Hi(shortValueDAC)); Inc(i);  // Parte alta del valor del DAC
   (BufferDest+i)^ := Char(Lo(shortValueDAC)); Inc(i); // Parte baja del valor del DAC
   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
@@ -1151,6 +1157,144 @@ end;
 procedure TDataForm.Edit1Change(Sender: TObject);
 begin
 Label8.Caption:='1';
+end;
+
+//Gain: set the registers 12 to 15 for DAC 0 to 3 respectively
+//	The registers are 16bit long, but only the lower 8bits are relevant
+//	The input value is a 8bit two's compliment value (from -128 to 127)
+//	That means we can simply work with a ShortInt(Int8), and fill the Hi byte with zeros
+//	Each step corresponds with 1 LSB step ajusment to the output gain
+
+procedure TDataForm.dac_gain(ndac, offset: ShortInt; BufferOut: PAnsiChar);
+var
+  sele_dac: ShortInt;
+  CadenaCS: Integer;
+  BytesToWrite: Integer;
+  BytesWritten:Integer;
+  SPI_Ret: Integer;
+  i: Integer;
+  BufferDest: PAnsiChar;
+
+begin
+
+
+  // Para los primeros 4 canales de la electronica, tenemos que sumar 4 al valor que usamos,
+
+  if (ndac  > 3) then
+  begin
+    CadenaCS:=$FF-Integer(pDAC2cs);  //DF
+    sele_dac:=ndac+8;
+  end
+  else
+  begin
+    CadenaCS:=$FF-Integer(pDACcs);  //F7
+    sele_dac:=ndac+12;
+  end;
+  
+  // Si nos han pasado un buffer para guardar la cadena que hay que enviar, lo usamos.
+	// Si no, lo guardamos en el buffer general.
+	if (BufferOut = nil) then
+	begin
+	 BufferDest := Addr(Buffer[1]);
+	end
+	else
+	begin
+	 BufferDest := BufferOut;
+	end;
+
+	// Construyo la cadena que se enviará
+	i := 0; // El primer caracter está reservado para la longitud, se use o no.
+	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := Char(CadenaCS); Inc(i);
+	(BufferDest+i)^ := Char($FB); Inc(i);
+	(BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
+	(BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
+	(BufferDest+i)^ := Char($00); Inc(i);
+	(BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
+	(BufferDest+i)^ := Char($00); Inc(i); // Byte superior del registro. Este valor va a ser ignorado
+	(BufferDest+i)^ := Char(offset); Inc(i); // Byte inferior. Aqui introducimos el valor de la ganancia
+	(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := Char($FF); Inc(i);
+	(BufferDest+i)^ := Char($FB); Inc(i);
+	
+   if (BufferOut = nil) then
+   begin
+       BytesToWrite:= i;
+       SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
+       If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
+           if not simulating then MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
+   end;
+
+end;
+
+
+//Zero Offset: set the registers 8 to 11 for DAC 0 to 3 respectively
+//	The registers are 16bit long, but only the lower 9bits are relevant
+//	The input value is a 9bit two's compliment value (from -256 to 255)
+//	Each step corresponds with a 0.125 LSB (Least significant bit) adjustment to the output
+
+procedure TDataForm.dac_zero_offset(ndac, offset: ShortInt; BufferOut: PAnsiChar);
+var
+  sele_dac: ShortInt;
+  CadenaCS: Integer;
+  SPI_Ret: Integer;
+  BytesToWrite: Integer;
+  BytesWritten:Integer;
+  i: Integer;
+  BufferDest: PAnsiChar;
+
+begin
+
+
+  // Para los primeros 4 canales de la electronica, tenemos que sumar 4 al valor que usamos,
+
+  if (ndac  > 3) then
+  begin
+    CadenaCS:=$FF-Integer(pDAC2cs);  //DF
+    sele_dac:=ndac+4;
+  end
+  else
+  begin
+    CadenaCS:=$FF-Integer(pDACcs);  //F7
+    sele_dac:=ndac+8;
+  end;
+
+  // Si nos han pasado un buffer para guardar la cadena que hay que enviar, lo usamos.
+	// Si no, lo guardamos en el buffer general.
+	if (BufferOut = nil) then
+	begin
+	 BufferDest := Addr(Buffer[1]);
+	end
+	else
+	begin
+	 BufferDest := BufferOut;
+	end;
+
+	// Construyo la cadena que se enviará
+	i := 0; // El primer caracter está reservado para la longitud, se use o no.
+	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := Char(CadenaCS); Inc(i);
+	(BufferDest+i)^ := Char($FB); Inc(i);
+	(BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
+	(BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
+	(BufferDest+i)^ := Char($00); Inc(i);
+	(BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
+	(BufferDest+i)^ := Char(Hi(offset)); Inc(i); // Byte superior del registro. Solo necesitamos el bit inferior
+	(BufferDest+i)^ := Char(Lo(offset)); Inc(i); // Byte inferior del valor
+	(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := Char($FF); Inc(i);
+	(BufferDest+i)^ := Char($FB); Inc(i);
+	
+   if (BufferOut = nil) then
+   begin
+       BytesToWrite:= i;
+       SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
+       If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
+           if not simulating then MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
+   end;
+
 end;
 
 end.
