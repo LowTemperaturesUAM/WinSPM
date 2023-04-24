@@ -757,7 +757,7 @@ begin
   begin
     j := 0;
     if not Form4.ReadXFromADC then
-      Form4.DataX[dataSet,i]:=DacVal*Strtofloat(Form7.xDACMultiplier.Text)/32768;
+      Form4.DataX[dataSet,i]:=DacVal*Form4.x_axisMult/32768;
 
     while (j < jump) do
     begin
