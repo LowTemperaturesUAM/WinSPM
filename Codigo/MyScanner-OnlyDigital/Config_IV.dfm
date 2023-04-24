@@ -1,9 +1,11 @@
 object Form11: TForm11
-  Left = 551
-  Top = 739
-  Width = 212
-  Height = 120
+  Left = 1251
+  Top = 538
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsDialog
   Caption = 'IV config'
+  ClientHeight = 81
+  ClientWidth = 196
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

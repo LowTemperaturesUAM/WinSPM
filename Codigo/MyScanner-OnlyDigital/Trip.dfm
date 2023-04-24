@@ -1,9 +1,11 @@
 object Form5: TForm5
   Left = 57
   Top = 673
-  Width = 350
-  Height = 214
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Coarse Aproach'
+  ClientHeight = 175
+  ClientWidth = 334
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

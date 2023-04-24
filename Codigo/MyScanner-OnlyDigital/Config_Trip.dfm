@@ -1,9 +1,11 @@
 object Form6: TForm6
   Left = 653
   Top = 326
-  Width = 421
-  Height = 212
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'ConfigCoarseApproach'
+  ClientHeight = 173
+  ClientWidth = 405
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

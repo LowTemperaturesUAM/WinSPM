@@ -1,9 +1,11 @@
 object DataForm: TDataForm
   Left = 12
   Top = 282
-  Width = 1386
-  Height = 171
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'DAC and ADC handling'
+  ClientHeight = 132
+  ClientWidth = 1370
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

@@ -1,9 +1,11 @@
 object Form9: TForm9
   Left = 715
   Top = 659
-  Width = 781
-  Height = 164
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Files Directories'
+  ClientHeight = 125
+  ClientWidth = 765
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

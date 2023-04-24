@@ -1,9 +1,11 @@
 object FormPID: TFormPID
   Left = 1452
   Top = 24
-  Width = 352
-  Height = 475
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'WinPID'
+  ClientHeight = 436
+  ClientWidth = 336
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

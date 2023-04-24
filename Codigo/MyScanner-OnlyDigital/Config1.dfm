@@ -1,10 +1,12 @@
 object FormConfig: TFormConfig
   Left = 432
   Top = 633
-  Width = 410
-  Height = 414
   ActiveControl = OtherChanEdit
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'WinSPMConfig'
+  ClientHeight = 375
+  ClientWidth = 394
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

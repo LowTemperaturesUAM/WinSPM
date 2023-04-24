@@ -1,9 +1,11 @@
 object Form7: TForm7
   Left = 278
   Top = 411
-  Width = 490
-  Height = 298
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'BiasConfig'
+  ClientHeight = 259
+  ClientWidth = 474
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

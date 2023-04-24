@@ -1,9 +1,11 @@
 object Form4: TForm4
   Left = 23
   Top = 24
-  Width = 852
-  Height = 649
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Bias Module'
+  ClientHeight = 610
+  ClientWidth = 836
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

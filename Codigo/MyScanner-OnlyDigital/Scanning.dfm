@@ -1,9 +1,11 @@
 object Form3: TForm3
   Left = 237
   Top = 272
-  Width = 989
-  Height = 639
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Scanning'
+  ClientHeight = 600
+  ClientWidth = 973
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

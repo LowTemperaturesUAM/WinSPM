@@ -1,9 +1,11 @@
 object ScanForm: TScanForm
   Left = 861
   Top = 24
-  Width = 603
-  Height = 634
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'WinSPM'
+  ClientHeight = 595
+  ClientWidth = 587
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
