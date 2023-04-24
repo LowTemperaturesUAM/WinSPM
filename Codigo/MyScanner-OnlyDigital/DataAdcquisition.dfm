@@ -186,10 +186,4 @@ object DataForm: TDataForm
     Text = 'Test'
     OnChange = Edit1Change
   end
-  object tmr55: TTimer
-    Enabled = False
-    Interval = 10
-    Left = 528
-    Top = 8
-  end
 end

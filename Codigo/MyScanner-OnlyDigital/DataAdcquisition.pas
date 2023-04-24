@@ -66,7 +66,6 @@ type
     Label7: TLabel;
     Edit1: TEdit;
     Label8: TLabel;
-    tmr55: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     function InitDataAcq : boolean ;
