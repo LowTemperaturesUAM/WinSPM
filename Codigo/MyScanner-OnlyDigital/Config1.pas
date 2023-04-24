@@ -369,14 +369,7 @@ end;
 
 procedure TFormConfig.MakeIVCheckClick(Sender: TObject);
 begin
-if MakeIVCheck.Checked then
-  begin
-    ScanForm.CheckBox2.Checked:=True;
-  end
-else
-  begin
-  ScanForm.CheckBox2.Checked:=False;
-  end;
+  ScanForm.MakeIVChk.Checked:=MakeIVCheck.Checked;
 end;
 
 procedure TFormConfig.UpdateCfgClick(Sender: TObject);

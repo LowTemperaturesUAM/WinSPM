@@ -88,14 +88,14 @@ object ScanForm: TScanForm
     TabOrder = 2
     OnClick = Button4Click
   end
-  object CheckBox1: TCheckBox
+  object SaveAllImg: TCheckBox
     Left = 400
     Top = 32
     Width = 65
     Height = 17
     Caption = 'Save All'
     TabOrder = 3
-    OnClick = CheckBox1Click
+    OnClick = SaveAllImgClick
   end
   object Panel1: TPanel
     Left = 448
@@ -268,14 +268,14 @@ object ScanForm: TScanForm
       TickStyle = tsNone
       OnChange = TrackBar3Change
     end
-    object CheckBox2: TCheckBox
+    object MakeIVChk: TCheckBox
       Left = 0
       Top = 304
       Width = 65
       Height = 17
       Caption = 'Make IV'
       TabOrder = 4
-      OnClick = CheckBox2Click
+      OnClick = MakeIVChkClick
     end
     object Button18: TButton
       Left = 62

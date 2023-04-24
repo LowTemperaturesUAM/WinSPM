@@ -30,7 +30,7 @@ type
     TrackBar2: TTrackBar;
     Label2: TLabel;
     Label5: TLabel;
-    CheckBox1: TCheckBox;
+    ScanLoop: TCheckBox;
     Label6: TLabel;
     CheckBox2: TCheckBox;
     chkFlatten: TCheckBox;
@@ -77,7 +77,7 @@ uses Scanner1, PID;
 
 procedure TForm3.Button1Click(Sender: TObject);
 begin
-CheckBox1.Checked:=False;
+ScanLoop.Checked:=False;
 ScanForm.StopAction:=True;
 //FormPID.se1.Text:='1'; //Comentado por Fran
 end;

@@ -222,7 +222,7 @@ object Form3: TForm3
     TickStyle = tsNone
     OnChange = TrackBar2Change
   end
-  object CheckBox1: TCheckBox
+  object ScanLoop: TCheckBox
     Left = 7
     Top = 104
     Width = 73

@@ -21,7 +21,7 @@ type
     ScanButton: TButton;
     TestButton: TButton;
     Button4: TButton;
-    CheckBox1: TCheckBox;
+    SaveAllImg: TCheckBox;
     Panel1: TPanel;
     Label1: TLabel;
     ComboBox1: TComboBox;
@@ -38,7 +38,7 @@ type
     Label7: TLabel;
     Label8: TLabel;
     Button7: TButton;
-    CheckBox2: TCheckBox;
+    MakeIVChk: TCheckBox;
     SaveImgButton: TButton;
     ScrollBox1: TScrollBox;
     PaintBox1: TPaintBox;
@@ -102,7 +102,7 @@ type
     procedure Button5Click(Sender: TObject);
     procedure SaveImgButtonClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure CheckBox1Click(Sender: TObject);
+    procedure SaveAllImgClick(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button13Click(Sender: TObject);
     procedure Button14Click(Sender: TObject);
@@ -110,7 +110,7 @@ type
     procedure Button16Click(Sender: TObject);
     procedure ResizeBitmap(Bitmap: TBitmap; Width, Height: Integer; Background: TColor);
     procedure Button7Click(Sender: TObject);
-    procedure CheckBox2Click(Sender: TObject);
+    procedure MakeIVChkClick(Sender: TObject);
     procedure UpdateCanvas(Sender:TObject);
     procedure SetCanvasZoomFactor(Canvas: TCanvas; AZoomFactor: Integer);
     procedure Button17Click(Sender: TObject);
@@ -348,7 +348,7 @@ end;
 
 procedure TScanForm.Button10Click(Sender: TObject);
 begin
-Form3.CheckBox1.Checked:=False;
+Form3.ScanLoop.Checked:=False;
 StopAction:=True;
 end;
 
@@ -449,8 +449,8 @@ if OldEraseLines = 0 then
 //FormPID.se1.Text:='0';    //Comentado por Fran
 
 A:=False;
-if CheckBox2.Checked=True then A:=True;
-CheckBox2.Checked:=False;
+if MakeIVChk.Checked=True then A:=True;
+MakeIVChk.Checked:=False;
 StopAction:=False;
 Button10.Enabled:=True;
 Form3.Show;
@@ -489,7 +489,7 @@ EraseLines := OldEraseLines;
 Form3.SpinEdit1.Text := FloattoStr(EraseLines);
 
 Form3.Close;
-if A=True then CheckBox2.Checked:=True;
+if A=True then MakeIVChk.Checked:=True;
 end;
 
 procedure TScanForm.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
@@ -560,7 +560,7 @@ total:=Round(abs(Princ-Fin));
 if Fin>Princ then Step:=Round(total/P_Scan_Lines);
 if (Step=0) then Step:=100;
 
-if (IV_Scan_Lines>P_Scan_Lines) and (CheckBox2.Checked) then
+if (IV_Scan_Lines>P_Scan_Lines) and (MakeIVChk.Checked) then
 begin
   MessageDlg('Spectro: too many points',mtError,[mbOK],0);
   IV_Scan_Lines:=P_Scan_Lines;
@@ -607,7 +607,7 @@ begin
 
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
-      if (CheckBox2.Checked)  and (Form11.CheckBox1.Checked) then
+      if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
       begin
         CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);  // el i cambiado por Hermann
 
@@ -672,7 +672,7 @@ begin
 
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
-      if (CheckBox2.Checked)  and (Form11.CheckBox1.Checked) then
+      if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
       begin
         CitsSeekToIV(Floor(i/ContadorIV), Floor(LineNr/ContadorIV), 0);
 
@@ -769,7 +769,7 @@ begin
     begin
       CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);
 
-      if (CheckBox2.Checked)  and (Form11.CheckBox2.Checked) then
+      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
       begin
         if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
         begin
@@ -837,7 +837,7 @@ begin
 
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
-      if (CheckBox2.Checked)  and (Form11.CheckBox2.Checked) then
+      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
       begin
         CitsSeekToIV(Floor(P_Scan_Lines-i-1/ContadorIV), Floor(LineNr/ContadorIV), 0);
 
@@ -1116,7 +1116,7 @@ repeat
 
   StopAction:=False;
   Button10.Enabled:=True;
-  if CheckBox2.Checked then form4.show;
+  if MakeIVChk.Checked then form4.show;
   Form3.Show;
   Form3.FreeScans(nil);
   TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
@@ -1232,9 +1232,13 @@ repeat
 
   Form3.Close;
 
-  if (checkbox1.checked) then SaveImgButtonClick(nil);
-until not Form3.CheckBox1.Checked;
-//if (Form3.CheckBox1.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
+  if (SaveAllImg.Checked) then
+  begin
+    SaveImgButtonClick(nil);
+    if (MakeIVChk.Checked) then Form4.SpinEdit1.Value:=Form4.SpinEdit1.Value + 1;
+  end;
+until not Form3.ScanLoop.Checked;
+//if (Form3.ScanLoop.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
 
 if (Form3.CheckBox2.Checked)then
 begin
@@ -1567,7 +1571,7 @@ begin
   SaveSTP(nil,OneImg,'_vc', factorZ);
 
 // Se usa la misma condición que controla si se hacen IVs y aparte, que se quieran guardar los datos en este formato
-if (CheckBox2.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
+if (MakeIVChk.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
   for i := 0 to 3 do
     SaveCits(i);
 end;
@@ -1591,7 +1595,7 @@ Edit1.Text:=S;
 Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
 
 //Cambiamos el directorio y normbre de las IV solo si es una espectro
-  if Checkbox2.Checked then
+  if MakeIVChk.Checked then
   begin
     Form4.Edit1.Text:=Edit1.Text;
     Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
@@ -1602,9 +1606,9 @@ end;
 
 end;
 
-procedure TScanForm.CheckBox1Click(Sender: TObject);
+procedure TScanForm.SaveAllImgClick(Sender: TObject);
 begin
-  if CheckBox1.Checked  = True then Button3Click(nil);
+  if SaveAllImg.Checked  = True then Button3Click(nil);
 
 end;
 
@@ -1704,16 +1708,9 @@ end;
 
 
 
-procedure TScanForm.CheckBox2Click(Sender: TObject);
+procedure TScanForm.MakeIVChkClick(Sender: TObject);
 begin
-if Checkbox2.Checked then
-  begin
-    FormConfig.MakeIVCheck.Checked:=True;
-  end
-else
-  begin
-    FormConfig.MakeIVCheck.Checked:=False;
-  end;
+  FormConfig.MakeIVCheck.Checked:=MakeIVChk.Checked;
 end;
 
 function TScanForm.PointGlobalToCanvas(pntGlobal: TPointFloat; canvasSize: Integer):TPoint;
