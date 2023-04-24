@@ -1,7 +1,7 @@
 object DataForm: TDataForm
-  Left = -6
-  Top = 260
-  Width = 1547
+  Left = 12
+  Top = 282
+  Width = 1386
   Height = 171
   Caption = 'DAC and ADC handling'
   Color = clBtnFace
@@ -43,7 +43,7 @@ object DataForm: TDataForm
     Caption = 'Mean over'
   end
   object Label5: TLabel
-    Left = 1083
+    Left = 803
     Top = 16
     Width = 6
     Height = 13
@@ -51,14 +51,14 @@ object DataForm: TDataForm
     Caption = '0'
   end
   object Label6: TLabel
-    Left = 1096
+    Left = 816
     Top = 16
     Width = 7
     Height = 13
     Caption = 'V'
   end
   object Label7: TLabel
-    Left = 1304
+    Left = 920
     Top = 16
     Width = 62
     Height = 13
@@ -71,7 +71,7 @@ object DataForm: TDataForm
     ParentFont = False
   end
   object Label8: TLabel
-    Left = 1720
+    Left = 1336
     Top = 16
     Width = 6
     Height = 13
@@ -116,9 +116,9 @@ object DataForm: TDataForm
     Value = 6
   end
   object ScrollBar1: TScrollBar
-    Left = 87
+    Left = 79
     Top = 51
-    Width = 1700
+    Width = 1250
     Height = 22
     LargeChange = 100
     Max = 32767
@@ -138,7 +138,7 @@ object DataForm: TDataForm
     Value = 10
   end
   object Button3: TButton
-    Left = 896
+    Left = 664
     Top = 10
     Width = 81
     Height = 25
@@ -147,7 +147,7 @@ object DataForm: TDataForm
     OnClick = Button3Click
   end
   object Button4: TButton
-    Left = 1384
+    Left = 1000
     Top = 8
     Width = 137
     Height = 33
@@ -162,7 +162,7 @@ object DataForm: TDataForm
     OnClick = Button4Click
   end
   object Button5: TButton
-    Left = 1536
+    Left = 1152
     Top = 8
     Width = 57
     Height = 33
@@ -178,7 +178,7 @@ object DataForm: TDataForm
     OnClick = Button5Click
   end
   object Edit1: TEdit
-    Left = 1600
+    Left = 1216
     Top = 14
     Width = 113
     Height = 21
