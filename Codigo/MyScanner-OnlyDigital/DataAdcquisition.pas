@@ -261,12 +261,12 @@ begin
   //  end;
 
 case ScanForm.LHARev of
-  1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+  revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
     set_attenuator(0,1);
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
-  2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+  revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
     set_attenuator(1,1);
     set_attenuator(2,1);
     set_attenuator(3,1);
@@ -274,7 +274,7 @@ case ScanForm.LHARev of
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
-  3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+  revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
     set_attenuator_14b(1,1);
     set_attenuator_14b(2,1);
     set_attenuator_14b(3,1);

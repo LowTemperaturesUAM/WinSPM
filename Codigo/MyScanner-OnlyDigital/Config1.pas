@@ -123,16 +123,16 @@ ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
 if (chkAttenuator.Checked) then
   begin
     case ScanForm.LHARev of
-    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+    revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
       DataForm.set_attenuator(0,0.1);
       //DataForm.scan_attenuator:=0.1;
     end;
-    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+    revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
       DataForm.set_attenuator(1,0.1);
       DataForm.set_attenuator(2,0.1);
       //DataForm.scan_attenuator:=0.1;
     end;
-    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+    revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
       DataForm.set_attenuator_14b(1,0.1);
       DataForm.set_attenuator_14b(2,0.1);
       //DataForm.scan_attenuator:=0.1;
@@ -142,16 +142,16 @@ if (chkAttenuator.Checked) then
 else
   begin
     case ScanForm.LHARev of
-    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+    revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
       DataForm.set_attenuator(0,1);
       //DataForm.scan_attenuator:=1;
     end;
-    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+    revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
       DataForm.set_attenuator(1,1);
       DataForm.set_attenuator(2,1);
       //DataForm.scan_attenuator:=1;
     end;
-    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+    revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
       DataForm.set_attenuator_14b(1,1);
       DataForm.set_attenuator_14b(2,1);
       //DataForm.scan_attenuator:=1;
@@ -231,7 +231,7 @@ try
   FormPID.spinPID_Out.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
   FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', True);
   //Informatcion sobre la version de la electronica LHA, devolvemos 0 si no se indica
-  ScanForm.LHARev := IniFile.ReadInteger(String(iniRev), 'Revision', 0);
+  ScanForm.LHARev := TLHARev(IniFile.ReadInteger(String(iniRev), 'Revision', 0));
 finally
   IniFile.Free;
 end;
@@ -271,31 +271,31 @@ ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
 
 // Comprobamos si la revision indicada es valida o no
 // Si no, preguntamos al usuario
-if (ScanForm.LHARev <1) or (ScanForm.LHARev > 3) then
+if (ScanForm.LHARev <revB) or (ScanForm.LHARev > revE) then
   begin
     if Application.MessageBox('LHA Version with 4 attenuators?','LHA version', MB_YESNO)=IDYES
     then
       begin
          //ScanForm.VersionDivider:=True;
          if Application.MessageBox('LHA Version uses 16bit attenuators?','Attenuator bits', MB_YESNO)=IDYES
-         then ScanForm.LHARev := 2
-         else ScanForm.LHARev := 3;
+         then ScanForm.LHARev := revD
+         else ScanForm.LHARev := revE;
       end
     else
       begin
            //ScanForm.VersionDivider:=False;
-           ScanForm.LHARev := 1;
+           ScanForm.LHARev := revB;
       end;
 end;
 
 case ScanForm.LHARev of
-  1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+  revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
     DataForm.set_attenuator(0,1);
     LHAVersionSel.ItemIndex := 0;
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
-  2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+  revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
     DataForm.set_attenuator(1,1);
     DataForm.set_attenuator(2,1);
     DataForm.set_attenuator(3,1);
@@ -304,7 +304,7 @@ case ScanForm.LHARev of
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
-  3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+  revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
     DataForm.set_attenuator_14b(1,1);
     DataForm.set_attenuator_14b(2,1);
     DataForm.set_attenuator_14b(3,1);
@@ -359,8 +359,8 @@ try
   IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.spinPID_Out.Value);
   IniFile.WriteBool(String(iniPID), 'PIDReverseOut', FormPID.CheckBox2.Checked);
   //Si la revision contiene un valor valido, la escribimos
-  if (ScanForm.LHARev >0 ) and (ScanForm.LHARev <= 3) then
-  IniFile.WriteInteger(String(iniRev), 'Revision', ScanForm.LHARev);
+  if (ScanForm.LHARev >= revB ) and (ScanForm.LHARev <= revE) then
+  IniFile.WriteInteger(String(iniRev), 'Revision', Ord(ScanForm.LHARev));
 finally
   IniFile.UpdateFile;
   IniFile.Free;
@@ -402,16 +402,16 @@ ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
 if (chkAttenuator.Checked) then
   begin
     case ScanForm.LHARev of
-    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+    revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
       DataForm.set_attenuator(0,0.1);
       //DataForm.scan_attenuator:=0.1;
     end;
-    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+    revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
       DataForm.set_attenuator(1,0.1);
       DataForm.set_attenuator(2,0.1);
       //DataForm.scan_attenuator:=0.1;
     end;
-    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+    revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
       DataForm.set_attenuator_14b(1,0.1);
       DataForm.set_attenuator_14b(2,0.1);
       //DataForm.scan_attenuator:=0.1;
@@ -421,16 +421,16 @@ if (chkAttenuator.Checked) then
 else
   begin
     case ScanForm.LHARev of
-    1: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
+    revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
       DataForm.set_attenuator(0,1);
       //DataForm.scan_attenuator:=1;
     end;
-    2: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+    revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
       DataForm.set_attenuator(1,1);
       DataForm.set_attenuator(2,1);
       //DataForm.scan_attenuator:=1;
     end;
-    3: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
+    revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
       DataForm.set_attenuator_14b(1,1);
       DataForm.set_attenuator_14b(2,1);
       //DataForm.scan_attenuator:=1;
@@ -466,7 +466,7 @@ begin
   // rev D (LHARev :=2)
   // rev D 14bit (LHARev :=3)
   // Podemos por tanto establecer el valor a partir del indice correspondiente
-  ScanForm.LHARev := LHAVersionSel.ItemIndex+1;
+  ScanForm.LHARev := TLHArev(LHAVersionSel.ItemIndex+1);
   DataForm.InitDataAcq; //Inicializamos para que los atenuadores queden debidamente configurados
 end;
 

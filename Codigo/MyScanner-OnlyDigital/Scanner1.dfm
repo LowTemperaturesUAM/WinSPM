@@ -507,6 +507,7 @@ object ScanForm: TScanForm
     Top = 560
     Width = 121
     Height = 20
+    LargeChange = 10
     Max = 32767
     Min = -32767
     PageSize = 0

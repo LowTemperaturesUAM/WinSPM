@@ -492,16 +492,16 @@ object FormConfig: TFormConfig
       Width = 90
       Height = 21
       Hint = 
-        'rev B: 2 attenuators on channel 0,2'#13#10'rev D: 4 attenuators on cha' +
-        'nnel 0,2,5,6'#13#10'rev D 14bit: same 4 attenuators with 14bit scale'
+        'rev B/V: 2 attenuators on channel 0,2'#13#10'rev D: 4 attenuators on c' +
+        'hannel 0,2,5,6'#13#10'rev E: same 4 attenuators with 14bit scale'
       Style = csDropDownList
       ItemHeight = 13
       TabOrder = 13
       OnChange = LHAVersionSelChange
       Items.Strings = (
-        'rev B'
+        'rev B/C'
         'rev D'
-        'rev D 14bit')
+        'rev E')
     end
   end
 end

@@ -16,6 +16,9 @@ type
   TCitsLine = array of TCitsIV;     // Todas las rampas IV de una línea
   TCitsImage = array of TCitsLine;  // Todas las rampas IV de una imagen
   TImageSingle = Array [0..512,0..512] of Single;
+  //definimos las revisiones de la electronica como una enumeracion de los posibles valores
+  type TLHARev = (none,revB,revC=1,revD,revE);
+  //asignamos la revision C con el mismo valor que B porque son iiguales en terminos de software
 
   TScanForm = class(TForm)
     ScanButton: TButton;
@@ -171,7 +174,9 @@ type
   TiempoInicial: Int64;
   XOffset, YOffset: Double; // Posición central del área de barrido entre -1 y 1
   //VersionDivider: Boolean; // si la versión del LHA contiene divisores o no
-  LHARev: Byte; //Version de la electronica para tratar los atenuadores
+  //LHARev: Byte; //Version de la electronica para tratar los atenuadores
+
+  LHARev: TLHARev;
   end;
 
 var
