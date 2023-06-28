@@ -1010,7 +1010,7 @@ begin
   valueDAC := Round(value*$3FFF);
   shortValueDAC := valueDAC and $3FFF; //Limpiamos los bits 14 y 15
   //Ahora introducimos el valor del DAC de destino en estos dos ultimos bits
-  shortValueDAC := shortValueDAC or (Word(DACAttNr) shl 14);
+  shortValueDAC := shortValueDAC or (Word(DACAttNr-1) shl 14);
   //Aqui introducirmos el resto de la logica que dependa del canal
   case DACAttNr of
     // La variable que guarda el factor de atenuacion de escaneo solo se cambia
