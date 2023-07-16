@@ -752,24 +752,24 @@ begin
   // Lectura de UNA rampa de ida o vuelta
   BufferPtr := Addr(BufferMem[0]);
   i:=0;
-  while (Form4.Abort_Measure=False) and (i<npoints) do
+  while (LinerForm.Abort_Measure=False) and (i<npoints) do
   begin
     j := 0;
-    if not Form4.ReadXFromADC then
-      Form4.DataX[dataSet,i]:=DacVal*Form4.x_axisMult/32768;
+    if not LinerForm.ReadXFromADC then
+      LinerForm.DataX[dataSet,i]:=DacVal*LinerForm.x_axisMult/32768;
 
     while (j < jump) do
     begin
-      BufferPtr := BufferPtr + dac_set(Form4.x_axisDAC, Round(DacVal), BufferPtr);
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
       DacVal := DacVal+Step;
       Inc(j);
-      if blockAcq then
+      //if blockAcq then
         //Application.ProcessMessages; // Para que pueda hacer el feedback digital //Hermann
     end;
 
     if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
     begin
-      adcRead := adc_take_all(Form4.LinerMean, AdcWriteCommand, BufferPtr);
+      adcRead := adc_take_all(LinerForm.LinerMean, AdcWriteCommand, BufferPtr);
       BufferPtr := BufferPtr + Round(adcRead[0]);
     end;
 
@@ -786,26 +786,26 @@ begin
     // suponer que no hay prisa, podemos tardar un poco más en cada punto.
     if (not blockAcq) then
     begin
-      adcRead:=adc_take_all(Form4.LinerMean, AdcWriteRead, nil);
-      if Form4.ReadXFromADC then
-        Form4.DataX[dataSet,i]:=adcRead[Form4.x_axisADC]*Form4.x_axisMult;
+      adcRead:=adc_take_all(LinerForm.LinerMean, AdcWriteRead, nil);
+      if LinerForm.ReadXFromADC then
+        LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
 
-      if Form4.ReadZ then
+      if LinerForm.ReadZ then
       begin
         //if (Form1.DigitalPID) then
-        //  Form4.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+        //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
         //else
-          Form4.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+          LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
       end;
 
       //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
       //Se vuelve a poner Loc_ADCI
-      if Form4.ReadCurrent then
-        Form4.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+      if LinerForm.ReadCurrent then
+        LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
 
       //Hermann, 19/11/2021. se añade una lectura de un ADC adicional
-        if Form4.ReadOther then
-        Form4.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+        if LinerForm.ReadOther then
+        LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
 
     end;
 
@@ -840,27 +840,27 @@ begin
   i:=0;
   while (i < j) do
   begin
-    adcRead:=adc_take_all(Form4.LinerMean, AdcReadData, nil);
-    if Form4.ReadXFromADC then
-      Form4.DataX[dataSet,i]:=adcRead[Form4.x_axisADC]*Form4.x_axisMult;
+    adcRead:=adc_take_all(LinerForm.LinerMean, AdcReadData, nil);
+    if LinerForm.ReadXFromADC then
+      LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
 
-    if Form4.ReadZ then
+    if LinerForm.ReadZ then
     begin
       //if (Form1.DigitalPID) then
-      //  Form4.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+      //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
       //else
-        Form4.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+        LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
     end;
 
     //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
     // Volver a poner Loc_ADCI
-    if Form4.ReadCurrent then
-      Form4.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+    if LinerForm.ReadCurrent then
+      LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
 
     //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
     // Volver a poner Loc_ADCI
-    if Form4.ReadOther then
-      Form4.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+    if LinerForm.ReadOther then
+      LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
 
     i:=i+1;
   end;
