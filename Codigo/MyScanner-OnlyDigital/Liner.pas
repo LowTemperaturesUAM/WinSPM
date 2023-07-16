@@ -19,7 +19,7 @@ uses
 type
   TDataCurve = Array [0..1,0..2048] of single;
 
-  TForm4 = class(TForm)
+  TLinerForm = class(TForm)
 //    xyyGraph1: TxyyGraph;
     Button1: TButton;
     Button2: TButton;
@@ -44,7 +44,7 @@ type
     SpinEdit3: TSpinEdit;
     SpinEdit4: TSpinEdit;
     SpinEdit5: TSpinEdit;
-    Button8: TButton;
+    DeleteBtn: TButton;
     SaveDialog1: TSaveDialog;
     Button9: TButton;
     OpenDialog1: TOpenDialog;
@@ -69,6 +69,10 @@ type
     SpinEdit6: TSpinEdit;
     Label2: TLabel;
     chkPainYesNo: TCheckBox;
+    BottomPanel: TPanel;
+    RightPanel: TPanel;
+    TopPanel: TPanel;
+    GraphPanel: TPanel;
     procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -79,7 +83,7 @@ type
     procedure SpinEdit4Change(Sender: TObject);
     procedure RadioGroup2Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
+    procedure DeleteBtnClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
@@ -95,6 +99,7 @@ type
     procedure ClearChart();
     procedure chkAcquireBlockClick(Sender: TObject);
     procedure chkPainYesNoClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
 
   private
     { Private declarations }
@@ -129,7 +134,7 @@ type
   end;
 
 var
-  Form4: TForm4;
+  LinerForm: TLinerForm;
 
   //b : TblqLoader ;
   blqname : string ;
@@ -145,13 +150,13 @@ uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1, FileNames, Math;
 {$R *.DFM}
 
 //Open Config
-procedure TForm4.Button5Click(Sender: TObject);
+procedure TLinerForm.Button5Click(Sender: TObject);
 begin
 Form7.Show;
 end;
 
 //Open Liner
-procedure TForm4.FormShow(Sender: TObject);
+procedure TLinerForm.FormShow(Sender: TObject);
 var
 i: Integer;
 begin
@@ -185,7 +190,7 @@ PaintYesNo:=chkPainYesNo.checked;
 end;
 
 //Do
-procedure TForm4.Button1Click(Sender: TObject);
+procedure TLinerForm.Button1Click(Sender: TObject);
 {Salvo y lo meto en:
   ida                 vuelta
   DataX[0,i]          DataX[1,i]
@@ -316,7 +321,7 @@ here_previous_ctrl:=0;
 end;
 
 //Abort
-procedure TForm4.Button3Click(Sender: TObject);
+procedure TLinerForm.Button3Click(Sender: TObject);
 begin
 if Abort_Measure=False then Abort_Measure:=True;
 if (Button2.Caption='STOP') then
@@ -325,14 +330,14 @@ if (Button2.Caption='STOP') then
 end;
 
 //Número de puntos
-procedure TForm4.ComboBox1Change(Sender: TObject);
+procedure TLinerForm.ComboBox1Change(Sender: TObject);
 begin
 PointNumber:=StrtoInt(Combobox1.Text);
-ScanForm.RedimCits(ScanForm.IV_Scan_Lines, Form4.PointNumber);
+ScanForm.RedimCits(ScanForm.IV_Scan_Lines, PointNumber);
 end;
 
 //Función para derivar
-procedure TForm4.DerivaRectas (vin:vcurva;out vout:vcurva);
+procedure TLinerForm.DerivaRectas (vin:vcurva;out vout:vcurva);
 //Los parámetros de la función son vin (input) y vout (output).
 //Son variables tipo "vcurva". "vcurva" es una estructura donde .x son los datos de la ida, .y los datos de la vuelta, y .n otra cosa no importante para esto.
 //Para derivar, los datos "Y" están guardados en la vcurva, y los datos "X" están guardados en DataX
@@ -348,11 +353,11 @@ begin
     end;
     vout.n := m;
 
-pderi:=Form4.SpinEdit5.Value;//Puntos de derivada
+pderi:=SpinEdit5.Value;//Puntos de derivada
 pderi:= pderi - 1;
 
 if pderi=0 then begin //Si un punto de derivada
-     FOR I:=0 TO m-1 do begin
+     for I:=0 to m-1 do begin
 
         DataX[0,i]:=0.5*(DataX[0,i]+DataX[0,i+1]);
         DataX[1,i]:=0.5*(DataX[1,i]+DataX[1,i+1]);
@@ -411,19 +416,19 @@ end;
 end;
 
 //Cambio en Mean
-procedure TForm4.SpinEdit3Change(Sender: TObject);
+procedure TLinerForm.SpinEdit3Change(Sender: TObject);
 begin
   TryStrToInt(SpinEdit3.Text, LinerMean);
 end;
 
 //Cambio en Jump
-procedure TForm4.SpinEdit4Change(Sender: TObject);
+procedure TLinerForm.SpinEdit4Change(Sender: TObject);
 begin
   TryStrToInt(SpinEdit4.Text, Jump_xAxis);
 end;
 
 //Pintar las curvas
-procedure TForm4.RadioGroup2Click(Sender: TObject);
+procedure TLinerForm.RadioGroup2Click(Sender: TObject);
 var
 i: Integer;
 DatatoPlot_X: Array[0..1,0..2048] of single;
@@ -502,7 +507,7 @@ end;
 end;
 
 //DoDo
-procedure TForm4.Button2Click(Sender: TObject);
+procedure TLinerForm.Button2Click(Sender: TObject);
 begin
 Application.ProcessMessages;
 if (Button2.Caption='STOP') then
@@ -523,7 +528,7 @@ if (Button2.Caption='STOP') then
 end;
 
 //Delete Graph
-procedure TForm4.Button8Click(Sender: TObject);
+procedure TLinerForm.DeleteBtnClick(Sender: TObject);
 begin
   ClearChart();
 //xyyGraph1.Clear;
@@ -531,7 +536,7 @@ begin
 end;
 
 //Guardar
-procedure TForm4.Button4Click(Sender: TObject);
+procedure TLinerForm.Button4Click(Sender: TObject);
 var
 i,j,k,cols,BlockOffset: Integer;
 Fi_Name,BlockFileName,BlockFile,TakeComment:string;
@@ -620,7 +625,7 @@ end;
 
 // Guarda las curvas IV en el formato de WSxM
 // Nacho Horcas, diciembre de 2017
-procedure TForm4.SaveIV(fileName: string; dataSet: Integer; comments: String);
+procedure TLinerForm.SaveIV(fileName: string; dataSet: Integer; comments: String);
 var
   myFile : TextFile;
   commentsWSxM, strLine: string;
@@ -708,7 +713,7 @@ end;
 
 
 //Set File Name
-procedure TForm4.Button9Click(Sender: TObject);
+procedure TLinerForm.Button9Click(Sender: TObject);
 begin
 SaveDialog1.FileName:=Edit1.Text;
 
@@ -724,7 +729,7 @@ Edit1.Text:=ExtractFileName(SaveDialog1.FileName);
 end;
 
 //En principio no hace nada, button10 no existe
-procedure TForm4.Button10Click(Sender: TObject);
+procedure TLinerForm.Button10Click(Sender: TObject);
 var
 BlockFile:string;
 b_offset: Integer;
@@ -740,7 +745,7 @@ Application.ProcessMessages;
 end;
 
 //Temperatura
-procedure TForm4.TemperatureEditEnter(Sender: TObject);
+procedure TLinerForm.TemperatureEditEnter(Sender: TObject);
 var
   YesField,YesTemp: Boolean;
 begin
@@ -752,7 +757,7 @@ if YesTemp and YesField then
 else exit;
 end;
 //Campo magnético
-procedure TForm4.MagFieldEditEnter(Sender: TObject);
+procedure TLinerForm.MagFieldEditEnter(Sender: TObject);
 var
   YesField,YesTemp: Boolean;
 begin
@@ -765,20 +770,20 @@ else exit;
 end;
 
 //blq Number para guardar
-procedure TForm4.SpinEdit1Change(Sender: TObject);
+procedure TLinerForm.SpinEdit1Change(Sender: TObject);
 begin
   Presentblknumber:=0;
   lblCurveCount.Caption:=InttoStr(Presentblknumber);
 end;
 
 //Pintar cada vez que pulsamos "Direct" o "Derivative"
-procedure TForm4.RadioGroup1Click(Sender: TObject);
+procedure TLinerForm.RadioGroup1Click(Sender: TObject);
 begin
 RadioGroup2Click(nil);
 end;
 
 //Cambiar bias
-procedure TForm4.scrollSizeBiasChange(Sender: TObject);
+procedure TLinerForm.scrollSizeBiasChange(Sender: TObject);
 begin
 Size_xAxis:=scrollSizeBias.Position/100;
 if Form7.ReverseCheck.Checked then
@@ -790,7 +795,7 @@ Label18.Caption:=IntToStr(scrollSizeBias.Position);
 end;
 
 //Pintar cuando cambias los puntos de derivada
-procedure TForm4.SpinEdit5Change(Sender: TObject);
+procedure TLinerForm.SpinEdit5Change(Sender: TObject);
 begin
 if RadioGroup1.ItemIndex=0 then
   begin
@@ -802,7 +807,7 @@ if RadioGroup1.ItemIndex=0 then
 end;
 
 //Hold PID
-procedure TForm4.Button7Click(Sender: TObject);
+procedure TLinerForm.Button7Click(Sender: TObject);
 begin
   if StopIt then
     begin
@@ -821,7 +826,7 @@ begin
 end;
 
 //Hold cuando toma las IV
-procedure TForm4.Button6Click(Sender: TObject);
+procedure TLinerForm.Button6Click(Sender: TObject);
 begin
 if Abort_Measure=False then Abort_Measure:=True;
 if (Button2.Caption='STOP') then
@@ -829,13 +834,13 @@ if (Button2.Caption='STOP') then
  Application.ProcessMessages;
 end;
 
-procedure TForm4.ClearChart();
+procedure TLinerForm.ClearChart();
 begin
   ChartLineSerie0.Clear();
   ChartLineSerie1.Clear();
 end;
 
-procedure TForm4.chkAcquireBlockClick(Sender: TObject);
+procedure TLinerForm.chkAcquireBlockClick(Sender: TObject);
 begin
   if chkAcquireBlock.Checked then
     begin
@@ -847,9 +852,22 @@ begin
     SpinEdit3.MaxValue := 999999
 end;
 
-procedure TForm4.chkPainYesNoClick(Sender: TObject);
+procedure TLinerForm.chkPainYesNoClick(Sender: TObject);
 begin
 PaintYesNo:=chkPainYesNo.Checked;
+end;
+
+procedure TLinerForm.FormResize(Sender: TObject);
+var
+  oldWidth :Integer;
+begin
+  //Change the size of the graph panel as the form is rescaled
+  //Preserving the same padding with the nearby panels
+  GraphPanel.Height := BottomPanel.Top - GraphPanel.Top -3;
+  GraphPanel.Width := RightPanel.Left - GraphPanel.Left -2;
+  oldWidth := BottomPanel.Width;
+  BottomPanel.Width := GraphPanel.Width;
+  scrollSizeBias.Width := scrollSizeBias.Width  + BottomPanel.Width - oldWidth;
 end;
 
 end.

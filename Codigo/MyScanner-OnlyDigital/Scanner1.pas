@@ -243,7 +243,7 @@ P_Scan_Size:=Trackbar3.Position/1000;
 
 // Preparamos el fichero o los ficheros temporales para manejar los CITs en formato WSxM
 CreateCitsTempFiles();
-RedimCits(IV_Scan_Lines, Form4.PointNumber);
+RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
 
 //Limpiar:=True;
 contadorIV:=1;
@@ -255,7 +255,7 @@ Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*DataForm.scan_attenuat
 TrackBar3Change(nil); // Simulo que se ha cambiado el tamaño para que acutalice la interfaz
 SizeOfWindow:=400;
 StopAction:=True;
-Form4.Show;
+LinerForm.Show;
 Form5.Show;
 FormPID.Show;
 //Count_Live:= FormPID.SpinEdit4.Value;
@@ -569,7 +569,7 @@ if (IV_Scan_Lines>P_Scan_Lines) and (MakeIVChk.Checked) then
 begin
   MessageDlg('Spectro: too many points',mtError,[mbOK],0);
   IV_Scan_Lines:=P_Scan_Lines;
-  RedimCits(IV_Scan_Lines, Form4.PointNumber);
+  RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
 end;
 
 Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Princ, Fin)/32768*AmpX*10*CalX);
@@ -617,20 +617,20 @@ begin
         CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);  // el i cambiado por Hermann
 
         if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
-        for k := 0 to Form4.PointNumber-1 do
+        for k := 0 to LinerForm.PointNumber-1 do
           begin
             CitsTempFile[0].Write(zeroSingle, SizeOf(zeroSingle));
             CitsTempFile[1].Write(zeroSingle, SizeOf(zeroSingle));
           end
         else // Hay que continuar con la adquisición
         begin
-          form4.Button1Click(nil); //Make IV con espectro
-          // Los datos adquiridos están en Form4.DataCurrent. Los guardamos donde toque
+          LinerForm.Button1Click(nil); //Make IV con espectro
+          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
-          for k := 0 to Form4.PointNumber-1 do
+          for k := 0 to LinerForm.PointNumber-1 do
           begin
-            CitsTempFile[0].Write(Form4.DataCurrent[0][k], SizeOf(Form4.DataCurrent[0][k]));
-            CitsTempFile[1].Write(Form4.DataCurrent[1][Form4.PointNumber-1-k], SizeOf(Form4.DataCurrent[1][Form4.PointNumber-1-k]));
+            CitsTempFile[0].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+            CitsTempFile[1].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
           end;
         end;
         ContadorIV:=1;
@@ -688,13 +688,13 @@ begin
         end
         else
         begin
-          form4.Button1Click(nil); //Make IV con espectro
-          // Los datos adquiridos están en Form4.DataCurrent. Los guardamos donde toque
+          LinerForm.Button1Click(nil); //Make IV con espectro
+          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
-          for k := 0 to Form4.PointNumber-1 do
+          for k := 0 to LinerForm.PointNumber-1 do
           begin
-            CitsTempFile[0].Write(Form4.DataCurrent[0][k], SizeOf(Form4.DataCurrent[0][k]));
-            CitsTempFile[1].Write(Form4.DataCurrent[1][Form4.PointNumber-1-k], SizeOf(Form4.DataCurrent[1][Form4.PointNumber-1-k]));
+            CitsTempFile[0].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+            CitsTempFile[1].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
           end;
         end;
         ContadorIV:=1;
@@ -778,7 +778,7 @@ begin
       begin
         if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
         begin
-          for k := 0 to Form4.PointNumber-1 do
+          for k := 0 to LinerForm.PointNumber-1 do
           begin
             CitsTempFile[2].Write(zeroSingle, SizeOf(zeroSingle));
             CitsTempFile[3].Write(zeroSingle, SizeOf(zeroSingle));
@@ -786,13 +786,13 @@ begin
         end
         else
         begin
-          form4.Button1Click(nil); //Make IV con espectro
-          // Los datos adquiridos están en Form4.DataCurrent. Los guardamos donde toque
+          LinerForm.Button1Click(nil); //Make IV con espectro
+          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
-          for k := 0 to Form4.PointNumber-1 do
+          for k := 0 to LinerForm.PointNumber-1 do
           begin
-            CitsTempFile[2].Write(Form4.DataCurrent[0][k], SizeOf(Form4.DataCurrent[0][k]));
-            CitsTempFile[3].Write(Form4.DataCurrent[1][Form4.PointNumber-1-k], SizeOf(Form4.DataCurrent[1][Form4.PointNumber-1-k]));
+            CitsTempFile[2].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+            CitsTempFile[3].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
           end;
         end;
         ContadorIV:=1;
@@ -848,7 +848,7 @@ begin
 
         if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
         begin
-          for k := 0 to Form4.PointNumber-1 do
+          for k := 0 to LinerForm.PointNumber-1 do
           begin
             CitsTempFile[2].Write(zeroSingle, SizeOf(zeroSingle));
             CitsTempFile[3].Write(zeroSingle, SizeOf(zeroSingle));
@@ -856,13 +856,13 @@ begin
         end
         else
         begin
-          form4.Button1Click(nil); //Make IV con espectro
-          // Los datos adquiridos están en Form4.DataCurrent. Los guardamos donde toque
+          LinerForm.Button1Click(nil); //Make IV con espectro
+          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
-          for k := 0 to Form4.PointNumber-1 do
+          for k := 0 to LinerForm.PointNumber-1 do
           begin
-            CitsTempFile[2].Write(Form4.DataCurrent[0][k], SizeOf(Form4.DataCurrent[0][k]));
-            CitsTempFile[3].Write(Form4.DataCurrent[1][Form4.PointNumber-1-k], SizeOf(Form4.DataCurrent[1][Form4.PointNumber-1-k]));
+            CitsTempFile[2].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+            CitsTempFile[3].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
           end;
         end;
         ContadorIV:=1;
@@ -1057,7 +1057,7 @@ begin
   if ((row < 0) or (column < 0)) then
     exit;
 
-  pointsIV := Form4.PointNumber;
+  pointsIV := LinerForm.PointNumber;
   position := ((row*IV_Scan_Lines+column)*pointsIV+point)*sizeof(Single);
 
   for i := 0 to 3 do
@@ -1082,7 +1082,7 @@ end;
 
 procedure TScanForm.Button12Click(Sender: TObject);
 begin
-Form4.Show;
+LinerForm.Show;
 end;
 
 procedure TScanForm.Button11Click(Sender: TObject);
@@ -1121,7 +1121,7 @@ repeat
 
   StopAction:=False;
   Button10.Enabled:=True;
-  if MakeIVChk.Checked then form4.show;
+  if MakeIVChk.Checked then LinerForm.show;
   Form3.Show;
   Form3.FreeScans(nil);
   TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
@@ -1240,7 +1240,7 @@ repeat
   if (SaveAllImg.Checked) then
   begin
     SaveImgButtonClick(nil);
-    if (MakeIVChk.Checked) then Form4.SpinEdit1.Value:=Form4.SpinEdit1.Value + 1;
+    if (MakeIVChk.Checked) then LinerForm.SpinEdit1.Value:=LinerForm.SpinEdit1.Value + 1;
   end;
 until not Form3.ScanLoop.Checked;
 //if (Form3.ScanLoop.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
@@ -1418,7 +1418,7 @@ begin
   strLine := Format('    Number of columns: %d', [ScanForm.IV_Scan_Lines]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of points per ramp: %d', [Form4.PointNumber]);
+  strLine := Format('    Number of points per ramp: %d', [LinerForm.PointNumber]);
   F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
 
   strLine := Format('    Number of rows: %d', [ScanForm.IV_Scan_Lines]);
@@ -1442,12 +1442,12 @@ begin
   F.Write(''#13#10, 2+Length(''));
 
   // Guarda las tensiones de cada punto del IV
-  maxV := 10*Form4.Size_xAxis;
+  maxV := 10*LinerForm.Size_xAxis;
   minV := -maxV;
 
-  for i := 0 to Form4.PointNumber-1 do
+  for i := 0 to LinerForm.PointNumber-1 do
   begin
-    strLine := Format('    Image %.3d: %.4f V', [i, minV+i*(maxV-minV)/(Form4.PointNumber-1)]);
+    strLine := Format('    Image %.3d: %.4f V', [i, minV+i*(maxV-minV)/(LinerForm.PointNumber-1)]);
     F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
   end;
 
@@ -1474,7 +1474,7 @@ begin
 	//	for (int iRow = 0; iRow < iNumRows; iRow++)
 	//		for (int iCol = 0; iCol < iNumColumns; iCol++)
 
-  for i := 0 to Form4.PointNumber-1 do
+  for i := 0 to LinerForm.PointNumber-1 do
   begin
     for j := ScanForm.IV_Scan_Lines-1 downto 0 do
     begin
@@ -1602,8 +1602,8 @@ Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
 //Cambiamos el directorio y normbre de las IV solo si es una espectro
   if MakeIVChk.Checked then
   begin
-    Form4.Edit1.Text:=Edit1.Text;
-    Form4.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
+    LinerForm.Edit1.Text:=Edit1.Text;
+    LinerForm.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
     //CreateDir(Form9.Label5.Caption+'\IV');
     Form9.Label6.Caption:=Form9.Label5.Caption;
   end;

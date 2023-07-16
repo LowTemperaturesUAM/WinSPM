@@ -32,7 +32,7 @@ uses Scanner1, Liner;
 procedure TForm11.ComboBox1Change(Sender: TObject);
 begin
 ScanForm.IV_Scan_Lines:=StrtoInt(ComboBox1.Text);
-ScanForm.RedimCits(ScanForm.IV_Scan_Lines, Form4.PointNumber);
+ScanForm.RedimCits(ScanForm.IV_Scan_Lines, LinerForm.PointNumber);
 end;
 
 end.
