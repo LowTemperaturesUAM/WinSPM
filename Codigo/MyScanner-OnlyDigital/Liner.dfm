@@ -27,6 +27,20 @@ object LinerForm: TLinerForm
     Width = 3
     Height = 13
   end
+  object Label3: TLabel
+    Left = 512
+    Top = 48
+    Width = 41
+    Height = 13
+    Caption = 'ZAttText'
+  end
+  object Label6: TLabel
+    Left = 512
+    Top = 64
+    Width = 41
+    Height = 13
+    Caption = 'ZAttText'
+  end
   object BottomPanel: TPanel
     Left = 16
     Top = 516
@@ -87,6 +101,38 @@ object LinerForm: TLinerForm
       Height = 13
       Anchors = [akTop, akRight]
       Caption = '100'
+    end
+    object ZAttText: TLabel
+      Left = 552
+      Top = 48
+      Width = 64
+      Height = 13
+      Caption = 'Z Attenuation'
+      Visible = False
+    end
+    object BiasAttText: TLabel
+      Left = 552
+      Top = 64
+      Width = 77
+      Height = 13
+      Caption = 'Bias Attenuation'
+      Visible = False
+    end
+    object ZAttDispValue: TLabel
+      Left = 640
+      Top = 48
+      Width = 20
+      Height = 13
+      Caption = '1'
+      Visible = False
+    end
+    object BiasAttDispValue: TLabel
+      Left = 640
+      Top = 64
+      Width = 20
+      Height = 13
+      Caption = '1'
+      Visible = False
     end
     object chkPainYesNo: TCheckBox
       Left = 424

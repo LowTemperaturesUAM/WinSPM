@@ -91,6 +91,7 @@ type
   public
     { Public declarations }
     scan_attenuator: Double;
+    z_attenuator: Double;
     bias_attenuator: Double;
     StopAction: Boolean;
   end;
@@ -263,6 +264,8 @@ begin
 case ScanForm.LHARev of
   revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
     set_attenuator(0,1);
+    z_attenuator := 1;
+    bias_attenuator := 1;
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;
   end;
@@ -972,7 +975,7 @@ begin
         // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
         1: begin (BufferDest+i)^ := Char(00); scan_attenuator:=value; end; // Registro: DAC A (Canal 0)
         2: (BufferDest+i)^ := Char(01); // Registro: DAC B (Canal 2)
-        3: (BufferDest+i)^ := Char(02); // Registro: DAC C (Canal 5)
+        3: begin (BufferDest+i)^ := Char(02); z_attenuator:=value; end;// Registro: DAC C (Canal 5)
         4: begin (BufferDest+i)^ := Char(03); bias_attenuator:=value; end// Registro: DAC D (Canal 6)
       end;
       Inc(i);
@@ -1018,7 +1021,7 @@ begin
     // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
     1: scan_attenuator:=value; // Registro: DAC A (Canal 0)
     //2: // Registro: DAC B (Canal 2)
-    //3: // Registro: DAC C (Canal 5)
+    3: z_attenuator:=value; // Registro: DAC C (Canal 5)
     4: bias_attenuator:=value; // Registro: DAC D (Canal 6)
   end;
   // Construyo la cadena que se enviará

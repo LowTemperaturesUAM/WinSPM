@@ -14,6 +14,7 @@ object Form7: TForm7
   Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -186,23 +187,60 @@ object Form7: TForm7
     Width = 441
     Height = 57
     TabOrder = 3
+    OnExit = DAC5AttEditCheck
     object seReduceRampFactor: TSpinEdit
-      Left = 200
-      Top = 8
+      Left = 184
+      Top = 18
       Width = 49
       Height = 22
       MaxValue = 20
       MinValue = 1
-      TabOrder = 0
+      TabOrder = 1
       Value = 1
     end
     object chkReduceRamp: TCheckBox
-      Left = 24
-      Top = 8
+      Left = 16
+      Top = 20
       Width = 161
       Height = 17
       Caption = 'Reduce Ramp by a factor of'
-      TabOrder = 1
+      TabOrder = 0
+    end
+    object SetDAC5AttBtn: TButton
+      Left = 264
+      Top = 8
+      Width = 110
+      Height = 17
+      Caption = 'Set DAC5 Attenuation'
+      TabOrder = 2
+      OnClick = SetDAC5AttBtnClick
+    end
+    object SetDAC6AttBtn: TButton
+      Left = 264
+      Top = 32
+      Width = 110
+      Height = 17
+      Caption = 'Set DAC6 Attenuation'
+      TabOrder = 3
+      OnClick = SetDAC6AttBtnClick
+    end
+    object DAC5AttEdit: TEdit
+      Left = 384
+      Top = 6
+      Width = 49
+      Height = 21
+      TabOrder = 4
+      Text = '1'
+      OnExit = DAC5AttEditCheck
+    end
+    object DAC6AttEdit: TEdit
+      Left = 384
+      Top = 30
+      Width = 49
+      Height = 21
+      TabOrder = 5
+      Text = '1'
+      OnExit = DAC6AttEditCheck
     end
   end
 end

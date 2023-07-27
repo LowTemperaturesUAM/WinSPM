@@ -291,6 +291,8 @@ end;
 case ScanForm.LHARev of
   revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
     DataForm.set_attenuator(0,1);
+    DataForm.z_attenuator := 1;
+    DataForm.bias_attenuator := 1;
     LHAVersionSel.ItemIndex := 0;
     //DataForm.scan_attenuator:=1;
     //DataForm.bias_attenuator:=1;

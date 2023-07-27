@@ -73,6 +73,12 @@ type
     RightPanel: TPanel;
     TopPanel: TPanel;
     GraphPanel: TPanel;
+    ZAttText: TLabel;
+    BiasAttText: TLabel;
+    Label3: TLabel;
+    Label6: TLabel;
+    ZAttDispValue: TLabel;
+    BiasAttDispValue: TLabel;
     procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -166,6 +172,7 @@ if Form7.RadioGroup1.ItemIndex=0 then ReadXfromADC:=True else
 ReadXfromADC:=False;
 x_axisDac:=Form7.SpinEdit1.Value;
 x_axisAdc:=Form7.seADCxaxis.Value;
+//Asumimos que la atenuacion inicial de todos los canales es siempre 1
 x_axisMult:=StrtoFloat(Form7.xDACMultiplier.Text);
 NumCol:=1;
 if Form7.Checkbox1.checked then NumCol:=NumCol+1;
@@ -869,6 +876,7 @@ begin
   BottomPanel.Width := GraphPanel.Width;
   scrollSizeBias.Width := scrollSizeBias.Width  + BottomPanel.Width - oldWidth;
 end;
+
 
 end.
 
