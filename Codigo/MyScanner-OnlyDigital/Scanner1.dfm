@@ -302,6 +302,7 @@ object ScanForm: TScanForm
       Top = 280
       Width = 53
       Height = 17
+      BevelOuter = bvNone
       Color = clRed
       TabOrder = 6
       object Button9: TSpeedButton

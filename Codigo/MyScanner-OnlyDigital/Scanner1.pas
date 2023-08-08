@@ -81,6 +81,7 @@ type
     procedure TrackBar3Change(Sender: TObject);
     procedure TrackBar2Change(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
+    procedure ResetTipPosition();
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -262,7 +263,7 @@ FormPID.Show;
 //take_initialize;
 
 // Hacemos un tip reset para asegurarnos de que la posición inicial es la central
-Button9Click(nil);
+ResetTipPosition();
 UpdateCanvas(nil);
 end;
 
@@ -339,16 +340,21 @@ PuntosPonderados:=0;
 TiempoInicial:=0; // Inidicamos que no es un tiempo válido
 end;
 
-procedure TScanForm.Button9Click(Sender: TObject);
+procedure TScanForm.ResetTipPosition();
 var
 pointCenter: TPointFloat;
-
 begin
   ScrollBar2.Position:=Round(ScrollBar2.max/2);
   ScrollBar3.Position:=Round(ScrollBar3.max/2);
   pointCenter.x := 0;
   pointCenter.y := 0;
   ScanForm.SetNewOffset(pointCenter);
+end;
+
+procedure TScanForm.Button9Click(Sender: TObject);
+begin
+if Application.MessageBox('Are you sure you want to reset the position?','Confirm Tip Reset', MB_YESNO)=IDYES
+  then ResetTipPosition();
 end;
 
 procedure TScanForm.Button10Click(Sender: TObject);
@@ -665,6 +671,7 @@ begin
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    //no estamos teniendo en cuenta si los atenuadores están activados
     if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
   end
   else   // Scan in Y
