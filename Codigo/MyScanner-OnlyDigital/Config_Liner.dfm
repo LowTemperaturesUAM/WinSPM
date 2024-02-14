@@ -1,4 +1,4 @@
-object Form7: TForm7
+object LinerConfig: TLinerConfig
   Left = 278
   Top = 411
   BorderIcons = [biSystemMenu, biMinimize]

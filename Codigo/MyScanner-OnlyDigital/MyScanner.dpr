@@ -6,7 +6,7 @@ uses
   Scanning in 'Scanning.pas' {Form3},
   Trip in 'Trip.pas' {Form5},
   Liner in 'Liner.pas' {LinerForm},
-  Config_Liner in 'Config_Liner.pas' {Form7},
+  Config_Liner in 'Config_Liner.pas' {LinerConfig},
   Config1 in 'Config1.pas' {FormConfig},
   Config_Trip in 'Config_Trip.pas' {Form6},
   blqDataSet in 'blqDataSet.pas' {blqDataSetForm},
@@ -28,7 +28,7 @@ begin
   Application.CreateForm(TForm6, Form6);
   Application.CreateForm(TForm3, Form3);
   Application.CreateForm(TLinerForm, LinerForm);
-  Application.CreateForm(TForm7, Form7);
+  Application.CreateForm(TLinerConfig, LinerConfig);
   Application.CreateForm(TForm5, Form5);
   Application.CreateForm(TblqDataSetForm, blqDataSetForm);
   Application.CreateForm(TForm8, Form8);

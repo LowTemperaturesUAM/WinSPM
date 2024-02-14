@@ -7,7 +7,7 @@ uses
   StdCtrls, ExtCtrls, Spin;
 
 type
-  TForm7 = class(TForm)
+  TLinerConfig = class(TForm)
     Panel1: TPanel;
     Label1: TLabel;
     Label2: TLabel;
@@ -56,7 +56,7 @@ type
   end;
 
 var
-  Form7: TForm7;
+  LinerConfig: TLinerConfig;
 
 implementation
 
@@ -64,7 +64,7 @@ uses Liner, DataAdcquisition, Scanner1;
 
 {$R *.DFM}
 
-procedure TForm7.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TLinerConfig.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   NewMultiplier: Double;
 begin
@@ -92,18 +92,18 @@ LinerForm.ReadOther:=Checkbox3.checked;
 
 end;
 
-procedure TForm7.SpinEdit1Change(Sender: TObject);
+procedure TLinerConfig.SpinEdit1Change(Sender: TObject);
 begin
   TryStrToInt(SpinEdit1.Text, LinerForm.x_axisDac);
 end;
 
-procedure TForm7.RadioGroup1Click(Sender: TObject);
+procedure TLinerConfig.RadioGroup1Click(Sender: TObject);
 begin
 if RadioGroup1.ItemIndex=0 then LinerForm.ReadXfromADC:=True else
 LinerForm.ReadXfromADC:=False;
 end;
 
-procedure TForm7.xDACMultiplierChange(Sender: TObject);
+procedure TLinerConfig.xDACMultiplierChange(Sender: TObject);
 var
   NewMultiplier: Double;
   IsValid: Boolean;
@@ -122,7 +122,7 @@ end
 else exit;
 end;
 
-procedure TForm7.xDACMultiplierCheck(Sender: TObject);
+procedure TLinerConfig.xDACMultiplierCheck(Sender: TObject);
 var
   NewMultiplier: Double;
   IsValid: Boolean;
@@ -134,7 +134,7 @@ xDACMultiplier.Text := FloatToStrF(LinerForm.x_axisMult,ffGeneral,4,4);
 end;
 end;
 
-procedure TForm7.CheckBox1Click(Sender: TObject);
+procedure TLinerConfig.CheckBox1Click(Sender: TObject);
 begin
 LinerForm.NumCol:=1;
 if Checkbox1.checked then LinerForm.NumCol:=LinerForm.NumCol+1;
@@ -145,7 +145,7 @@ LinerForm.ReadCurrent:=Checkbox2.checked;
 LinerForm.ReadOther:=Checkbox3.checked;
 end;
 
-procedure TForm7.CheckBox2Click(Sender: TObject);
+procedure TLinerConfig.CheckBox2Click(Sender: TObject);
 begin
 LinerForm.NumCol:=1;
 if Checkbox1.checked then LinerForm.NumCol:=LinerForm.NumCol+1;
@@ -156,7 +156,7 @@ LinerForm.ReadCurrent:=Checkbox2.checked;
 LinerForm.ReadOther:=Checkbox3.checked;
 end;
 
-procedure TForm7.CheckBox3Click(Sender: TObject);
+procedure TLinerConfig.CheckBox3Click(Sender: TObject);
 begin
 LinerForm.NumCol:=1;
 if Checkbox1.checked then LinerForm.NumCol:=LinerForm.NumCol+1;
@@ -167,12 +167,12 @@ LinerForm.ReadCurrent:=Checkbox2.checked;
 LinerForm.ReadOther:=Checkbox3.checked;
 end;
 
-procedure TForm7.ReverseCheckClick(Sender: TObject);
+procedure TLinerConfig.ReverseCheckClick(Sender: TObject);
 begin
 LinerForm.scrollSizeBiasChange(nil);
 end;
 
-procedure TForm7.RadioGroup2Click(Sender: TObject);
+procedure TLinerConfig.RadioGroup2Click(Sender: TObject);
 begin
   // Preservamos el signo actual, y solo cambiamos la magnitud,
   // para evitar causar errores porque se nos olvide añadir de nuevo el signo
@@ -195,13 +195,13 @@ begin
 
 end;
 
-procedure TForm7.seADCxaxisChange(Sender: TObject);
+procedure TLinerConfig.seADCxaxisChange(Sender: TObject);
 begin
   TryStrToInt(seADCxaxis.Text, LinerForm.x_axisAdc);
 end;
 
 
-procedure TForm7.DAC5AttEditCheck(Sender: TObject);
+procedure TLinerConfig.DAC5AttEditCheck(Sender: TObject);
 var
   NewMultiplier: Double;
   IsValid: Boolean;
@@ -214,7 +214,7 @@ end;
 end;
 
 
-procedure TForm7.DAC6AttEditCheck(Sender: TObject);
+procedure TLinerConfig.DAC6AttEditCheck(Sender: TObject);
 var
   NewMultiplier: Double;
   IsValid: Boolean;
@@ -226,7 +226,7 @@ DAC6AttEdit.Text := FloatToStrF(DataForm.bias_attenuator,ffGeneral,4,4);
 end;
 end;
 
-procedure TForm7.FormShow(Sender: TObject);
+procedure TLinerConfig.FormShow(Sender: TObject);
 begin
 case ScanForm.LHARev of
     revB..revC: begin
@@ -254,7 +254,7 @@ case ScanForm.LHARev of
 end;
 end;
 
-procedure TForm7.SetDAC5AttBtnClick(Sender: TObject);
+procedure TLinerConfig.SetDAC5AttBtnClick(Sender: TObject);
 begin
 case ScanForm.LHARev of
     revD: begin
@@ -271,7 +271,7 @@ LinerForm.ZAttDispValue.Caption := DAC5AttEdit.Text;
 xDACMultiplierChange(xDACMultiplier);
 end;
 
-procedure TForm7.SetDAC6AttBtnClick(Sender: TObject);
+procedure TLinerConfig.SetDAC6AttBtnClick(Sender: TObject);
 begin
 case ScanForm.LHARev of
     revD: begin

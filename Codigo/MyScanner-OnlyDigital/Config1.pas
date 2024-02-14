@@ -212,13 +212,13 @@ try
   OtherAmpBox.Text := IniFile.ReadString(String(iniTitle), 'OtherAmp', '9');
   OtherMultEdit.Text := IniFile.ReadString(String(iniTitle), 'OtherMult', '1');
   //Parametros de Liner
-  Form7.SpinEdit1.Value := IniFile.ReadInteger(String(iniLiner), 'IVRampDac', 5);
-  Form7.ReverseCheck.Checked := IniFile.ReadBool(String(iniLiner), 'IVReverseDac', False);
-  Form7.seADCxaxis.Value := IniFile.ReadInteger(String(iniLiner), 'IVReadAdc', 0);
-  Form7.xDACMultiplier.Text := IniFile.ReadString(String(iniLiner), 'IVMult', '10');
+  LinerConfig.SpinEdit1.Value := IniFile.ReadInteger(String(iniLiner), 'IVRampDac', 5);
+  LinerConfig.ReverseCheck.Checked := IniFile.ReadBool(String(iniLiner), 'IVReverseDac', False);
+  LinerConfig.seADCxaxis.Value := IniFile.ReadInteger(String(iniLiner), 'IVReadAdc', 0);
+  LinerConfig.xDACMultiplier.Text := IniFile.ReadString(String(iniLiner), 'IVMult', '10');
   //En principio es mejor no cambiar este valor por defecto y solo cambiarlo manualmente
   //Podriamos leer un valor por defecto para las curvas reducidas pero que haya que marcar la casilla manualmente
-  //Form7.seReduceRampFactor.Value := IniFile.ReadInteger(String(iniLiner)), 'ReduceRamp', 1);
+  //LinerConfig.seReduceRampFactor.Value := IniFile.ReadInteger(String(iniLiner)), 'ReduceRamp', 1);
 
   //Parametros de Trip
   Form6.SpinEdit1.Value := IniFile.ReadInteger(String(iniTrip), 'CoarseDac', 4);
@@ -348,10 +348,10 @@ try
   IniFile.WriteString(String(iniTitle), 'OtherAmp', OtherAmpBox.Text);
   IniFile.WriteString(String(iniTitle), 'OtherMult', OtherMultEdit.Text);
   //Parametros de Liner
-  IniFile.WriteInteger(String(iniLiner), 'IVRampDac', Form7.SpinEdit1.Value);
-  IniFile.WriteBool(String(iniLiner), 'IVReverseDac', Form7.ReverseCheck.Checked);
-  IniFile.WriteInteger(String(iniLiner), 'IVReadAdc', Form7.seADCxaxis.Value);
-  IniFile.WriteString(String(iniLiner), 'IVMult', Form7.xDACMultiplier.Text);
+  IniFile.WriteInteger(String(iniLiner), 'IVRampDac', LinerConfig.SpinEdit1.Value);
+  IniFile.WriteBool(String(iniLiner), 'IVReverseDac', LinerConfig.ReverseCheck.Checked);
+  IniFile.WriteInteger(String(iniLiner), 'IVReadAdc', LinerConfig.seADCxaxis.Value);
+  IniFile.WriteString(String(iniLiner), 'IVMult', LinerConfig.xDACMultiplier.Text);
   //Parametros de Trip
   IniFile.WriteInteger(String(iniTrip), 'CoarseDac', Form6.SpinEdit1.Value);
   IniFile.WriteInteger(String(iniTrip), 'CurrentLim', Form6.spinCurrentLimit.Value);

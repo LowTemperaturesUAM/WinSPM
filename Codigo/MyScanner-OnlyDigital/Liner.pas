@@ -158,7 +158,7 @@ uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1, FileNames, Math;
 //Open Config
 procedure TLinerForm.Button5Click(Sender: TObject);
 begin
-Form7.Show;
+LinerConfig.Show;
 end;
 
 //Open Liner
@@ -168,19 +168,19 @@ i: Integer;
 begin
 //xyyGraph1[1].PlotPoints:=False;
 Abort_Measure:=False;
-if Form7.RadioGroup1.ItemIndex=0 then ReadXfromADC:=True else
+if LinerConfig.RadioGroup1.ItemIndex=0 then ReadXfromADC:=True else
 ReadXfromADC:=False;
-x_axisDac:=Form7.SpinEdit1.Value;
-x_axisAdc:=Form7.seADCxaxis.Value;
+x_axisDac:=LinerConfig.SpinEdit1.Value;
+x_axisAdc:=LinerConfig.seADCxaxis.Value;
 //Asumimos que la atenuacion inicial de todos los canales es siempre 1
-x_axisMult:=StrtoFloat(Form7.xDACMultiplier.Text);
+x_axisMult:=StrtoFloat(LinerConfig.xDACMultiplier.Text);
 NumCol:=1;
-if Form7.Checkbox1.checked then NumCol:=NumCol+1;
-if Form7.Checkbox2.checked then NumCol:=NumCol+1;
-if Form7.Checkbox3.checked then NumCol:=NumCol+1;
-ReadZ:=Form7.Checkbox1.checked;
-ReadCurrent:=Form7.Checkbox2.checked;
-ReadOther:=Form7.Checkbox3.checked;
+if LinerConfig.Checkbox1.checked then NumCol:=NumCol+1;
+if LinerConfig.Checkbox2.checked then NumCol:=NumCol+1;
+if LinerConfig.Checkbox3.checked then NumCol:=NumCol+1;
+ReadZ:=LinerConfig.Checkbox1.checked;
+ReadCurrent:=LinerConfig.Checkbox2.checked;
+ReadOther:=LinerConfig.Checkbox3.checked;
 
 PointNumber:=StrtoInt(ComboBox1.Text);  // Número de puntos de cada IV
 ScanForm.RedimCits(ScanForm.IV_Scan_Lines, PointNumber);
@@ -207,11 +207,13 @@ procedure TLinerForm.Button1Click(Sender: TObject);
 
 var
 j,h,k,Princ,Fin: Integer;
+//j: 1..1000;
 DataCurrentOld: Array [0..1,0..2048] of single;
 adcRead: TVectorDouble;
 pidTimer: Boolean;
   here_previous_ctrl:  Double;
 NumberControl: Integer;
+
 
 begin
 // Le decimos a la aplicación que procese los mensajes por si aún queda algún evento del temporizador, que no interfiera con la adquisición de la rampa
@@ -240,17 +242,17 @@ here_previous_ctrl:=0;
   begin
 
     // Be careful with the following things, because the voltage will be suddenly modified
-    if Form7.ReverseCheck.Checked then   // This is when we want to reverse the bias
+    if LinerConfig.ReverseCheck.Checked then   // This is when we want to reverse the bias
     begin
-      if Form7.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
-        Princ:=Round(-32768/Form7.seReduceRampFactor.Value*Size_xAxis)
+      if LinerConfig.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
+        Princ:=Round(-32768/LinerConfig.seReduceRampFactor.Value*Size_xAxis)
       else
     Princ:=Round(-32768*Size_xAxis);
     end
     else
     begin
-      if Form7.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
-        Princ:=Round(32768/Form7.seReduceRampFactor.Value*Size_xAxis)
+      if LinerConfig.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
+        Princ:=Round(32768/LinerConfig.seReduceRampFactor.Value*Size_xAxis)
       else
     Princ:=Round(32768*Size_xAxis);
     end;
@@ -286,17 +288,20 @@ here_previous_ctrl:=0;
 
     // Esto es peligroso, pero lo hacemos, a ver si no da problemas ...
     // volvemos a poner Princ al valor máximo antes de hacer funcionar el control otra vez
-    if Form7.chkReduceRamp.Checked then
-      if Form7.ReverseCheck.Checked then Princ:=Round(-32768*Size_xAxis)
+    if LinerConfig.chkReduceRamp.Checked then
+      if LinerConfig.ReverseCheck.Checked then Princ:=Round(-32768*Size_xAxis)
       else Princ:=Round(32768*Size_xAxis);
 
     DataForm.dac_set(x_axisDAC,Princ, nil);
 
     // Vamos a dejar funcionar el control durante 2 s
+    //j es siempre 0 o positivo. Para que lo comprobamos?
+    //De hecho, deberiamos usar un Cardinal
     if (j>=0) then
     begin
     FormPID.thrdtmr1.Enabled:=False;
     FormPID.Button8Click(nil);  // activa el feedback
+    // deberiamos activar el feedback solamente si NumberControl>0
         k:=0;
     while (k<NumberControl)  do
       begin
@@ -793,10 +798,10 @@ end;
 procedure TLinerForm.scrollSizeBiasChange(Sender: TObject);
 begin
 Size_xAxis:=scrollSizeBias.Position/100;
-if Form7.ReverseCheck.Checked then
-DataForm.dac_set(Form7.SpinEdit1.Value, Round(-32767*Size_xAxis), nil)
+if LinerConfig.ReverseCheck.Checked then
+DataForm.dac_set(LinerConfig.SpinEdit1.Value, Round(-32767*Size_xAxis), nil)
 else
-DataForm.dac_set(Form7.SpinEdit1.Value, Round(32767*Size_xAxis), nil);
+DataForm.dac_set(LinerConfig.SpinEdit1.Value, Round(32767*Size_xAxis), nil);
 
 Label18.Caption:=IntToStr(scrollSizeBias.Position);
 end;

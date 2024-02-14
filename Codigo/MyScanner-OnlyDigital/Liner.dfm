@@ -123,6 +123,7 @@ object LinerForm: TLinerForm
       Top = 48
       Width = 20
       Height = 13
+      AutoSize = False
       Caption = '1'
       Visible = False
     end
@@ -131,6 +132,7 @@ object LinerForm: TLinerForm
       Top = 64
       Width = 20
       Height = 13
+      AutoSize = False
       Caption = '1'
       Visible = False
     end
