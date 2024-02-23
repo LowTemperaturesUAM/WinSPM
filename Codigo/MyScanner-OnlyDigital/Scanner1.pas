@@ -578,7 +578,7 @@ begin
   RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
 end;
 
-Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*10*CalX, Max(Princ, Fin)/32768*AmpX*10*CalX);
+Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
 
 if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
 begin
@@ -672,7 +672,7 @@ begin
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
     //no estamos teniendo en cuenta si los atenuadores están activados
-    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
+    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
   end
   else   // Scan in Y
   begin
@@ -734,7 +734,7 @@ begin
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr],10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
+    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
   end;
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
@@ -837,7 +837,7 @@ begin
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1],10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
+    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
   end
   else
   begin
@@ -902,7 +902,7 @@ begin
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr],10*yFactor*Dat_Image_Back[channelToPlot,i,LineNr]);
+    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Back[channelToPlot,i,LineNr]);
   end;
 
     QueryPerformanceCounter(C2); // Lectura del cronómetro
