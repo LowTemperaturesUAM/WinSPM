@@ -75,6 +75,8 @@ type
     Button15: TButton;
     Button9: TSpeedButton;
     Panel3: TPanel;
+    SpinLinesBefore: TSpinEdit;
+    LblLinesBefore: TLabel;
     procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
@@ -89,9 +91,10 @@ type
     procedure ComboBox2Change(Sender: TObject);
     procedure TestButtonClick(Sender: TObject);
     procedure MakeLine(Sender:TObject; Saveit: Boolean; LineNr: Integer);
-    function FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
-    function FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
-    function TakeOnePoint(Sender:TObject) : Single;
+    procedure MakeEmptyLine(Sender:TObject; Saveit: Boolean);
+    function  FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
+    function  FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
+    function  TakeOnePoint(Sender:TObject) : Single;
     procedure CreateCitsTempFiles();
     procedure DestroyCitsTempFiles();
     procedure CitsSeekToIV(row, column, point: Integer);
@@ -597,8 +600,14 @@ i:=0;
 QueryPerformanceFrequency(F);
 while (i<P_Scan_Lines) do
 begin
-  while (PauseAction=True) do Application.ProcessMessages;
-
+  while (PauseAction=True) do
+  begin
+    PuntosPonderados:=0;
+    TiempoInicial:=0;
+    Application.ProcessMessages;
+  end;
+  //Deberiamos resetear el tiempo inicial y los puntos ponderados a 0 si ha habido una pausa
+  // para evitar errores grandes en la estimacion del tiempo
   PuntosMedidos:=PuntosMedidos+1;
   PuntosPonderados:=PuntosPonderados+1;
 
@@ -760,7 +769,12 @@ i:=0;
 if MakeX then Princ2:=OldX else Princ2:=OldY;
 while (i<P_Scan_Lines)  do
 begin
-  while (PauseAction=True) do Application.ProcessMessages;
+  while (PauseAction=True) do
+  begin
+    PuntosPonderados:=0;
+    TiempoInicial:=0;
+    Application.ProcessMessages;
+  end;
 
   PuntosMedidos:=PuntosMedidos+1;
   PuntosPonderados:=PuntosPonderados+1;
@@ -919,26 +933,515 @@ begin
     
     Application.ProcessMessages;
     i:=i+1;
-  end;
+end;
+
+if StopAction then
+begin
+  // Si salimos, hay que llevar la punta a su sitio
+  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Scan_Jump, nil)
+  else MoveDac(nil, YDAC, LastY, 0, P_Scan_Jump, nil);
+end;
+
+// Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
+// Form3.xyyGraph1.Update;
+
+contadorIV:=1;
+
+if Saveit then
+begin
+  Form3.UpdateBitmaps(nil);
+end;
+end;
+
+procedure TScanForm.MakeEmptyLine(Sender: TObject; Saveit: Boolean);
+var
+i,j,k,total,OldX,OldY,LastX,LastY, channelToPlot, flatten: Integer;
+Princ,Princ2,Fin,Step: Integer;
+//hour,mnts,scnd,remtm: Integer;
+xvolt,yvolt,yFactor: single;
+MakeX,MakeY: Boolean;
+interv, zeroSingle: Single;
+Data:HImg;
+C2,F:Int64;
+adcRead: TVectorDouble;
+ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
+xVal, yVal: Array [0..10] of single;
+
+begin
+  zeroSingle := 0; // Para completar con ceros el fichero
+
+  // Creamos las series (líneas que se dibujarán) en el gráfico
+  ChartLineSerie0 := TFastLineSeries.Create(self);
+  ChartLineSerie1 := TFastLineSeries.Create(self);
+  ChartLineSerie0.ParentChart := Form3.ChartLine;
+  ChartLineSerie1.ParentChart := Form3.ChartLine;
+  ChartLineSerie0.LinePen.Color := clred;
+  ChartLineSerie1.LinePen.Color := clblack;
+  Form3.ChartLine.AddSeries(ChartLineSerie0);
+  Form3.ChartLine.AddSeries(ChartLineSerie1);
+
+  MakeX:=False;
+  MakeY:=False;
+
+OldX:=0; // dado que son dacs diferentes, el dac del barrido está en 0
+OldY:=0;
+
+LastX:=0;
+LastY:=0;
+
+if (RadioGroup1.ItemIndex=0) then
+  MakeX:=True
+else
+  MakeY:=True;
+
+  //modify rounding, Hermann 22/09/2020
+if MakeX then
+begin
+ Princ:=OldX-Round(32768*P_Scan_Size);
+end
+else
+begin
+  Princ:=OldY-Round(32768*P_Scan_Size);
+end;
+if (P_Scan_Size=0) then P_Scan_Size:=1;
+
+if MakeX then Fin:=OldX+Round(32768*P_Scan_Size)
+else Fin:=OldY+Round(32768*P_Scan_Size);
+
+if (abs(Fin)>32768) or (Princ<-32768) then
+begin
+  StopAction:=True;
+  exit;
+end;
+
+total:=Round(abs(Princ-Fin));
+
+if Fin>Princ then Step:=Round(total/P_Scan_Lines);
+if (Step=0) then Step:=100;
+
+if (IV_Scan_Lines>P_Scan_Lines) and (MakeIVChk.Checked) then
+begin
+  MessageDlg('Spectro: too many points',mtError,[mbOK],0);
+  IV_Scan_Lines:=P_Scan_Lines;
+  RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
+end;
+
+Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
+
+if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
+begin
+  channelToPlot := 1;
+  yFactor := StrtoFloat(FormConfig.TopoCalEdit.Text)*StrtoFloat(FormConfig.TopoAmpBox.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
+end
+else // Current
+begin
+  channelToPlot := 2;
+  yFactor := ScanForm.MultI*ScanForm.AmpI;
+end;
+
+//Forth
+i:=0;
+
+QueryPerformanceFrequency(F);
+while (i<P_Scan_Lines) do
+begin
+  while (PauseAction=True) do Application.ProcessMessages;
+
+  //PuntosMedidos:=PuntosMedidos+1;
+  //PuntosPonderados:=PuntosPonderados+1;
+
+  // Si el cronómetro estaba parado, lo arrancamos
+  // Para las lineas previas no ponemos el cronometro
+  //if TiempoInicial = 0 then
+  //  QueryPerformanceCounter(TiempoInicial);
+
+  if MakeX then OldX:=Princ+Step*i else OldY:=Princ+Step*i;
+  if MakeX then  // Scan in X
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      LastX:=OldX; // Lo mismo que arriba.
+    end;
+    xVolt:=OldX/32768*AmpX*10;
+    if (StopAction) then
+    begin
+      xVal[1]:=0;
+      xVal[2]:=0;
+    end
+
+    else
+    begin
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      if ReadTopo=True then xVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie0.AddXY(xVolt*CalX*DataForm.scan_attenuator,10*yFactor*xVal[channelToPlot]);
+    // tampoco queremos tomar IVs para las lineas iniciales, incluso si vamos a hacer una espectro
+    //if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
+    //begin
+    //  if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
+    //  begin
+    //    CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);  // el i cambiado por Hermann
+    //
+    //    if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
+    //    for k := 0 to LinerForm.PointNumber-1 do
+    //      begin
+    //        CitsTempFile[0].Write(zeroSingle, SizeOf(zeroSingle));
+    //        CitsTempFile[1].Write(zeroSingle, SizeOf(zeroSingle));
+    //      end
+    //    else // Hay que continuar con la adquisición
+    //    begin
+    //      LinerForm.Button1Click(nil); //Make IV con espectro
+    //      // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
+    //      // en el orden que toque
+    //      for k := 0 to LinerForm.PointNumber-1 do
+    //      begin
+    //        CitsTempFile[0].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+    //        CitsTempFile[1].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
+    //      end;
+    //    end;
+    //    ContadorIV:=1;
+    //  end;
+    //end
+    //else
+    //begin
+    //  ContadorIV:=ContadorIV+1;
+    //end;
+
+    //Tampoco queremos grabar las curvas a la imagen
+  //  xVolt:=OldX/32768*AmpX*10;
+    //Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]:=xVolt*CalX;
+    //if StopAction then
+    //begin
+      //Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
+      //Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
+    //end
+    //else
+    //begin
+    //  adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+
+      //if ReadTopo=True then
+      //begin
+        //if (DigitalPID) then
+        //  Dat_Image_Forth[1,LineNr,i]:=Action_PID/32768
+        //else
+          //Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCTopo];
+      //end;
+
+      //if ReadCurrent=True then
+        //Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
+    //end;
+
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    //no estamos teniendo en cuenta si los atenuadores están activados
+    //if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
+  end
+  else   // Scan in Y
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      LastY:=OldY; // Lo mismo que arriba.
+    end;
+    yVolt:=OldY/32768*AmpY*10;
+    if StopAction then
+    begin
+      yVal[1]:=0;
+      yVal[2]:=0;
+    end
+    else
+    begin
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      if ReadTopo=True then yVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie0.AddXY(yVolt*CalY*DataForm.scan_attenuator,10*yFactor*yVal[channelToPlot]);
+    //if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
+    //begin
+    //  if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
+    //  begin
+    //    CitsSeekToIV(Floor(i/ContadorIV), Floor(LineNr/ContadorIV), 0);
+    //
+    //    if StopAction then  // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
+    //    begin
+    //        CitsTempFile[0].Write(zeroSingle, SizeOf(zeroSingle));
+    //        CitsTempFile[1].Write(zeroSingle, SizeOf(zeroSingle));
+    //    end
+    //    else
+    //    begin
+    //      LinerForm.Button1Click(nil); //Make IV con espectro
+    //      // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
+    //      // en el orden que toque
+    //      for k := 0 to LinerForm.PointNumber-1 do
+    //      begin
+    //        CitsTempFile[0].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+    //        CitsTempFile[1].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
+    //      end;
+    //    end;
+    //    ContadorIV:=1;
+    //  end;
+    //end
+    //else
+    //begin
+    //  ContadorIV:=ContadorIV+1;
+    //end;
+
+    //yVolt:=OldY/32768*AmpY*10;
+    //Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]:=yVolt*CalY;
+
+    //if StopAction then
+    //begin
+    //  Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=0;
+    //  Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=0;
+    //end
+    ////else
+    //begin
+  //      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+    //  if ReadTopo=True then
+    //  begin
+    //    //if (DigitalPID) then
+    //    //  Dat_Image_Forth[1,i,LineNr]:=Action_PID/32768
+    //    //else
+    //      Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
+    //  end;
+    //  if ReadCurrent=True then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
+    end;
+
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    //if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
+
+
+  //QueryPerformanceCounter(C2); // Lectura del cronómetro
+  //TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
+  //if Form3.CheckBox3.Checked then
+  //  begin
+  //  remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
+  //  hour:= remtm div 3600;
+  //  remtm:= remtm mod 3600;
+  //  mnts := remtm div 60;
+  //  scnd := remtm mod 60;
+  //  Form3.Label6.Caption :=  FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
+  //  end;
+
+  Application.ProcessMessages;
+  i:=i+1;
+end;
+
+
+//Back
+
+i:=0;
+if MakeX then Princ2:=OldX else Princ2:=OldY;
+while (i<P_Scan_Lines)  do
+begin
+  while (PauseAction=True) do Application.ProcessMessages;
+
+  //PuntosMedidos:=PuntosMedidos+1;
+  //PuntosPonderados:=PuntosPonderados+1;
+
+  // Si el cronómetro estaba parado, lo arrancamos
+  //if TiempoInicial = 0 then
+  //  QueryPerformanceCounter(TiempoInicial);
+
+  if MakeX then OldX:=Princ2-Step*i else OldY:=Princ2-Step*i;
+  if MakeX then
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
+      LastX:=OldX;
+    end;
+    xVolt:=OldX/32768*AmpX*10;
+    if (StopAction) then
+    begin
+      xVal[1]:=0;
+      xVal[2]:=0;
+    end
+    else
+    begin
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      if ReadTopo=True then xVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie1.AddXY(xVolt*CalX*DataForm.scan_attenuator,10*yFactor*xVal[channelToPlot]);
+    { if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
+     begin
+      CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);
+
+      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
+      begin
+        if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
+        begin
+          for k := 0 to LinerForm.PointNumber-1 do
+          begin
+            CitsTempFile[2].Write(zeroSingle, SizeOf(zeroSingle));
+            CitsTempFile[3].Write(zeroSingle, SizeOf(zeroSingle));
+          end;
+        end
+        else
+        begin
+          LinerForm.Button1Click(nil); //Make IV con espectro
+          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
+          // en el orden que toque
+          for k := 0 to LinerForm.PointNumber-1 do
+          begin
+            CitsTempFile[2].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+            CitsTempFile[3].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
+          end;
+        end;
+        ContadorIV:=1;
+      end;
+    end
+    else
+    begin
+      ContadorIV:=ContadorIV+1;
+    end; }
+
+    //xVolt:=OldX/32768*AmpX*10;
+
+    // Nacho Horcas, diciembre de 2017. Cambio el orden en el que se guardan los
+    // datos para que la izquierda sea la misma posición X tanto en la ida como
+    // en la vuelta, en lugar de que sea el punto que se adquirió primero
+   {  Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
 
     if StopAction then
     begin
-      // Si salimos, hay que llevar la punta a su sitio
-      if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Scan_Jump, nil)
-      else MoveDac(nil, YDAC, LastY, 0, P_Scan_Jump, nil);
+      Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+      Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+    end
+    else
+    begin
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      if ReadTopo=True then
+      begin
+        //if (DigitalPID) then
+        //  Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=Action_PID/32768
+        //else
+          Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
+      end;
+
+      if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
     end;
 
-  // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
-  // Form3.xyyGraph1.Update;
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]); }
+  end
+  else
+  begin
+	  if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, YDAC, Princ2+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      LastY:=OldY; // Lo mismo que arriba.
+    end;
+    yVolt:=OldY/32768*AmpY*10;
+    if StopAction then
+    begin
+      yVal[1]:=0;
+      yVal[2]:=0;
+    end
+    else
+    begin
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      if ReadTopo=True then yVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie1.AddXY(yVolt*CalY*DataForm.scan_attenuator,10*yFactor*yVal[channelToPlot]);
+    { if (not StopAction) then
+      begin
+        if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo moverse cuando empezado
+        LastY:=OldY;
+      end;
 
-  contadorIV:=1;
+    if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
+    begin
+      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
+      begin
+        CitsSeekToIV(Floor(P_Scan_Lines-i-1/ContadorIV), Floor(LineNr/ContadorIV), 0);
 
-//end; // of EraseLines>0
+        if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
+        begin
+          for k := 0 to LinerForm.PointNumber-1 do
+          begin
+            CitsTempFile[2].Write(zeroSingle, SizeOf(zeroSingle));
+            CitsTempFile[3].Write(zeroSingle, SizeOf(zeroSingle));
+          end;
+        end
+        else
+        begin
+          LinerForm.Button1Click(nil); //Make IV con espectro
+          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
+          // en el orden que toque
+          for k := 0 to LinerForm.PointNumber-1 do
+          begin
+            CitsTempFile[2].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
+            CitsTempFile[3].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
+          end;
+        end;
+        ContadorIV:=1;
+      end;
+    end
+    else
+    begin
+      ContadorIV:=ContadorIV+1;
+    end;
 
-  if Saveit then
+    yVolt:=OldY/32768*AmpY*10;
+    Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]:=yVolt*CalY;
+
+    if StopAction then
+    begin
+      Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=0;
+      Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=0;
+    end
+    else
+    begin
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      if ReadTopo=True then
+      begin
+        //if (DigitalPID) then
+        //  Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=Action_PID/32768
+        //else
+          Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
+      end;
+      if ReadCurrent=True then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
+    end;
+
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]*DataForm.scan_attenuator,10*yFa ctor*Dat_Image_Back[channelToPlot,i,LineNr]);}
+	end;
+
+    { QueryPerformanceCounter(C2); // Lectura del cronómetro
+    TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
+    if Form3.CheckBox3.Checked then
+    begin
+    remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
+    hour:= remtm div 3600;
+    remtm:= remtm mod 3600;
+    mnts := remtm div 60;
+    scnd := remtm mod 60;
+    Form3.Label6.Caption := FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
+    end;
+     }
+  Application.ProcessMessages;
+  i:=i+1;
+end;
+
+if StopAction then
+begin
+  // Si salimos, hay que llevar la punta a su sitio
+  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Scan_Jump, nil)
+  else MoveDac(nil, YDAC, LastY, 0, P_Scan_Jump, nil);
+end;
+
+
+// Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
+// Form3.xyyGraph1.Update;
+
+  {if Saveit then
   begin
     Form3.UpdateBitmaps(nil);
-  end;
+  end;}
 end;
 
 // filterOrder: 0 = No filter; 1 = Fit to line
@@ -1108,6 +1611,7 @@ Dest: TRect;
 DacValX_Local,DacValY_Local: Integer; // estábamos usando una variable global para Escanear, eso ha dado problemas
           // usamos pues YDAC_Pos -> DacValY
           // y YDAC -> DacValY_Local
+LinesBefore: Integer;
 begin
 
 repeat
@@ -1125,7 +1629,7 @@ repeat
   h.yn:=P_Scan_Lines;
 
 
-
+  LinesBefore:= SpinLinesBefore.Value;
   StopAction:=False;
   Button10.Enabled:=True;
   if MakeIVChk.Checked then LinerForm.show;
@@ -1145,8 +1649,8 @@ repeat
       end;
 
 
-   PrincY:=Round(-int(32767*P_Scan_Size));
-   PrincX:=Round(-int(32767*P_Scan_Size));
+   PrincY:=Round(-int(32767*P_Scan_Size)); //Punto inicial en Y
+   PrincX:=Round(-int(32767*P_Scan_Size)); //Punto inicial en X
    MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
    MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
    //sleep(500*StrToInt(SpinEdit3.Text));
@@ -1155,23 +1659,40 @@ repeat
    FormPID.Button1Click(nil);
 
    i:=0;
-   if (RadioGroup1.ItemIndex=0) then // Scan in X
+  if (RadioGroup1.ItemIndex=0) then // Scan in X
       begin
-        PrincY:=Round(-int(32767*P_Scan_Size)); //Punto inicial en Y
+
+        //PrincY:=Round(-int(32767*P_Scan_Size)); //Punto inicial en Y
         if (P_Scan_Size=0) then P_Scan_Size:=1;
         FinY:=Round(int(32767*P_Scan_Size));   //Punto final en Y
         total:=Round(abs(PrincY-FinY));
         if FinY>PrincY then Step:=Round(total/P_Scan_Lines);
         if (Step=0) then Step:=100;
-       p:=0;
-       while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en Y
+        // Hago varias lineas antes de iniciar la imagen
+        p:=0;
+        i:=0;
+        //Indicamos la posicion en Y
+        DacValY_Local:=PrincY;
+        while (LinesBefore > i) and (not StopAction) do
+        begin
+          p:=p+1;
+          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+          MakeEmptyLine(nil,PaintLines);
+          if (p>=EraseLines) then
+            begin
+              Form3.ClearChart();
+              p:=0;
+            end;
+          i:=i+1;
+        end;
+        i:=0;
+        while ((i<P_Scan_Lines) and (not StopAction)) do  //Bucle lento en Y
         begin
           p:=p+1;
           TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
           DacValY_Local:=PrincY+Step*i;
           if (i<>0) then MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
-
           if (p>=EraseLines) then
             begin
   //            Form3.xyyGraph1.Clear;
@@ -1181,27 +1702,45 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        if (StopAction=False) then MoveDac(nil, XDAC, PrincY, 0, P_Scan_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
+        if (not StopAction) then MoveDac(nil, XDAC, PrincX, 0, P_Scan_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
         MoveDac(nil, YDAC, DacvalY_Local, 0, P_Scan_Jump, nil); //porque en la X se vuelve con makeline
+        //MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
+        //MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
       end
-      else //Now scan in Y
+  else //Now scan in Y
       begin
-        PrincX:=Round(-int(32767*P_Scan_Size)); //Punto inicial en X
+        //PrincX:=Round(-int(32767*P_Scan_Size)); //Punto inicial en X
         if (P_Scan_Size=0) then P_Scan_Size:=1;
         FinX:=Round(int(32767*P_Scan_Size));   //Punto final en X
         total:=Round(abs(PrincX-FinX));
         if FinX>PrincX then Step:=Round(total/P_Scan_Lines);
         if (Step=0) then Step:=100;
+        // Hago varias lineas antes de iniciar la imagen
         p:=0;
-       while ((i<P_Scan_Lines) and (StopAction<>True)) do  //Bucle lento en X
+        i:=0;
+        //Indicamos la posicion en X
+        DacvalX_Local:=PrincX;
+        while (LinesBefore > i) and ( not StopAction) do
+        begin
+          p:=p+1;
+          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+          MakeEmptyLine(nil,PaintLines);
+          if (p>=EraseLines) then
+            begin
+              Form3.ClearChart();
+              p:=0;
+            end;
+          i:=i+1;
+        end;
+        i:=0;
+        while ((i<P_Scan_Lines) and (not StopAction)) do  //Bucle lento en X
         begin
           p:=p+1;
           TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
           DacvalX_Local:=PrincX+Step*i;
           if (i<>0) then MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
-
-           if (p>=EraseLines) then
+          if (p>=EraseLines) then
             begin
   //            Form3.xyyGraph1.Clear;
               Form3.ClearChart();
@@ -1211,7 +1750,9 @@ repeat
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
         MoveDac(nil, XDAC, DacValX_Local, 0, P_Scan_Jump, nil);
-        if (StopAction=False) then MoveDac(nil, YDAC, PrincY, 0, P_Scan_Jump, nil);
+        if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Scan_Jump, nil);
+        //MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
+        //MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
       end;
 
       Button10.Enabled:=False;
@@ -2226,6 +2767,8 @@ end;
 //begin
 //SleepDo := StrtoInt(SpinEdit3.Text);
 //end;
+
+
 
 end.
 

@@ -218,6 +218,14 @@ object ScanForm: TScanForm
       Height = 13
       Caption = '10'
     end
+    object LblLinesBefore: TLabel
+      Left = 8
+      Top = 243
+      Width = 59
+      Height = 13
+      AutoSize = False
+      Caption = 'Lines Before'
+    end
     object ComboBox2: TComboBox
       Left = 28
       Top = 16
@@ -259,7 +267,7 @@ object ScanForm: TScanForm
       Width = 33
       Height = 150
       Max = 1000
-      Min = 1
+      Min = 2
       Orientation = trVertical
       PageSize = 1
       Frequency = 10
@@ -320,6 +328,16 @@ object ScanForm: TScanForm
         ParentFont = False
         OnClick = Button9Click
       end
+    end
+    object SpinLinesBefore: TSpinEdit
+      Left = 70
+      Top = 240
+      Width = 41
+      Height = 22
+      MaxValue = 10
+      MinValue = 0
+      TabOrder = 7
+      Value = 0
     end
   end
   object TrackBar1: TTrackBar
