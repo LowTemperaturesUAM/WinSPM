@@ -1077,65 +1077,6 @@ begin
       if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
     end;
     if (EraseLines>0) then ChartLineSerie0.AddXY(xVolt*CalX*DataForm.scan_attenuator,10*yFactor*xVal[channelToPlot]);
-    // tampoco queremos tomar IVs para las lineas iniciales, incluso si vamos a hacer una espectro
-    //if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
-    //begin
-    //  if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
-    //  begin
-    //    CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);  // el i cambiado por Hermann
-    //
-    //    if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
-    //    for k := 0 to LinerForm.PointNumber-1 do
-    //      begin
-    //        CitsTempFile[0].Write(zeroSingle, SizeOf(zeroSingle));
-    //        CitsTempFile[1].Write(zeroSingle, SizeOf(zeroSingle));
-    //      end
-    //    else // Hay que continuar con la adquisición
-    //    begin
-    //      LinerForm.Button1Click(nil); //Make IV con espectro
-    //      // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
-    //      // en el orden que toque
-    //      for k := 0 to LinerForm.PointNumber-1 do
-    //      begin
-    //        CitsTempFile[0].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
-    //        CitsTempFile[1].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
-    //      end;
-    //    end;
-    //    ContadorIV:=1;
-    //  end;
-    //end
-    //else
-    //begin
-    //  ContadorIV:=ContadorIV+1;
-    //end;
-
-    //Tampoco queremos grabar las curvas a la imagen
-  //  xVolt:=OldX/32768*AmpX*10;
-    //Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]:=xVolt*CalX;
-    //if StopAction then
-    //begin
-      //Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
-      //Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
-    //end
-    //else
-    //begin
-    //  adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-
-      //if ReadTopo=True then
-      //begin
-        //if (DigitalPID) then
-        //  Dat_Image_Forth[1,LineNr,i]:=Action_PID/32768
-        //else
-          //Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCTopo];
-      //end;
-
-      //if ReadCurrent=True then
-        //Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
-    //end;
-
-    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    //no estamos teniendo en cuenta si los atenuadores están activados
-    //if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
   end
   else   // Scan in Y
   begin
@@ -1157,72 +1098,7 @@ begin
       if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
     end;
     if (EraseLines>0) then ChartLineSerie0.AddXY(yVolt*CalY*DataForm.scan_attenuator,10*yFactor*yVal[channelToPlot]);
-    //if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
-    //begin
-    //  if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
-    //  begin
-    //    CitsSeekToIV(Floor(i/ContadorIV), Floor(LineNr/ContadorIV), 0);
-    //
-    //    if StopAction then  // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
-    //    begin
-    //        CitsTempFile[0].Write(zeroSingle, SizeOf(zeroSingle));
-    //        CitsTempFile[1].Write(zeroSingle, SizeOf(zeroSingle));
-    //    end
-    //    else
-    //    begin
-    //      LinerForm.Button1Click(nil); //Make IV con espectro
-    //      // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
-    //      // en el orden que toque
-    //      for k := 0 to LinerForm.PointNumber-1 do
-    //      begin
-    //        CitsTempFile[0].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
-    //        CitsTempFile[1].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
-    //      end;
-    //    end;
-    //    ContadorIV:=1;
-    //  end;
-    //end
-    //else
-    //begin
-    //  ContadorIV:=ContadorIV+1;
-    //end;
-
-    //yVolt:=OldY/32768*AmpY*10;
-    //Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]:=yVolt*CalY;
-
-    //if StopAction then
-    //begin
-    //  Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=0;
-    //  Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=0;
-    //end
-    ////else
-    //begin
-  //      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-    //  if ReadTopo=True then
-    //  begin
-    //    //if (DigitalPID) then
-    //    //  Dat_Image_Forth[1,i,LineNr]:=Action_PID/32768
-    //    //else
-    //      Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
-    //  end;
-    //  if ReadCurrent=True then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
-    end;
-
-    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    //if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
-
-
-  //QueryPerformanceCounter(C2); // Lectura del cronómetro
-  //TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-  //if Form3.CheckBox3.Checked then
-  //  begin
-  //  remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
-  //  hour:= remtm div 3600;
-  //  remtm:= remtm mod 3600;
-  //  mnts := remtm div 60;
-  //  scnd := remtm mod 60;
-  //  Form3.Label6.Caption :=  FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
-  //  end;
+  end;
 
   Application.ProcessMessages;
   i:=i+1;
@@ -1265,67 +1141,6 @@ begin
       if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
     end;
     if (EraseLines>0) then ChartLineSerie1.AddXY(xVolt*CalX*DataForm.scan_attenuator,10*yFactor*xVal[channelToPlot]);
-    { if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
-     begin
-      CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);
-
-      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
-      begin
-        if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
-        begin
-          for k := 0 to LinerForm.PointNumber-1 do
-          begin
-            CitsTempFile[2].Write(zeroSingle, SizeOf(zeroSingle));
-            CitsTempFile[3].Write(zeroSingle, SizeOf(zeroSingle));
-          end;
-        end
-        else
-        begin
-          LinerForm.Button1Click(nil); //Make IV con espectro
-          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
-          // en el orden que toque
-          for k := 0 to LinerForm.PointNumber-1 do
-          begin
-            CitsTempFile[2].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
-            CitsTempFile[3].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
-          end;
-        end;
-        ContadorIV:=1;
-      end;
-    end
-    else
-    begin
-      ContadorIV:=ContadorIV+1;
-    end; }
-
-    //xVolt:=OldX/32768*AmpX*10;
-
-    // Nacho Horcas, diciembre de 2017. Cambio el orden en el que se guardan los
-    // datos para que la izquierda sea la misma posición X tanto en la ida como
-    // en la vuelta, en lugar de que sea el punto que se adquirió primero
-   {  Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
-
-    if StopAction then
-    begin
-      Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
-      Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
-    end
-    else
-    begin
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-      if ReadTopo=True then
-      begin
-        //if (DigitalPID) then
-        //  Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=Action_PID/32768
-        //else
-          Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
-      end;
-
-      if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
-    end;
-
-    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]); }
   end
   else
   begin
@@ -1347,82 +1162,7 @@ begin
       if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
     end;
     if (EraseLines>0) then ChartLineSerie1.AddXY(yVolt*CalY*DataForm.scan_attenuator,10*yFactor*yVal[channelToPlot]);
-    { if (not StopAction) then
-      begin
-        if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo moverse cuando empezado
-        LastY:=OldY;
-      end;
-
-    if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
-    begin
-      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
-      begin
-        CitsSeekToIV(Floor(P_Scan_Lines-i-1/ContadorIV), Floor(LineNr/ContadorIV), 0);
-
-        if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
-        begin
-          for k := 0 to LinerForm.PointNumber-1 do
-          begin
-            CitsTempFile[2].Write(zeroSingle, SizeOf(zeroSingle));
-            CitsTempFile[3].Write(zeroSingle, SizeOf(zeroSingle));
-          end;
-        end
-        else
-        begin
-          LinerForm.Button1Click(nil); //Make IV con espectro
-          // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
-          // en el orden que toque
-          for k := 0 to LinerForm.PointNumber-1 do
-          begin
-            CitsTempFile[2].Write(LinerForm.DataCurrent[0][k], SizeOf(LinerForm.DataCurrent[0][k]));
-            CitsTempFile[3].Write(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k], SizeOf(LinerForm.DataCurrent[1][LinerForm.PointNumber-1-k]));
-          end;
-        end;
-        ContadorIV:=1;
-      end;
-    end
-    else
-    begin
-      ContadorIV:=ContadorIV+1;
-    end;
-
-    yVolt:=OldY/32768*AmpY*10;
-    Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]:=yVolt*CalY;
-
-    if StopAction then
-    begin
-      Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=0;
-      Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=0;
-    end
-    else
-    begin
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-      if ReadTopo=True then
-      begin
-        //if (DigitalPID) then
-        //  Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=Action_PID/32768
-        //else
-          Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
-      end;
-      if ReadCurrent=True then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
-    end;
-
-    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]*DataForm.scan_attenuator,10*yFa ctor*Dat_Image_Back[channelToPlot,i,LineNr]);}
 	end;
-
-    { QueryPerformanceCounter(C2); // Lectura del cronómetro
-    TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-    if Form3.CheckBox3.Checked then
-    begin
-    remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
-    hour:= remtm div 3600;
-    remtm:= remtm mod 3600;
-    mnts := remtm div 60;
-    scnd := remtm mod 60;
-    Form3.Label6.Caption := FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
-    end;
-     }
   Application.ProcessMessages;
   i:=i+1;
 end;
@@ -1435,13 +1175,6 @@ begin
 end;
 
 
-// Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
-// Form3.xyyGraph1.Update;
-
-  {if Saveit then
-  begin
-    Form3.UpdateBitmaps(nil);
-  end;}
 end;
 
 // filterOrder: 0 = No filter; 1 = Fit to line
