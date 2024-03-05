@@ -8,7 +8,7 @@ uses
   TeeProcs, TeEngine, Buttons;
 
 type
-  TForm3 = class(TForm)
+  TTopoForm = class(TForm)
     ScrollBox1: TScrollBox;
     ScrollBox2: TScrollBox;
     RadioGroup1: TRadioGroup;
@@ -67,7 +67,7 @@ type
   end;
 
 var
-  Form3: TForm3;
+  TopoForm: TTopoForm;
 
 implementation
 
@@ -75,14 +75,14 @@ uses Scanner1, PID;
 
 {$R *.DFM}
 
-procedure TForm3.Button1Click(Sender: TObject);
+procedure TTopoForm.Button1Click(Sender: TObject);
 begin
 ScanLoop.Checked:=False;
 ScanForm.StopAction:=True;
 //FormPID.se1.Text:='1'; //Comentado por Fran
 end;
 
-procedure TForm3.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TTopoForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 //xyyGraph1.Clear;
 ClearChart();
@@ -90,7 +90,7 @@ ScanForm.StopAction:=True;
 //FormPID.se1.Text:='1'; //Comentado por Fran
 end;
 
-procedure TForm3.Button2Click(Sender: TObject);
+procedure TTopoForm.Button2Click(Sender: TObject);
 begin
 if (ScanForm.PauseAction) then
 begin Button2.Caption:='PAUSE'; ScanForm.PauseAction:=False; end
@@ -98,7 +98,7 @@ else
 begin Button2.Caption:='CONTINUE'; ScanForm.PauseAction:=True; end;
 end;
 
-procedure TForm3.UpdateBitmaps(Sender: TObject);
+procedure TTopoForm.UpdateBitmaps(Sender: TObject);
 var
   flatten: Integer;
   MakeX: Boolean;
@@ -111,7 +111,7 @@ begin
 
     MakeX := (ScanForm.RadioGroup1.ItemIndex=0);
 
-    if Form3.RadioGroup1.ItemIndex=0 then
+    if RadioGroup1.ItemIndex=0 then
     begin
       Data := ScanForm.FilterImage(ScanForm.Dat_Image_Forth[1], MakeX, ScanForm.P_Scan_Lines, flatten);
       FillImg(Sender,Data,ScanForm.P_Scan_Lines,1);
@@ -127,7 +127,7 @@ begin
     end;
 end;
 
-procedure TForm3.FillImg(Sender: TObject; Data: HImg; Size: Integer; Sens: Integer);
+procedure TTopoForm.FillImg(Sender: TObject; Data: HImg; Size: Integer; Sens: Integer);
 var
 i,j: Integer;
 DatatoPaint: Array[0..512,0..512] of Integer;
@@ -225,7 +225,7 @@ end; }
 
 end;
 
-procedure TForm3.FreeScans(Sender:TObject);
+procedure TTopoForm.FreeScans(Sender:TObject);
 var
 i,j: integer ;
 bmp : TBitmap ;
@@ -254,39 +254,39 @@ begin
   bmp.Free ;
 end;
 
-procedure TForm3.Button3Click(Sender: TObject);
+procedure TTopoForm.Button3Click(Sender: TObject);
 begin
   ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum+(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/4,ChartLine.LeftAxis.Maximum-(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/4);
 end;
 
-procedure TForm3.Button4Click(Sender: TObject);
+procedure TTopoForm.Button4Click(Sender: TObject);
 begin
   ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum-(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/2,ChartLine.LeftAxis.Maximum+(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum)/2);
 end;
 
-procedure TForm3.Button5Click(Sender: TObject);
+procedure TTopoForm.Button5Click(Sender: TObject);
 begin
   ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum-0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum), ChartLine.LeftAxis.Maximum-0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum));
 end;
 
-procedure TForm3.Button6Click(Sender: TObject);
+procedure TTopoForm.Button6Click(Sender: TObject);
 begin
   ChartLine.LeftAxis.SetMinMax(ChartLine.LeftAxis.Minimum+0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum), ChartLine.LeftAxis.Maximum+0.1*(ChartLine.LeftAxis.Maximum-ChartLine.LeftAxis.Minimum));
 end;
 
-procedure TForm3.FormShow(Sender: TObject);
+procedure TTopoForm.FormShow(Sender: TObject);
 begin
   ChartLine.LeftAxis.AxisValuesFormat := '0.####E+0';
   Button7Click(nil);
 end;
 
-procedure TForm3.Button7Click(Sender: TObject);
+procedure TTopoForm.Button7Click(Sender: TObject);
 begin
 //  ChartLine.LeftAxis.SetMinMax(-0.2,0.2);
   ChartLine.LeftAxis.Automatic := True;
 end;
 
-procedure TForm3.TrackBar1Change(Sender: TObject);
+procedure TTopoForm.TrackBar1Change(Sender: TObject);
 begin
 Label4.Caption:=InttoStr(Trackbar1.Position);
 ScanForm.TrackBar1.Position:=TrackBar1.Position;
@@ -296,7 +296,7 @@ ScanForm.PuntosPonderados:=1;
 ScanForm.TiempoInicial:=0;
 end;
 
-procedure TForm3.TrackBar2Change(Sender: TObject);
+procedure TTopoForm.TrackBar2Change(Sender: TObject);
 begin
 Label5.Caption:=InttoStr(Trackbar2.Position);
 //P_Scan_Jump:= Trackbar2.Position;
@@ -307,24 +307,24 @@ ScanForm.PuntosPonderados:=1;
 ScanForm.TiempoInicial:=0;
 end;
 
-procedure TForm3.ClearChart();
+procedure TTopoForm.ClearChart();
 begin
   ChartLine.RemoveAllSeries();
 end;
 
-procedure TForm3.btnResetZoomOffsetClick(Sender: TObject);
+procedure TTopoForm.btnResetZoomOffsetClick(Sender: TObject);
 begin
   trckbrZoom.Position := 1;
   trckbrOffset.Position := 0;
   UpdateBitmaps(nil);
 end;
 
-procedure TForm3.trckbrZoomChange(Sender: TObject);
+procedure TTopoForm.trckbrZoomChange(Sender: TObject);
 begin
   UpdateBitmaps(nil);
 end;
 
-procedure TForm3.trckbrOffsetChange(Sender: TObject);
+procedure TTopoForm.trckbrOffsetChange(Sender: TObject);
 begin
   UpdateBitmaps(nil);
 end;

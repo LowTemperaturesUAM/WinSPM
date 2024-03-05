@@ -1,4 +1,4 @@
-object Form3: TForm3
+object TopoForm: TTopoForm
   Left = 237
   Top = 272
   BorderIcons = [biSystemMenu, biMinimize]

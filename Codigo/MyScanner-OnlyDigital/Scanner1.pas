@@ -94,7 +94,7 @@ type
     procedure MakeEmptyLine(Sender:TObject; Saveit: Boolean);
     function  FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
     function  FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
-    function  TakeOnePoint(Sender:TObject) : Single;
+    //function  TakeOnePoint(Sender:TObject) : Single;
     procedure CreateCitsTempFiles();
     procedure DestroyCitsTempFiles();
     procedure CitsSeekToIV(row, column, point: Integer);
@@ -327,7 +327,7 @@ procedure TScanForm.TrackBar2Change(Sender: TObject);
 begin
 Label6.Caption:=InttoStr(Trackbar2.Position);
 P_Scan_Jump:= Trackbar2.Position;
-Form3.TrackBar2.Position:=TrackBar2.Position;
+TopoForm.TrackBar2.Position:=TrackBar2.Position;
 TiempoMedio:=0;
 PuntosPonderados:=0;
 TiempoInicial:=0; // Inidicamos que no es un tiempo válido
@@ -337,7 +337,7 @@ procedure TScanForm.TrackBar1Change(Sender: TObject);
 begin
 Label4.Caption:=InttoStr(Trackbar1.Position);
 P_Scan_Mean:=Trackbar1.Position;
-Form3.TrackBar1.Position:=TrackBar1.Position;
+TopoForm.TrackBar1.Position:=TrackBar1.Position;
 TiempoMedio:=0;
 PuntosPonderados:=0;
 TiempoInicial:=0; // Inidicamos que no es un tiempo válido
@@ -362,7 +362,7 @@ end;
 
 procedure TScanForm.Button10Click(Sender: TObject);
 begin
-Form3.ScanLoop.Checked:=False;
+TopoForm.ScanLoop.Checked:=False;
 StopAction:=True;
 end;
 
@@ -452,12 +452,12 @@ var
 k, Prin,OldEraseLines: Integer;
 A:Boolean;
 begin
-TryStrToInt(Form3.SpinEdit1.Text, OldEraseLines);;
+TryStrToInt(TopoForm.SpinEdit1.Text, OldEraseLines);;
 //Si no mostramos ninguna linea en el scan, lo cambiamos a 2 para test
 if OldEraseLines = 0 then
   begin
   EraseLines := 2;
-  Form3.SpinEdit1.Text := FloattoStr(EraseLines);
+  TopoForm.SpinEdit1.Text := FloattoStr(EraseLines);
   end;
 
 //FormPID.se1.Text:='0';    //Comentado por Fran
@@ -467,7 +467,7 @@ if MakeIVChk.Checked=True then A:=True;
 MakeIVChk.Checked:=False;
 StopAction:=False;
 Button10.Enabled:=True;
-Form3.Show;
+TopoForm.Show;
 
 //Llevar el DAC a la posición inicial
 Prin:=Round(int(32767*P_Scan_Size));
@@ -478,12 +478,12 @@ else MoveDac(nil, YDAC, 0, -Prin, P_Scan_Jump, nil); // Scan en Y Hay que llevar
 while (StopAction<>True) do
  begin
    k:=k+1;
-   TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+   TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
  MakeLine(nil, False, 0);
  Application.ProcessMessages;
  if (k>=EraseLines) then
  begin
-   Form3.ClearChart();
+   TopoForm.ClearChart();
    k:=0;
  end;
  end;
@@ -500,9 +500,9 @@ Button10.Enabled:=False;
 
 //Volvemos a la configuracion del scan previa
 EraseLines := OldEraseLines;
-Form3.SpinEdit1.Text := FloattoStr(EraseLines);
+TopoForm.SpinEdit1.Text := FloattoStr(EraseLines);
 
-Form3.Close;
+TopoForm.Close;
 if A=True then MakeIVChk.Checked:=True;
 end;
 
@@ -525,12 +525,12 @@ begin
   // Creamos las series (líneas que se dibujarán) en el gráfico
   ChartLineSerie0 := TFastLineSeries.Create(self);
   ChartLineSerie1 := TFastLineSeries.Create(self);
-  ChartLineSerie0.ParentChart := Form3.ChartLine;
-  ChartLineSerie1.ParentChart := Form3.ChartLine;
+  ChartLineSerie0.ParentChart := TopoForm.ChartLine;
+  ChartLineSerie1.ParentChart := TopoForm.ChartLine;
   ChartLineSerie0.LinePen.Color := clred;
   ChartLineSerie1.LinePen.Color := clblack;
-  Form3.ChartLine.AddSeries(ChartLineSerie0);
-  Form3.ChartLine.AddSeries(ChartLineSerie1);
+  TopoForm.ChartLine.AddSeries(ChartLineSerie0);
+  TopoForm.ChartLine.AddSeries(ChartLineSerie1);
 
   MakeX:=False;
   MakeY:=False;
@@ -574,6 +574,7 @@ total:=Round(abs(Princ-Fin));
 if Fin>Princ then Step:=Round(total/P_Scan_Lines);
 if (Step=0) then Step:=100;
 
+//esta comprobación deberiamos hacerla al hacer un DO o un Test, no en cada linea
 if (IV_Scan_Lines>P_Scan_Lines) and (MakeIVChk.Checked) then
 begin
   MessageDlg('Spectro: too many points',mtError,[mbOK],0);
@@ -581,9 +582,9 @@ begin
   RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
 end;
 
-Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
+TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
 
-if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
+if (TopoForm.RadioGroup1.ItemIndex = 0) then // Topo
 begin
   channelToPlot := 1;
   yFactor := StrtoFloat(FormConfig.TopoCalEdit.Text)*StrtoFloat(FormConfig.TopoAmpBox.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
@@ -748,14 +749,14 @@ begin
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
   TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-  if Form3.CheckBox3.Checked then
+  if TopoForm.CheckBox3.Checked then
     begin
     remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
     hour:= remtm div 3600;
     remtm:= remtm mod 3600;
     mnts := remtm div 60;
     scnd := remtm mod 60;
-    Form3.Label6.Caption :=  FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
+    TopoForm.Label6.Caption :=  FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
     end;
 
   Application.ProcessMessages;
@@ -921,14 +922,14 @@ begin
 
     QueryPerformanceCounter(C2); // Lectura del cronómetro
     TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-    if Form3.CheckBox3.Checked then
+    if TopoForm.CheckBox3.Checked then
     begin
     remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
     hour:= remtm div 3600;
     remtm:= remtm mod 3600;
     mnts := remtm div 60;
     scnd := remtm mod 60;
-    Form3.Label6.Caption := FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
+    TopoForm.Label6.Caption := FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
     end;
     
     Application.ProcessMessages;
@@ -943,45 +944,45 @@ begin
 end;
 
 // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
-// Form3.xyyGraph1.Update;
+// TopoForm.xyyGraph1.Update;
 
 contadorIV:=1;
 
 if Saveit then
 begin
-  Form3.UpdateBitmaps(nil);
+  TopoForm.UpdateBitmaps(nil);
 end;
 end;
 
 procedure TScanForm.MakeEmptyLine(Sender: TObject; Saveit: Boolean);
 var
-i,j,k,total,OldX,OldY,LastX,LastY, channelToPlot, flatten: Integer;
+i,total,OldX,OldY,LastX,LastY, channelToPlot: Integer;
 Princ,Princ2,Fin,Step: Integer;
 //hour,mnts,scnd,remtm: Integer;
 xvolt,yvolt,yFactor: single;
 MakeX,MakeY: Boolean;
-interv, zeroSingle: Single;
-Data:HImg;
+zeroSingle: Single;
+//Data:HImg;
 C2,F:Int64;
 adcRead: TVectorDouble;
 ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
 xVal, yVal: Array [0..10] of single;
 
 begin
-  zeroSingle := 0; // Para completar con ceros el fichero
+zeroSingle := 0; // Para completar con ceros el fichero
 
-  // Creamos las series (líneas que se dibujarán) en el gráfico
-  ChartLineSerie0 := TFastLineSeries.Create(self);
-  ChartLineSerie1 := TFastLineSeries.Create(self);
-  ChartLineSerie0.ParentChart := Form3.ChartLine;
-  ChartLineSerie1.ParentChart := Form3.ChartLine;
-  ChartLineSerie0.LinePen.Color := clred;
-  ChartLineSerie1.LinePen.Color := clblack;
-  Form3.ChartLine.AddSeries(ChartLineSerie0);
-  Form3.ChartLine.AddSeries(ChartLineSerie1);
+// Creamos las series (líneas que se dibujarán) en el gráfico
+ChartLineSerie0 := TFastLineSeries.Create(self);
+ChartLineSerie1 := TFastLineSeries.Create(self);
+ChartLineSerie0.ParentChart := TopoForm.ChartLine;
+ChartLineSerie1.ParentChart := TopoForm.ChartLine;
+ChartLineSerie0.LinePen.Color := clred;
+ChartLineSerie1.LinePen.Color := clblack;
+TopoForm.ChartLine.AddSeries(ChartLineSerie0);
+TopoForm.ChartLine.AddSeries(ChartLineSerie1);
 
-  MakeX:=False;
-  MakeY:=False;
+if RadioGroup1.ItemIndex=0 then MakeX:=True
+else MakeX:=False;
 
 OldX:=0; // dado que son dacs diferentes, el dac del barrido está en 0
 OldY:=0;
@@ -989,10 +990,10 @@ OldY:=0;
 LastX:=0;
 LastY:=0;
 
-if (RadioGroup1.ItemIndex=0) then
+{if (RadioGroup1.ItemIndex=0) then
   MakeX:=True
 else
-  MakeY:=True;
+  MakeY:=True;}
 
   //modify rounding, Hermann 22/09/2020
 if MakeX then
@@ -1026,9 +1027,9 @@ begin
   RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
 end;
 
-Form3.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
+TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
 
-if (Form3.RadioGroup1.ItemIndex = 0) then // Topo
+if (TopoForm.RadioGroup1.ItemIndex = 0) then // Topo
 begin
   channelToPlot := 1;
   yFactor := StrtoFloat(FormConfig.TopoCalEdit.Text)*StrtoFloat(FormConfig.TopoAmpBox.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
@@ -1046,15 +1047,6 @@ QueryPerformanceFrequency(F);
 while (i<P_Scan_Lines) do
 begin
   while (PauseAction=True) do Application.ProcessMessages;
-
-  //PuntosMedidos:=PuntosMedidos+1;
-  //PuntosPonderados:=PuntosPonderados+1;
-
-  // Si el cronómetro estaba parado, lo arrancamos
-  // Para las lineas previas no ponemos el cronometro
-  //if TiempoInicial = 0 then
-  //  QueryPerformanceCounter(TiempoInicial);
-
   if MakeX then OldX:=Princ+Step*i else OldY:=Princ+Step*i;
   if MakeX then  // Scan in X
   begin
@@ -1069,7 +1061,6 @@ begin
       xVal[1]:=0;
       xVal[2]:=0;
     end
-
     else
     begin
       adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
@@ -1112,14 +1103,6 @@ if MakeX then Princ2:=OldX else Princ2:=OldY;
 while (i<P_Scan_Lines)  do
 begin
   while (PauseAction=True) do Application.ProcessMessages;
-
-  //PuntosMedidos:=PuntosMedidos+1;
-  //PuntosPonderados:=PuntosPonderados+1;
-
-  // Si el cronómetro estaba parado, lo arrancamos
-  //if TiempoInicial = 0 then
-  //  QueryPerformanceCounter(TiempoInicial);
-
   if MakeX then OldX:=Princ2-Step*i else OldY:=Princ2-Step*i;
   if MakeX then
   begin
@@ -1146,7 +1129,7 @@ begin
   begin
 	  if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, YDAC, Princ2+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
       LastY:=OldY; // Lo mismo que arriba.
     end;
     yVolt:=OldY/32768*AmpY*10;
@@ -1254,7 +1237,7 @@ begin
   Result := true;
 end;
 
-function TScanForm.TakeOnePoint(Sender:TObject) : Single;
+{function TScanForm.TakeOnePoint(Sender:TObject) : Single;
 var
 Lectura: Single;
 i: Integer;
@@ -1263,7 +1246,7 @@ for i:=0 to P_Scan_Mean do
  begin
 
  end;
-end;
+end;}
 
 procedure TScanForm.CreateCitsTempFiles();
 var
@@ -1366,9 +1349,9 @@ repeat
   StopAction:=False;
   Button10.Enabled:=True;
   if MakeIVChk.Checked then LinerForm.show;
-  Form3.Show;
-  Form3.FreeScans(nil);
-  TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+  TopoForm.Show;
+  TopoForm.FreeScans(nil);
+  TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
 
   PaintLines:=Checkbox6.checked;
 
@@ -1409,11 +1392,11 @@ repeat
         while (LinesBefore > i) and (not StopAction) do
         begin
           p:=p+1;
-          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+          TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
           MakeEmptyLine(nil,PaintLines);
           if (p>=EraseLines) then
             begin
-              Form3.ClearChart();
+              TopoForm.ClearChart();
               p:=0;
             end;
           i:=i+1;
@@ -1422,14 +1405,14 @@ repeat
         while ((i<P_Scan_Lines) and (not StopAction)) do  //Bucle lento en Y
         begin
           p:=p+1;
-          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+          TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
           DacValY_Local:=PrincY+Step*i;
           if (i<>0) then MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
           if (p>=EraseLines) then
             begin
-  //            Form3.xyyGraph1.Clear;
-              Form3.ClearChart();
+  //            TopoForm.xyyGraph1.Clear;
+              TopoForm.ClearChart();
               p:=0;
             end;
           i:=i+1;
@@ -1456,11 +1439,11 @@ repeat
         while (LinesBefore > i) and ( not StopAction) do
         begin
           p:=p+1;
-          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+          TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
           MakeEmptyLine(nil,PaintLines);
           if (p>=EraseLines) then
             begin
-              Form3.ClearChart();
+              TopoForm.ClearChart();
               p:=0;
             end;
           i:=i+1;
@@ -1469,14 +1452,14 @@ repeat
         while ((i<P_Scan_Lines) and (not StopAction)) do  //Bucle lento en X
         begin
           p:=p+1;
-          TryStrToInt(Form3.SpinEdit1.Text, EraseLines);
+          TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
           DacvalX_Local:=PrincX+Step*i;
           if (i<>0) then MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
           if (p>=EraseLines) then
             begin
-  //            Form3.xyyGraph1.Clear;
-              Form3.ClearChart();
+  //            TopoForm.xyyGraph1.Clear;
+              TopoForm.ClearChart();
               p:=0;
             end;
           i:=i+1;
@@ -1503,33 +1486,33 @@ repeat
        try
          with bitmapPasteList[i].bitmap do
          begin
-           Width := Form3.PaintBox1.Width;
-           Height := Form3.PaintBox1.Height;
+           Width := TopoForm.PaintBox1.Width;
+           Height := TopoForm.PaintBox1.Height;
            Dest := Rect(0, 0, Width, Height);
          end;
-         with Form3.PaintBox1 do
+         with TopoForm.PaintBox1 do
            Source := Rect(0, 0, Width, Height);
-           bitmapPasteList[i].bitmap.Canvas.CopyRect(Dest, Form3.PaintBox1.Canvas, Source);
+           bitmapPasteList[i].bitmap.Canvas.CopyRect(Dest, TopoForm.PaintBox1.Canvas, Source);
         finally
        end;
        UpdateCanvas(self);
      end;
 
 
-  Form3.Close;
+  TopoForm.Close;
 
   if (SaveAllImg.Checked) then
   begin
     SaveImgButtonClick(nil);
     if (MakeIVChk.Checked) then LinerForm.SpinEdit1.Value:=LinerForm.SpinEdit1.Value + 1;
   end;
-until not Form3.ScanLoop.Checked;
-//if (Form3.ScanLoop.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
+until not TopoForm.ScanLoop.Checked;
+//if (TopoForm.ScanLoop.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
 
-if (Form3.CheckBox2.Checked)then
+if (TopoForm.CheckBox2.Checked)then
 begin
   Form5.Button3Click(nil);
-  Form3.CheckBox2.Checked:=False;
+  TopoForm.CheckBox2.Checked:=False;
 end;
 end;
 
