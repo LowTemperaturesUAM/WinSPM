@@ -23,10 +23,10 @@ type
   TScanForm = class(TForm)
     ScanButton: TButton;
     TestButton: TButton;
-    Button4: TButton;
+    ConfigBtn: TButton;
     SaveAllImg: TCheckBox;
     Panel1: TPanel;
-    Label1: TLabel;
+    ZoomInLbl: TLabel;
     ComboBox1: TComboBox;
     Panel2: TPanel;
     ComboBox2: TComboBox;
@@ -40,44 +40,44 @@ type
     TrackBar3: TTrackBar;
     Label7: TLabel;
     Label8: TLabel;
-    Button7: TButton;
+    ClearBtn: TButton;
     MakeIVChk: TCheckBox;
     SaveImgButton: TButton;
     ScrollBox1: TScrollBox;
     PaintBox1: TPaintBox;
-    Button10: TButton;
+    StopBtn: TButton;
     RadioGroup1: TRadioGroup;
-    Button11: TButton;
-    Button12: TButton;
-    Edit1: TEdit;
+    OpenTripBtn: TButton;
+    OpenLinerBtn: TButton;
+    FileNameEdit: TEdit;
     Button3: TButton;
-    SpinEdit1: TSpinEdit;
+    ImgNumberSpin: TSpinEdit;
     Label29: TLabel;
     Label30: TLabel;
     Label31: TLabel;
     Label32: TLabel;
-    Button5: TButton;
+    HeaderImgBtn: TButton;
     SaveDialog1: TSaveDialog;
     CheckBox3: TCheckBox;
-    Button6: TButton;
-    Button13: TButton;
+    ShowDirBtn: TButton;
+    InitDACBtn: TButton;
     SpinEdit2: TSpinEdit;
     ScrollBar1: TScrollBar;
-    Button16: TButton;
+    OpenDataAcqBtn: TButton;
     CheckBox6: TCheckBox;
-    Button14: TButton;
+    OpenPIDBtn: TButton;
     btnMarkNow: TButton;
-    Button17: TButton;
-    Button18: TButton;
+    PasteImgBtn: TButton;
+    STSConfigBtn: TButton;
     ScrollBar2: TScrollBar;
     ScrollBar3: TScrollBar;
     btnCenterAtTip: TButton;
-    Button15: TButton;
+    MarkRedBtn: TButton;
     Button9: TSpeedButton;
     Panel3: TPanel;
     SpinLinesBefore: TSpinEdit;
     LblLinesBefore: TLabel;
-    procedure Button4Click(Sender: TObject);
+    procedure ConfigBtnClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PaintBox1DblClick(Sender: TObject);
     procedure TrackBar3Change(Sender: TObject);
@@ -85,7 +85,7 @@ type
     procedure TrackBar1Change(Sender: TObject);
     procedure ResetTipPosition();
     procedure Button9Click(Sender: TObject);
-    procedure Button10Click(Sender: TObject);
+    procedure StopBtnClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
     procedure ComboBox2Change(Sender: TObject);
@@ -99,29 +99,29 @@ type
     procedure DestroyCitsTempFiles();
     procedure CitsSeekToIV(row, column, point: Integer);
     procedure RedimCits(PointsXY, PointsIV: Integer);
-    procedure Button12Click(Sender: TObject);
-    procedure Button11Click(Sender: TObject);
+    procedure OpenLinerBtnClick(Sender: TObject);
+    procedure OpenTripBtnClick(Sender: TObject);
     procedure ScanButtonClick(Sender: TObject);
     procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
     procedure SaveCits(dataSet: Integer);
     procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
-    procedure Button5Click(Sender: TObject);
+    procedure HeaderImgBtnClick(Sender: TObject);
     procedure SaveImgButtonClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure SaveAllImgClick(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Button13Click(Sender: TObject);
-    procedure Button14Click(Sender: TObject);
+    procedure ShowDirBtnClick(Sender: TObject);
+    procedure InitDACBtnClick(Sender: TObject);
+    procedure OpenPIDBtnClick(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
-    procedure Button16Click(Sender: TObject);
+    procedure OpenDataAcqBtnClick(Sender: TObject);
     procedure ResizeBitmap(Bitmap: TBitmap; Width, Height: Integer; Background: TColor);
-    procedure Button7Click(Sender: TObject);
+    procedure ClearBtnClick(Sender: TObject);
     procedure MakeIVChkClick(Sender: TObject);
     procedure UpdateCanvas(Sender:TObject);
     procedure SetCanvasZoomFactor(Canvas: TCanvas; AZoomFactor: Integer);
-    procedure Button17Click(Sender: TObject);
-    procedure Button18Click(Sender: TObject);
+    procedure PasteImgBtnClick(Sender: TObject);
+    procedure STSConfigBtnClick(Sender: TObject);
     procedure SetCanvasZoomAndRotation(ACanvas: TCanvas; Zoom: Double; Angle: Double; CenterpointX, CenterpointY: Double);
     procedure ScrollBar2Change(Sender: TObject);
     procedure ScrollBar3Change(Sender: TObject);
@@ -132,7 +132,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
     procedure btnCenterAtTipClick(Sender: TObject);
-    procedure Button15Click(Sender: TObject);
+    procedure MarkRedBtnClick(Sender: TObject);
     //procedure SpinEdit3Change(Sender: TObject);
 
 
@@ -197,7 +197,7 @@ var
 
 {$R *.DFM}
 
-procedure TScanForm.Button4Click(Sender: TObject);
+procedure TScanForm.ConfigBtnClick(Sender: TObject);
 begin
 FormConfig.Show;
 end;
@@ -360,7 +360,7 @@ if Application.MessageBox('Are you sure you want to reset the position?','Confir
   then ResetTipPosition();
 end;
 
-procedure TScanForm.Button10Click(Sender: TObject);
+procedure TScanForm.StopBtnClick(Sender: TObject);
 begin
 TopoForm.ScanLoop.Checked:=False;
 StopAction:=True;
@@ -466,7 +466,7 @@ A:=False;
 if MakeIVChk.Checked=True then A:=True;
 MakeIVChk.Checked:=False;
 StopAction:=False;
-Button10.Enabled:=True;
+StopBtn.Enabled:=True;
 TopoForm.Show;
 
 //Llevar el DAC a la posición inicial
@@ -493,7 +493,7 @@ while (StopAction<>True) do
 //if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, Fin, 0, P_Scan_Jump, nil) // Scan en X Hay que llevar el DAC a cero
 //else MoveDac(nil, YDAC, Fin, 0, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
-Button10.Enabled:=False;
+StopBtn.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
 //CrossPosY:=Round(-DacValY/32768*200+200);
 //ScanForm.PaintBox1DblClick(nil);  No descomentar estas línea tal cual. En lugar de eso usar la función SetNewOffset calculando previamente el punto. (0, 0) si es ir al centro.
@@ -512,7 +512,7 @@ i,j,k,total,OldX,OldY,LastX,LastY, channelToPlot, flatten: Integer;
 Princ,Princ2,Fin,Step: Integer;
 hour,mnts,scnd,remtm: Integer;
 xvolt,yvolt,yFactor: single;
-MakeX,MakeY: Boolean;
+MakeX: Boolean;
 interv, zeroSingle: Single;
 Data:HImg;
 C2,F:Int64;
@@ -520,20 +520,20 @@ adcRead: TVectorDouble;
 ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
 
 begin
-  zeroSingle := 0; // Para completar con ceros el fichero
+zeroSingle := 0; // Para completar con ceros el fichero
 
-  // Creamos las series (líneas que se dibujarán) en el gráfico
-  ChartLineSerie0 := TFastLineSeries.Create(self);
-  ChartLineSerie1 := TFastLineSeries.Create(self);
-  ChartLineSerie0.ParentChart := TopoForm.ChartLine;
-  ChartLineSerie1.ParentChart := TopoForm.ChartLine;
-  ChartLineSerie0.LinePen.Color := clred;
-  ChartLineSerie1.LinePen.Color := clblack;
-  TopoForm.ChartLine.AddSeries(ChartLineSerie0);
-  TopoForm.ChartLine.AddSeries(ChartLineSerie1);
+// Creamos las series (líneas que se dibujarán) en el gráfico
+ChartLineSerie0 := TFastLineSeries.Create(self);
+ChartLineSerie1 := TFastLineSeries.Create(self);
+ChartLineSerie0.ParentChart := TopoForm.ChartLine;
+ChartLineSerie1.ParentChart := TopoForm.ChartLine;
+ChartLineSerie0.LinePen.Color := clred;
+ChartLineSerie1.LinePen.Color := clblack;
+TopoForm.ChartLine.AddSeries(ChartLineSerie0);
+TopoForm.ChartLine.AddSeries(ChartLineSerie1);
 
-  MakeX:=False;
-  MakeY:=False;
+if RadioGroup1.ItemIndex=0 then MakeX:=True
+else MakeX:=False;
 
 OldX:=0; // dado que son dacs diferentes, el dac del barrido está en 0
 OldY:=0;
@@ -541,10 +541,10 @@ OldY:=0;
 LastX:=0;
 LastY:=0;
 
-if (RadioGroup1.ItemIndex=0) then
+{if (RadioGroup1.ItemIndex=0) then
   MakeX:=True
 else
-  MakeY:=True;
+  MakeY:=True;}
 
   //modify rounding, Hermann 22/09/2020
 if MakeX then
@@ -1306,12 +1306,12 @@ begin
   end
 end;
 
-procedure TScanForm.Button12Click(Sender: TObject);
+procedure TScanForm.OpenLinerBtnClick(Sender: TObject);
 begin
 LinerForm.Show;
 end;
 
-procedure TScanForm.Button11Click(Sender: TObject);
+procedure TScanForm.OpenTripBtnClick(Sender: TObject);
 begin
 Form5.Show;
 end;
@@ -1347,7 +1347,7 @@ repeat
 
   LinesBefore:= SpinLinesBefore.Value;
   StopAction:=False;
-  Button10.Enabled:=True;
+  StopBtn.Enabled:=True;
   if MakeIVChk.Checked then LinerForm.show;
   TopoForm.Show;
   TopoForm.FreeScans(nil);
@@ -1420,8 +1420,6 @@ repeat
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
         if (not StopAction) then MoveDac(nil, XDAC, PrincX, 0, P_Scan_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
         MoveDac(nil, YDAC, DacvalY_Local, 0, P_Scan_Jump, nil); //porque en la X se vuelve con makeline
-        //MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
-        //MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
       end
   else //Now scan in Y
       begin
@@ -1467,11 +1465,9 @@ repeat
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
         MoveDac(nil, XDAC, DacValX_Local, 0, P_Scan_Jump, nil);
         if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Scan_Jump, nil);
-        //MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
-        //MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
       end;
 
-      Button10.Enabled:=False;
+      StopBtn.Enabled:=False;
 
      if checkbox3.checked then // Hay que dejar dibujada la última imagen adquirida en esa posición
      begin
@@ -1578,8 +1574,8 @@ begin
   if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
 
-  FileNumber := Format('%.3d', [SpinEdit1.Value]);
-  MiFile:=MiFile+'\'+Edit1.Text+'_'+FileNumber+Suffix+'.stp';
+  FileNumber := Format('%.3d', [ImgNumberSpin.Value]);
+  MiFile:=MiFile+'\'+FileNameEdit.Text+'_'+FileNumber+Suffix+'.stp';
 
   F:=TFileStream.Create(MiFile,fmCreate) ;
   F.WriteBuffer(Form8.WSxMHeader[1], Length(Form8.WSxMHeader));
@@ -1642,8 +1638,8 @@ begin
       Exit;
   end;
 
-  FileNumber := Format('%.3d', [SpinEdit1.Value]);
-  MiFile:=MiFile+'\'+Edit1.Text+FileNumber+strDirections+'.gsi';
+  FileNumber := Format('%.3d', [ImgNumberSpin.Value]);
+  MiFile:=MiFile+'\'+FileNameEdit.Text+FileNumber+strDirections+'.gsi';
 
   F:=TFileStream.Create(MiFile,fmCreate) ;
 
@@ -1776,7 +1772,7 @@ if (MyStrLength<MyLength) then
 end;
 
 
-procedure TScanForm.Button5Click(Sender: TObject);
+procedure TScanForm.HeaderImgBtnClick(Sender: TObject);
 begin
 Form8.Show;
 end;
@@ -1845,7 +1841,7 @@ if (MakeIVChk.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.
     SaveCits(i);
 end;
 
-SpinEdit1.Value:=SpinEdit1.Value+1;
+ImgNumberSpin.Value:=ImgNumberSpin.Value+1;
 end;
 
 procedure TScanForm.Button3Click(Sender: TObject);
@@ -1859,14 +1855,14 @@ S:=ExtractFileName(SaveDialog1.FileName);
 for i:=1 to Length(S) do if S[i]='.' then Long:=i;
 
 SetLength(S,Long-1);
-Edit1.Text:=S;
+FileNameEdit.Text:=S;
 
 Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
 
 //Cambiamos el directorio y normbre de las IV solo si es una espectro
   if MakeIVChk.Checked then
   begin
-    LinerForm.Edit1.Text:=Edit1.Text;
+    LinerForm.Edit1.Text:=FileNameEdit.Text;
     LinerForm.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
     //CreateDir(Form9.Label5.Caption+'\IV');
     Form9.Label6.Caption:=Form9.Label5.Caption;
@@ -1878,22 +1874,20 @@ end;
 procedure TScanForm.SaveAllImgClick(Sender: TObject);
 begin
   if SaveAllImg.Checked  = True then Button3Click(nil);
-
 end;
 
-procedure TScanForm.Button6Click(Sender: TObject);
+procedure TScanForm.ShowDirBtnClick(Sender: TObject);
 begin
 Form9.Show;
 end;
 
-procedure TScanForm.Button13Click(Sender: TObject);
+procedure TScanForm.InitDACBtnClick(Sender: TObject);
 begin
 //take_initialize;
 DataForm.InitDataAcq;
 end;
 
-procedure TScanForm.Button14Click(Sender: TObject);
-
+procedure TScanForm.OpenPIDBtnClick(Sender: TObject);
 begin
 FormPID.Show;
 end;
@@ -1908,7 +1902,7 @@ enviaDac:=ScrollBar1.Position;
 DataForm.dac_set(dac_num,enviaDac, nil);
 end;
 
-procedure TScanForm.Button16Click(Sender: TObject);
+procedure TScanForm.OpenDataAcqBtnClick(Sender: TObject);
 begin
 DataForm.Show;
 end;
@@ -1952,7 +1946,7 @@ begin
   end;
 end;
 
-procedure TScanForm.Button7Click(Sender: TObject);
+procedure TScanForm.ClearBtnClick(Sender: TObject);
 var
   i:Integer;
   Mensaje:Integer;
@@ -2178,7 +2172,7 @@ begin
   end;
 end;
 
-procedure TScanForm.Button17Click(Sender: TObject);
+procedure TScanForm.PasteImgBtnClick(Sender: TObject);
 var
   bmp: TBitmap;
   uiClipboardID, hData: Cardinal;
@@ -2376,7 +2370,7 @@ begin
   end;
 end;
 
-procedure TScanForm.Button18Click(Sender: TObject);
+procedure TScanForm.STSConfigBtnClick(Sender: TObject);
 begin
 Form11.show;
 end;
@@ -2451,7 +2445,7 @@ begin
   UpdateCanvas(nil);
 end;
 
-procedure TScanForm.Button15Click(Sender: TObject);
+procedure TScanForm.MarkRedBtnClick(Sender: TObject);
 
  var
   i: Integer;

@@ -75,7 +75,7 @@ object ScanForm: TScanForm
     TabOrder = 1
     OnClick = TestButtonClick
   end
-  object Button4: TButton
+  object ConfigBtn: TButton
     Left = 224
     Top = 8
     Width = 49
@@ -88,7 +88,7 @@ object ScanForm: TScanForm
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 2
-    OnClick = Button4Click
+    OnClick = ConfigBtnClick
   end
   object SaveAllImg: TCheckBox
     Left = 400
@@ -105,7 +105,7 @@ object ScanForm: TScanForm
     Width = 129
     Height = 89
     TabOrder = 4
-    object Label1: TLabel
+    object ZoomInLbl: TLabel
       Left = 9
       Top = 38
       Width = 39
@@ -135,14 +135,14 @@ object ScanForm: TScanForm
         '2000'
         '5000')
     end
-    object Button7: TButton
+    object ClearBtn: TButton
       Left = 23
       Top = 5
       Width = 75
       Height = 17
       Caption = 'Clear'
       TabOrder = 0
-      OnClick = Button7Click
+      OnClick = ClearBtnClick
     end
     object btnMarkNow: TButton
       Left = -1
@@ -153,14 +153,14 @@ object ScanForm: TScanForm
       TabOrder = 2
       OnClick = btnMarkNowClick
     end
-    object Button15: TButton
+    object MarkRedBtn: TButton
       Left = 72
       Top = 64
       Width = 57
       Height = 17
       Caption = 'Mark Red'
       TabOrder = 3
-      OnClick = Button15Click
+      OnClick = MarkRedBtnClick
     end
   end
   object Panel2: TPanel
@@ -287,14 +287,14 @@ object ScanForm: TScanForm
       TabOrder = 4
       OnClick = MakeIVChkClick
     end
-    object Button18: TButton
+    object STSConfigBtn: TButton
       Left = 62
       Top = 304
       Width = 65
       Height = 17
       Caption = 'IV Config'
       TabOrder = 5
-      OnClick = Button18Click
+      OnClick = STSConfigBtnClick
     end
     object btnCenterAtTip: TButton
       Left = 0
@@ -384,7 +384,7 @@ object ScanForm: TScanForm
       OnPaint = PaintBox1Paint
     end
   end
-  object Button10: TButton
+  object StopBtn: TButton
     Left = 449
     Top = 486
     Width = 128
@@ -398,7 +398,7 @@ object ScanForm: TScanForm
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 9
-    OnClick = Button10Click
+    OnClick = StopBtnClick
   end
   object RadioGroup1: TRadioGroup
     Left = 8
@@ -418,7 +418,7 @@ object ScanForm: TScanForm
     ParentFont = False
     TabOrder = 10
   end
-  object Button11: TButton
+  object OpenTripBtn: TButton
     Left = 408
     Top = 528
     Width = 81
@@ -431,9 +431,9 @@ object ScanForm: TScanForm
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 11
-    OnClick = Button11Click
+    OnClick = OpenTripBtnClick
   end
-  object Button12: TButton
+  object OpenLinerBtn: TButton
     Left = 320
     Top = 528
     Width = 81
@@ -446,9 +446,9 @@ object ScanForm: TScanForm
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 12
-    OnClick = Button12Click
+    OnClick = OpenLinerBtnClick
   end
-  object Edit1: TEdit
+  object FileNameEdit: TEdit
     Left = 280
     Top = 8
     Width = 113
@@ -465,7 +465,7 @@ object ScanForm: TScanForm
     TabOrder = 14
     OnClick = Button3Click
   end
-  object SpinEdit1: TSpinEdit
+  object ImgNumberSpin: TSpinEdit
     Left = 400
     Top = 8
     Width = 57
@@ -475,14 +475,14 @@ object ScanForm: TScanForm
     TabOrder = 15
     Value = 1
   end
-  object Button5: TButton
+  object HeaderImgBtn: TButton
     Left = 464
     Top = 8
     Width = 81
     Height = 17
-    Caption = 'Save Config'
+    Caption = 'Image Header'
     TabOrder = 16
-    OnClick = Button5Click
+    OnClick = HeaderImgBtnClick
   end
   object CheckBox3: TCheckBox
     Left = 16
@@ -492,23 +492,23 @@ object ScanForm: TScanForm
     Caption = 'Paint Last Img'
     TabOrder = 17
   end
-  object Button6: TButton
+  object ShowDirBtn: TButton
     Left = 320
     Top = 568
     Width = 129
     Height = 17
     Caption = 'Show Full File Directories'
     TabOrder = 18
-    OnClick = Button6Click
+    OnClick = ShowDirBtnClick
   end
-  object Button13: TButton
+  object InitDACBtn: TButton
     Left = 16
     Top = 560
     Width = 75
     Height = 22
     Caption = 'Init All'
     TabOrder = 19
-    OnClick = Button13Click
+    OnClick = InitDACBtnClick
   end
   object SpinEdit2: TSpinEdit
     Left = 104
@@ -533,14 +533,14 @@ object ScanForm: TScanForm
     TabOrder = 21
     OnChange = ScrollBar1Change
   end
-  object Button16: TButton
+  object OpenDataAcqBtn: TButton
     Left = 456
     Top = 568
     Width = 121
     Height = 17
     Caption = 'Open Data Acquisition'
     TabOrder = 22
-    OnClick = Button16Click
+    OnClick = OpenDataAcqBtnClick
   end
   object CheckBox6: TCheckBox
     Left = 112
@@ -552,7 +552,7 @@ object ScanForm: TScanForm
     State = cbChecked
     TabOrder = 23
   end
-  object Button14: TButton
+  object OpenPIDBtn: TButton
     Left = 496
     Top = 528
     Width = 81
@@ -565,16 +565,16 @@ object ScanForm: TScanForm
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 24
-    OnClick = Button14Click
+    OnClick = OpenPIDBtnClick
   end
-  object Button17: TButton
+  object PasteImgBtn: TButton
     Left = 16
     Top = 533
     Width = 75
     Height = 22
     Caption = 'Paste'
     TabOrder = 25
-    OnClick = Button17Click
+    OnClick = PasteImgBtnClick
   end
   object ScrollBar2: TScrollBar
     Left = 424
