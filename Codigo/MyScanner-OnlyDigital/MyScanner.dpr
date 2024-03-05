@@ -3,7 +3,7 @@ program MyScanner;
 uses
   Forms,
   Scanner1 in 'Scanner1.pas' {ScanForm},
-  Scanning in 'Scanning.pas' {Form3},
+  Scanning in 'Scanning.pas' {TopoForm},
   Trip in 'Trip.pas' {Form5},
   Liner in 'Liner.pas' {LinerForm},
   Config_Liner in 'Config_Liner.pas' {LinerConfig},
@@ -26,7 +26,7 @@ begin
   Application.Title := 'WinSPM';
   Application.CreateForm(TScanForm, ScanForm);
   Application.CreateForm(TForm6, Form6);
-  Application.CreateForm(TForm3, Form3);
+  Application.CreateForm(TTopoForm, TopoForm);
   Application.CreateForm(TLinerForm, LinerForm);
   Application.CreateForm(TLinerConfig, LinerConfig);
   Application.CreateForm(TForm5, Form5);
