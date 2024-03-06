@@ -960,16 +960,16 @@ i,total,OldX,OldY,LastX,LastY, channelToPlot: Integer;
 Princ,Princ2,Fin,Step: Integer;
 //hour,mnts,scnd,remtm: Integer;
 xvolt,yvolt,yFactor: single;
-MakeX,MakeY: Boolean;
-zeroSingle: Single;
+MakeX: Boolean;
+//zeroSingle: Single;
 //Data:HImg;
-C2,F:Int64;
+//C2,F:Int64;
 adcRead: TVectorDouble;
 ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
 xVal, yVal: Array [0..10] of single;
 
 begin
-zeroSingle := 0; // Para completar con ceros el fichero
+//zeroSingle := 0; // Para completar con ceros el fichero
 
 // Creamos las series (líneas que se dibujarán) en el gráfico
 ChartLineSerie0 := TFastLineSeries.Create(self);
@@ -1043,7 +1043,7 @@ end;
 //Forth
 i:=0;
 
-QueryPerformanceFrequency(F);
+//QueryPerformanceFrequency(F);
 while (i<P_Scan_Lines) do
 begin
   while (PauseAction=True) do Application.ProcessMessages;
@@ -1374,7 +1374,8 @@ repeat
    //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
    FormPID.Button1Click(nil);
 
-   i:=0;
+  i:=0;
+  p:=0;
   if (RadioGroup1.ItemIndex=0) then // Scan in X
       begin
 
@@ -1385,8 +1386,8 @@ repeat
         if FinY>PrincY then Step:=Round(total/P_Scan_Lines);
         if (Step=0) then Step:=100;
         // Hago varias lineas antes de iniciar la imagen
-        p:=0;
-        i:=0;
+        //p:=0;
+        //i:=0;
         //Indicamos la posicion en Y
         DacValY_Local:=PrincY;
         while (LinesBefore > i) and (not StopAction) do
@@ -1430,8 +1431,8 @@ repeat
         if FinX>PrincX then Step:=Round(total/P_Scan_Lines);
         if (Step=0) then Step:=100;
         // Hago varias lineas antes de iniciar la imagen
-        p:=0;
-        i:=0;
+        //p:=0;
+        //i:=0;
         //Indicamos la posicion en X
         DacvalX_Local:=PrincX;
         while (LinesBefore > i) and ( not StopAction) do

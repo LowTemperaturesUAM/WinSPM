@@ -79,6 +79,14 @@ object DataForm: TDataForm
     Height = 13
     Caption = '1'
   end
+  object SetDACCorrLbl: TLabel
+    Left = 128
+    Top = 94
+    Width = 71
+    Height = 13
+    AutoSize = False
+    Caption = 'DAC Number'
+  end
   object Button1: TButton
     Left = 8
     Top = 12
@@ -187,5 +195,53 @@ object DataForm: TDataForm
     TabOrder = 9
     Text = 'Test'
     OnChange = Edit1Change
+  end
+  object OffsetBtn: TButton
+    Left = 352
+    Top = 88
+    Width = 80
+    Height = 25
+    Caption = 'Apply Offset'
+    TabOrder = 10
+    OnClick = OffsetBtnClick
+  end
+  object GainBtn: TButton
+    Left = 512
+    Top = 88
+    Width = 80
+    Height = 25
+    Caption = 'Apply Gain'
+    TabOrder = 11
+    OnClick = GainBtnClick
+  end
+  object SetDACCorrection: TSpinEdit
+    Left = 200
+    Top = 90
+    Width = 57
+    Height = 22
+    MaxValue = 7
+    MinValue = 0
+    TabOrder = 12
+    Value = 0
+  end
+  object OffsetValue: TSpinEdit
+    Left = 280
+    Top = 90
+    Width = 60
+    Height = 22
+    MaxValue = 255
+    MinValue = -256
+    TabOrder = 13
+    Value = 0
+  end
+  object GainValue: TSpinEdit
+    Left = 440
+    Top = 90
+    Width = 60
+    Height = 22
+    MaxValue = 127
+    MinValue = -128
+    TabOrder = 14
+    Value = 0
   end
 end
