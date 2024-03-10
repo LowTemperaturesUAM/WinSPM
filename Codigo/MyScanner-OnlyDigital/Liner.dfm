@@ -88,12 +88,13 @@ object LinerForm: TLinerForm
       Anchors = [akTop, akRight]
       Caption = 'Size'
     end
-    object Label18: TLabel
-      Left = 640
+    object xAxisRange: TLabel
+      Left = 635
       Top = 14
-      Width = 18
+      Width = 45
       Height = 13
       Anchors = [akTop, akRight]
+      AutoSize = False
       Caption = '100'
     end
     object ZAttText: TLabel

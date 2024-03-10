@@ -106,8 +106,7 @@ var
 
 begin
     flatten := 0;
-    if chkFlatten.Checked then
-      flatten := 1;
+    if chkFlatten.Checked then flatten := 1;
 
     MakeX := (ScanForm.RadioGroup1.ItemIndex=0);
 
@@ -165,10 +164,8 @@ for j:=0 to Size-1 do
  DatatoPaint[i,j]:=Round(((Data[i,j]+DataTo0_255Offset)*DataTo0_255)+255/2+BrightnessOffset);
  // Comprobamos que el dato cae dentro de los limites. Como ahora hay un offset, es posible que caiga fueraç
 
- if(DatatoPaint[i,j]>255) then
-   DatatoPaint[i,j]:=255;
- if(DatatoPaint[i,j]<0) then
-   DatatoPaint[i,j]:=0;
+ if(DatatoPaint[i,j]>255) then DatatoPaint[i,j]:=255;
+ if(DatatoPaint[i,j]<0) then DatatoPaint[i,j]:=0;
  end;
 end;
 
@@ -193,10 +190,8 @@ try
   RectBitmap.Left := 0;
   RectBitmap.Right := 256;
 
-  if (Sens=1) then
-    PaintBox1.Canvas.StretchDraw(RectBitmap, Bitmap)
-  else
-    PaintBox2.Canvas.StretchDraw(RectBitmap, Bitmap);
+  if (Sens=1) then PaintBox1.Canvas.StretchDraw(RectBitmap, Bitmap)
+  else PaintBox2.Canvas.StretchDraw(RectBitmap, Bitmap);
 
 finally
   Bitmap.Free;

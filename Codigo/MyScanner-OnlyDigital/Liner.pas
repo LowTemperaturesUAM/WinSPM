@@ -60,7 +60,7 @@ type
     Label11: TLabel;
     Label5: TLabel;
     Label17: TLabel;
-    Label18: TLabel;
+    xAxisRange: TLabel;
     ChartLine: TChart;
     ChartLineSerie0: TFastLineSeries;
     ChartLineSerie1: TFastLineSeries;
@@ -799,7 +799,14 @@ DataForm.dac_set(LinerConfig.SpinEdit1.Value, Round(-32767*Size_xAxis), nil)
 else
 DataForm.dac_set(LinerConfig.SpinEdit1.Value, Round(32767*Size_xAxis), nil);
 
-Label18.Caption:=IntToStr(scrollSizeBias.Position);
+//xAxisRange.Caption:=IntToStr(scrollSizeBias.Position);
+if x_axisDac = 6 then //assume this is the Bias DAC by default
+begin
+  if x_axisMult<1 then //mV
+  xAxisRange.Caption:=Format('%.3g mV', [Size_xAxis*x_axisMult*1e3])
+  else xAxisRange.Caption:=Format('%.3g V', [Size_xAxis*x_axisMult]);
+end
+else xAxisRange.Caption:=IntToStr(scrollSizeBias.Position);
 end;
 
 //Pintar cuando cambias los puntos de derivada
