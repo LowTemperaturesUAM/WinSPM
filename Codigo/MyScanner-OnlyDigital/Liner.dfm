@@ -21,12 +21,6 @@ object LinerForm: TLinerForm
     610)
   PixelsPerInch = 96
   TextHeight = 13
-  object lblColorPID: TLabel
-    Left = 699
-    Top = 64
-    Width = 3
-    Height = 13
-  end
   object Label3: TLabel
     Left = 512
     Top = 48
@@ -107,6 +101,7 @@ object LinerForm: TLinerForm
       Top = 48
       Width = 64
       Height = 13
+      AutoSize = False
       Caption = 'Z Attenuation'
       Visible = False
     end
@@ -115,6 +110,7 @@ object LinerForm: TLinerForm
       Top = 64
       Width = 77
       Height = 13
+      AutoSize = False
       Caption = 'Bias Attenuation'
       Visible = False
     end
@@ -223,6 +219,12 @@ object LinerForm: TLinerForm
       Width = 25
       Height = 13
       Caption = 'Jump'
+    end
+    object lblColorPID: TLabel
+      Left = 10
+      Top = 30
+      Width = 3
+      Height = 13
     end
     object CheckBox2: TCheckBox
       Left = 64

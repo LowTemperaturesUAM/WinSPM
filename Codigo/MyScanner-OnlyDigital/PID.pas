@@ -79,11 +79,11 @@ type
     procedure thrdtmr1Timer(Sender: TObject);
     procedure se1Change(Sender: TObject);
     procedure Button1Click(Sender: TObject);
- private
+private
     { Private declarations }
-  public
-    { Public declarations }
-  end;
+public
+    Flag_PIDisworking: Boolean;
+end;
 
 var
   FormPID: TFormPID;
@@ -93,7 +93,7 @@ var
   P_PID,I_PID,D_PID,MeanReadI: Integer;
   Set_PID, Read_PID, Action_PID,Count_Live, reverse : Integer;
   lastIntegral : Extended; // Valor del error acumulado (para el parámetro I).
-  Check_Show,Flag_PIDisworking,PIDReset: Boolean;
+  Check_Show,PIDReset: Boolean;
   previous_ctrl:  Double;
 
 implementation

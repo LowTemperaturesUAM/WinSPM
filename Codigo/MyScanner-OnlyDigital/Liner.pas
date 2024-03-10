@@ -163,8 +163,6 @@ end;
 
 //Open Liner
 procedure TLinerForm.FormShow(Sender: TObject);
-var
-i: Integer;
 begin
 //xyyGraph1[1].PlotPoints:=False;
 Abort_Measure:=False;
@@ -207,11 +205,9 @@ procedure TLinerForm.Button1Click(Sender: TObject);
 
 var
 j,h,k,Princ,Fin: Integer;
-//j: 1..1000;
+//j: 1..1000; //Los valores que podemos coger en la interfaz estan limitados a este rango
 DataCurrentOld: Array [0..1,0..2048] of single;
-adcRead: TVectorDouble;
-pidTimer: Boolean;
-  here_previous_ctrl:  Double;
+here_previous_ctrl:  Double;
 NumberControl: Integer;
 
 
@@ -821,7 +817,7 @@ end;
 //Hold PID
 procedure TLinerForm.Button7Click(Sender: TObject);
 begin
-  if StopIt then
+  if FormPID.Flag_PIDisworking then
     begin
     StopIt:=False;
     //Button7.Font.Color :=  clGreen;
