@@ -19,6 +19,7 @@ uses
   MPSSE_CmdReadPortH = $83;       // Read Data Bits High Byte
   MPSSE_CmdReadDI = $20;          // Clock Data Bytes In on +ve Clock Edge MSB First (no Write) Lengh=0->1byte
   NUM_ADCs = 6;                   // Número de ADCs que podemos leer de la electrónica
+  NUM_DACs = 8;
 
 type
 
@@ -48,6 +49,11 @@ type
   TVectorDouble = array of Double;
 
   Int9 = -256..255;
+
+  TDACCal = record
+    Offset: Int9;
+    Gain: ShortInt;
+  end;
 
   TDataForm = class(TForm)
     Button1: TButton;
@@ -105,6 +111,7 @@ type
     z_attenuator: Double;
     bias_attenuator: Double;
     StopAction: Boolean;
+    DACCal: array [0..7] of TDACCal;
   end;
 
 var
@@ -1232,7 +1239,16 @@ Label5.Caption:= FloatToStrF(10*Value/32768,ffGeneral,4,4);
 end;
 //Esta se queda
 procedure TDataForm.FormCreate(Sender: TObject);
+var
+i: Integer;
 begin
+//Configuramos los las calibraciones a cero inicialmente
+for i:=0 to NUM_DACs-1 do
+with DACCal[i] do
+begin
+  Offset:=0;
+  Gain:=0;
+end;
 InitDataAcq;
 end;
 
@@ -1470,12 +1486,15 @@ end;
 procedure TDataForm.OffsetBtnClick(Sender: TObject);
 begin
 // probablemente deberiamos de comprobar que los valores introducidos en el spinedit son validos antes de pasarlos
+DACCal[SetDACCorrection.Value].Offset:=OffsetValue.Value;
 dac_zero_offset(SetDACCorrection.Value,OffsetValue.Value,nil);
+// Podemos mostrar el offset aplicado en mV
 end;
 
 procedure TDataForm.GainBtnClick(Sender: TObject);
 begin
 // probablemente deberiamos de comprobar que los valores introducidos en el spinedit son validos antes de pasarlos
+DACCal[SetDACCorrection.Value].Gain:=GainValue.Value;
 dac_gain(SetDACCorrection.Value,GainValue.Value,nil);
 end;
 
