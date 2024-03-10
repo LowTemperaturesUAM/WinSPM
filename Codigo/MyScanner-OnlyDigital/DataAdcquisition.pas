@@ -1448,9 +1448,9 @@ begin
 	(BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
 	(BufferDest+i)^ := Char($00); Inc(i);
 	(BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
-  if offset>=0 then (BufferDest+i)^ := Char($00)
-  else (BufferDest+i)^ := Char($01);Inc(i); //Byte superior del registro. Solo necesitamos el signo que es el bit inferior
-	//(BufferDest+i)^ := Char(Hi(offset)); Inc(i); // Byte superior del registro. Solo necesitamos el bit inferior
+  //if offset>=0 then (BufferDest+i)^ := Char($00)
+  //else (BufferDest+i)^ := Char($01);Inc(i); //Byte superior del registro. Solo necesitamos el signo
+  (BufferDest+i)^ := Char(Hi(offset) shr 7); Inc(i);//Byte superior del registro. Solo necesitamos el signo que es el bit superior
 	(BufferDest+i)^ := Char(Lo(offset)); Inc(i); // Byte inferior del valor
 	(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
 	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
