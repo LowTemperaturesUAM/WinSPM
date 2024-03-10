@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, DateUtils, StdCtrls, Spin, Controls, Classes, Graphics, Forms, Dialogs, Scanner1,
-  Liner, FT2232CSPIUnit, SPIDLLFuncUnit,D2XXUnit, StrUtils, WINSOCK, PID,
+  Liner, FT2232CSPIUnit, SPIDLLFuncUnit,D2XXUnit, StrUtils,IniFiles, WINSOCK, PID, 
   ExtCtrls ;
 
   Const
@@ -102,6 +102,7 @@ type
     procedure Edit1Change(Sender: TObject);
     procedure OffsetBtnClick(Sender: TObject);
     procedure GainBtnClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
   private
     { Private declarations }
@@ -120,7 +121,7 @@ var
   simulating: Boolean;
   simulatedDac: array[0..7] of Integer;
   Buffer:String[50]; //En ppio. hay espacio de sobra con esta cantidad
-
+  CalFile: TMemIniFile;
 
 implementation
 
@@ -1498,5 +1499,22 @@ DACCal[SetDACCorrection.Value].Gain:=GainValue.Value;
 dac_gain(SetDACCorrection.Value,GainValue.Value,nil);
 end;
 
+procedure TDataForm.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  i: Integer;
+begin
+CalFile := TMemIniFile.Create(FormConfig.ConfigDir+'\Calibrations.ini');
+try
+  for i:=0 to NUM_DACs-1 do
+  with DACCal[i] do
+  begin
+    CalFile.WriteInteger(Format('DAC %d',[i]), 'Offset', Offset);
+    CalFile.WriteInteger(Format('DAC %d',[i]), 'Gain', Gain);
+  end;
+finally
+  CalFile.UpdateFile;
+  CalFile.Free;
+end;
+end;
 end.
 

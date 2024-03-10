@@ -76,11 +76,11 @@ type
     iniTrip: AnsiString;
     iniPID: AnsiString;
     iniRev: AnsiString;
-    ConfigDir: String;
+
 //    const string iniTitle := 'Channels';
   public
-    { Public declarations }
     //LHARev: Byte;
+    ConfigDir: String;
 
   end;
 
