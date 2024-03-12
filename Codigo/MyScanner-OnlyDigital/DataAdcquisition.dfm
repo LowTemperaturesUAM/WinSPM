@@ -224,6 +224,7 @@ object DataForm: TDataForm
     MinValue = 0
     TabOrder = 12
     Value = 0
+    OnChange = SetDACCorrectionChange
   end
   object OffsetValue: TSpinEdit
     Left = 280

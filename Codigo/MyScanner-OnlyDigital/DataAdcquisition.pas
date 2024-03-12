@@ -103,6 +103,7 @@ type
     procedure OffsetBtnClick(Sender: TObject);
     procedure GainBtnClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure SetDACCorrectionChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -121,6 +122,7 @@ var
   simulating: Boolean;
   simulatedDac: array[0..7] of Integer;
   Buffer:String[50]; //En ppio. hay espacio de sobra con esta cantidad
+  CalDir: String;
   CalFile: TMemIniFile;
 
 implementation
@@ -1242,6 +1244,7 @@ end;
 procedure TDataForm.FormCreate(Sender: TObject);
 var
 i: Integer;
+
 begin
 //Configuramos los las calibraciones a cero inicialmente
 for i:=0 to NUM_DACs-1 do
@@ -1250,7 +1253,27 @@ begin
   Offset:=0;
   Gain:=0;
 end;
+CalDir := GetCurrentDir;
+CalFile := TMemIniFile.Create(CalDir+'\Calibrations.ini');
+try
+  for i:=0 to NUM_DACs-1 do
+  with DACCal[i] do
+  begin
+    Offset:=CalFile.ReadInteger(Format('DAC %d',[i]), 'Offset', 0);
+    Gain:=CalFile.ReadInteger(Format('DAC %d',[i]), 'Gain', 0);
+  end;
+finally
+  CalFile.Free;
+end;
 InitDataAcq;
+SetDACCorrectionChange(nil);
+//Apply the calibrations  to all dacs
+for i:=0 to NUM_DACs-1 do
+with DACCal[i] do
+begin
+  dac_zero_offset(i,Offset,nil);
+  dac_gain(i,Gain,nil);
+end;
 end;
 
 
@@ -1503,7 +1526,7 @@ procedure TDataForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   i: Integer;
 begin
-CalFile := TMemIniFile.Create(FormConfig.ConfigDir+'\Calibrations.ini');
+CalFile := TMemIniFile.Create(CalDir+'\Calibrations.ini');
 try
   for i:=0 to NUM_DACs-1 do
   with DACCal[i] do
@@ -1516,5 +1539,11 @@ finally
   CalFile.Free;
 end;
 end;
+procedure TDataForm.SetDACCorrectionChange(Sender: TObject);
+begin
+  OffsetValue.Value:=DacCal[SetDACCorrection.Value].Offset;
+  GainValue.Value:=DacCal[SetDACCorrection.Value].Gain;
+end;
+
 end.
 
