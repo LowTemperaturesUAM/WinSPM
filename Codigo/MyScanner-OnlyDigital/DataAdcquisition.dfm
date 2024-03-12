@@ -88,6 +88,24 @@ object DataForm: TDataForm
     AutoSize = False
     Caption = 'DAC Number'
   end
+  object OffsetVoltLbl: TLabel
+    Left = 328
+    Top = 94
+    Width = 50
+    Height = 13
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = '0 mV'
+  end
+  object GainVoltLbl: TLabel
+    Left = 544
+    Top = 94
+    Width = 55
+    Height = 13
+    Alignment = taRightJustify
+    AutoSize = False
+    Caption = '0 mV'
+  end
   object Button1: TButton
     Left = 8
     Top = 12
@@ -198,7 +216,7 @@ object DataForm: TDataForm
     OnChange = Edit1Change
   end
   object OffsetBtn: TButton
-    Left = 352
+    Left = 392
     Top = 88
     Width = 80
     Height = 25
@@ -207,7 +225,7 @@ object DataForm: TDataForm
     OnClick = OffsetBtnClick
   end
   object GainBtn: TButton
-    Left = 512
+    Left = 608
     Top = 88
     Width = 80
     Height = 25
@@ -227,23 +245,27 @@ object DataForm: TDataForm
     OnChange = SetDACCorrectionChange
   end
   object OffsetValue: TSpinEdit
-    Left = 280
+    Left = 264
     Top = 90
     Width = 60
     Height = 22
+    EditorEnabled = False
     MaxValue = 255
     MinValue = -256
     TabOrder = 13
     Value = 0
+    OnChange = OffsetValueChange
   end
   object GainValue: TSpinEdit
-    Left = 440
+    Left = 480
     Top = 90
     Width = 60
     Height = 22
+    EditorEnabled = False
     MaxValue = 127
     MinValue = -128
     TabOrder = 14
     Value = 0
+    OnChange = GainValueChange
   end
 end
