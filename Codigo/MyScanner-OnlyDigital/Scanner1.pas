@@ -259,7 +259,7 @@ Label32.Caption:=FloattoStrF(65535*P_Scan_Size/32768*AmpX*DataForm.scan_attenuat
 TrackBar3Change(nil); // Simulo que se ha cambiado el tamaño para que acutalice la interfaz
 SizeOfWindow:=400;
 StopAction:=True;
-LinerForm.Show;
+LinerForm.Show; //Estamos mostrando la ventana antes de que se cree, esto no parece buena idea
 Form5.Show;
 FormPID.Show;
 //Count_Live:= FormPID.SpinEdit4.Value;

@@ -89,93 +89,13 @@ var
 
 implementation
 
-uses Scanner1, DataAdcquisition, Config_Liner, Config_Trip, PID;
+uses Scanner1, DataAdcquisition, Liner,Config_Liner, Config_Trip, PID;
 
 {$R *.DFM}
 
 procedure TFormConfig.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-ScanForm.XDAC:=SpinEdit1.Value;
-ScanForm.YDAC:=SpinEdit2.Value;
-ScanForm.XDAC_Pos:=SpinEdit6.Value;
-ScanForm.YDAC_Pos:=SpinEdit7.Value;
-ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
-ScanForm.AmpY:=StrtoFloat(Combobox2.Text);
-ScanForm.CalX:=StrtoFloat(Edit1.Text);
-ScanForm.CalY:=StrtoFloat(Edit2.Text);
-ScanForm.ADCTopo:=TopoChanEdit.Value;
-ScanForm.ADCI:=CurrentChanEdit.Value;
-ScanForm.AmpTopo:=StrtoFloat(TopoAmpBox.Text);
-//La amplificacion introducida es en V que va entre +-10, pero el valor que leemos de los ADC es entre +-1, asi que restamos 1
-ScanForm.AmpI:=power(10,-1*(StrtoFloat(CurrentAmpBox.Text)-1));
-ScanForm.CalTopo:=StrtoFloat(TopoCalEdit.Text);
-ScanForm.MultI:=StrtoInt(CurrentMultEdit.Text);
-ScanForm.ReadTopo:=TopoCheck.checked;
-ScanForm.ReadCurrent:=CurrentCheck.checked;
-
-//añadido para poder leer other
-ScanForm.ReadOther:=OtherCheck.checked;
-ScanForm.ADCOther:=OtherChanEdit.Value;
-ScanForm.AmpOther:=power(10,-1*(StrtoFloat(OtherAmpBox.Text)-1));
-ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
-
-// Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
-if (chkAttenuator.Checked) then
-  begin
-    case ScanForm.LHARev of
-    revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
-      DataForm.set_attenuator(0,0.1);
-      //DataForm.scan_attenuator:=0.1;
-    end;
-    revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
-      DataForm.set_attenuator(1,0.1);
-      DataForm.set_attenuator(2,0.1);
-      //DataForm.scan_attenuator:=0.1;
-    end;
-    revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
-      DataForm.set_attenuator_14b(1,0.1);
-      DataForm.set_attenuator_14b(2,0.1);
-      //DataForm.scan_attenuator:=0.1;
-    end;
-    end;
-  end
-else
-  begin
-    case ScanForm.LHARev of
-    revB..revC: begin //LHA rev B y C. Atenuadores solo en los Canales 0 y 2
-      DataForm.set_attenuator(0,1);
-      //DataForm.scan_attenuator:=1;
-    end;
-    revD: begin //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
-      DataForm.set_attenuator(1,1);
-      DataForm.set_attenuator(2,1);
-      //DataForm.scan_attenuator:=1;
-    end;
-    revE: begin //LHA version 14bits. Mismos atenuadores que rev D pero con 14bits
-      DataForm.set_attenuator_14b(1,1);
-      DataForm.set_attenuator_14b(2,1);
-      //DataForm.scan_attenuator:=1;
-    end;
-    end;
-end;
-
-ScanForm.TrackBar3Change(self);
-
-if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
-  begin
-  FormPID.lblCurrentLabel.Visible := True;
-  FormPID.lblCurrentSetPoint.Visible := True;
-  //Conversion a corriente en nA:
-  //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
-  //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
-  FormPID.lblCurrentSetPoint.Caption :=Format('%2.2f',[FormPID.scrlbrSetPoint.Position/FormPID.scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
-  end
-else
-  begin
-  FormPID.lblCurrentLabel.Visible := False;
-  FormPID.lblCurrentSetPoint.Visible := False;
-  end;
-
+UpdateCfgClick(nil);
 end;
 
 procedure TFormConfig.FormCreate(Sender: TObject);
@@ -216,6 +136,17 @@ try
   LinerConfig.ReverseCheck.Checked := IniFile.ReadBool(String(iniLiner), 'IVReverseDac', False);
   LinerConfig.seADCxaxis.Value := IniFile.ReadInteger(String(iniLiner), 'IVReadAdc', 0);
   LinerConfig.xDACMultiplier.Text := IniFile.ReadString(String(iniLiner), 'IVMult', '10');
+  LinerConfig.xDACMultiplierChange(nil);
+  LinerForm.Show; //Refrescamos la ventana del liner
+  //xAxisRange.Caption:=IntToStr(scrollSizeBias.Position);
+  //Cambiamos las unidades del liner acorde a los parametros obtenidos
+  if (LinerForm.x_axisDac = 6) and (LinerForm.x_axisMult<>0) then //assume this is the Bias DAC by default
+  begin
+    if LinerForm.x_axisMult<1 then //mV
+    LinerForm.xAxisRange.Caption:=Format('%.3g mV', [LinerForm.x_axisMult*1e3])
+    else LinerForm.xAxisRange.Caption:=Format('%.3g V', [LinerForm.x_axisMult]);
+  end
+  else LinerForm.xAxisRange.Caption:=IntToStr(LinerForm.scrollSizeBias.Position);
   //En principio es mejor no cambiar este valor por defecto y solo cambiarlo manualmente
   //Podriamos leer un valor por defecto para las curvas reducidas pero que haya que marcar la casilla manualmente
   //LinerConfig.seReduceRampFactor.Value := IniFile.ReadInteger(String(iniLiner)), 'ReduceRamp', 1);
@@ -316,7 +247,8 @@ case ScanForm.LHARev of
     //DataForm.bias_attenuator:=1;
   end;
 end;
-
+LinerConfig.Show;
+LinerForm.Show; //Refrescamos la ventana del liner para que aparezca lo de los atenuadores
 
 end;
 

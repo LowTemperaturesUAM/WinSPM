@@ -48,6 +48,7 @@ type
     procedure DAC6AttEditCheck(Sender: TObject);
     procedure SetDAC5AttBtnClick(Sender: TObject);
     procedure SetDAC6AttBtnClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
 
   private
     { Private declarations }
@@ -286,6 +287,15 @@ end;
 LinerForm.BiasAttDispValue.Caption := DAC6AttEdit.Text;
 //Refresh de multiplier
 xDACMultiplierChange(xDACMultiplier);
+end;
+
+procedure TLinerConfig.FormCreate(Sender: TObject);
+var
+  NewMultiplier: Double;
+begin
+NewMultiplier := StrtoFloat(xDACMultiplier.Text);
+if NewMultiplier<>0 then LinerForm.x_axisMult := NewMultiplier
+else LinerForm.x_axisMult := 10;
 end;
 
 end.
