@@ -49,8 +49,8 @@ type
     thrdtmr1: TThreadedTimer;
     se1: TSpinEdit;
     lbl1: TLabel;
-    Button1: TButton;
-    SpinEdit6: TSpinEdit;
+    SleepCtrlBtn: TButton;
+    SleepCtrlEdit: TSpinEdit;
     lblCurrentLabel: TLabel;
     lblCurrentSetPoint: TLabel;
     procedure FormShow(Sender: TObject);
@@ -78,7 +78,7 @@ type
     procedure Gain_DChange(Sender: TObject);
     procedure thrdtmr1Timer(Sender: TObject);
     procedure se1Change(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure SleepCtrlBtnClick(Sender: TObject);
 private
     { Private declarations }
 public
@@ -376,12 +376,11 @@ begin
 
 end;
 
-procedure TFormPID.Button1Click(Sender: TObject);
+procedure TFormPID.SleepCtrlBtnClick(Sender: TObject);
 var
- Past,TickTime: longint;
-
- begin
- TickTime:=SpinEdit6.Value;
+ Past,TickTime: Cardinal;
+begin
+ TickTime:=SleepCtrlEdit.Value;
  Past := GetTickCount;
  repeat
  application.ProcessMessages;

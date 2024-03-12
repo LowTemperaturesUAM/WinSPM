@@ -389,16 +389,16 @@ object FormPID: TFormPID
     Value = 1
     OnChange = se1Change
   end
-  object Button1: TButton
+  object SleepCtrlBtn: TButton
     Left = 152
     Top = 8
     Width = 75
     Height = 25
     Caption = 'SleepCtrl'
     TabOrder = 21
-    OnClick = Button1Click
+    OnClick = SleepCtrlBtnClick
   end
-  object SpinEdit6: TSpinEdit
+  object SleepCtrlEdit: TSpinEdit
     Left = 152
     Top = 40
     Width = 65

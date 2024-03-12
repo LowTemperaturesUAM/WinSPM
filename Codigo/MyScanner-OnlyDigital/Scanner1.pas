@@ -1372,7 +1372,7 @@ repeat
    //sleep(500*StrToInt(SpinEdit3.Text));
    //FormPID.se1.Text:='0';
    //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
-   FormPID.Button1Click(nil);
+   FormPID.SleepCtrlBtnClick(nil);
 
   i:=0;
   p:=0;
