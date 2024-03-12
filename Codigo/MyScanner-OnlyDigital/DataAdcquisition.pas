@@ -80,6 +80,8 @@ type
     OffsetValue: TSpinEdit;
     GainValue: TSpinEdit;
     SetDACCorrLbl: TLabel;
+    OffsetVoltLbl: TLabel;
+    GainVoltLbl: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
     function InitDataAcq : boolean ;
@@ -104,6 +106,8 @@ type
     procedure GainBtnClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SetDACCorrectionChange(Sender: TObject);
+    procedure OffsetValueChange(Sender: TObject);
+    procedure GainValueChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -1541,8 +1545,24 @@ end;
 end;
 procedure TDataForm.SetDACCorrectionChange(Sender: TObject);
 begin
+  //38uV per step
   OffsetValue.Value:=DacCal[SetDACCorrection.Value].Offset;
+  OffsetValueChange(nil);
+  //305uV per step at full output
   GainValue.Value:=DacCal[SetDACCorrection.Value].Gain;
+  GainValueChange(nil);
+end;
+
+procedure TDataForm.OffsetValueChange(Sender: TObject);
+begin
+//At +-10V each step corresponds to 38uV offset
+OffsetVoltLbl.Caption:=Format('%.3f mV',[OffsetValue.Value*38e-3]);
+end;
+
+procedure TDataForm.GainValueChange(Sender: TObject);
+begin
+//At +-10V each step corresponds to 305uV at full output
+GainVoltLbl.Caption:=Format('%.3f mV', [GainValue.Value*305e-3]);
 end;
 
 end.
