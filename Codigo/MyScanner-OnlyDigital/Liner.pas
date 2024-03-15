@@ -803,7 +803,11 @@ DataForm.dac_set(LinerConfig.SpinEdit1.Value, Round(32767*Size_xAxis), nil);
 if x_axisDac = 6 then //assume this is the Bias DAC by default
 begin
   if x_axisMult<1 then //mV
-  xAxisRange.Caption:=Format('%.3g mV', [Size_xAxis*x_axisMult*1e3])
+  begin
+    if LinerConfig.ReverseCheck.Checked then
+    xAxisRange.Caption:=Format('%.3g mV', [Size_xAxis*x_axisMult*-1e3])
+    else xAxisRange.Caption:=Format('%.3g mV', [Size_xAxis*x_axisMult*1e3]);
+  end
   else xAxisRange.Caption:=Format('%.3g V', [Size_xAxis*x_axisMult]);
 end
 else xAxisRange.Caption:=IntToStr(scrollSizeBias.Position);
