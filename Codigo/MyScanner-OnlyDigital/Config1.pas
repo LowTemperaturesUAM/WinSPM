@@ -143,7 +143,11 @@ try
   if (LinerForm.x_axisDac = 6) and (LinerForm.x_axisMult<>0) then //assume this is the Bias DAC by default
   begin
     if LinerForm.x_axisMult<1 then //mV
-    LinerForm.xAxisRange.Caption:=Format('%.3g mV', [LinerForm.x_axisMult*1e3])
+    begin
+      if LinerConfig.ReverseCheck.Checked then
+      LinerForm.xAxisRange.Caption:=Format('%.3g mV', [LinerForm.x_axisMult*-1e3])
+      else LinerForm.xAxisRange.Caption:=Format('%.3g mV', [LinerForm.x_axisMult*1e3]);
+    end
     else LinerForm.xAxisRange.Caption:=Format('%.3g V', [LinerForm.x_axisMult]);
   end
   else LinerForm.xAxisRange.Caption:=IntToStr(LinerForm.scrollSizeBias.Position);
