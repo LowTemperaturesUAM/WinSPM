@@ -208,7 +208,8 @@ begin
 //if Application.MessageBox('LHA Version with extra attenuators?','LHA version', MB_YESNO)=IDYES
 //  then VersionDivider:=True
 //  else VersionDivider:=False;
-
+DecimalSeparator := '.'; //Fijamos el formato de los decimales
+ThousandSeparator := #0;
 FormConfig.Show;
 XDAC:=FormConfig.SpinEdit1.Value;
 YDAC:=FormConfig.SpinEdit2.Value;
