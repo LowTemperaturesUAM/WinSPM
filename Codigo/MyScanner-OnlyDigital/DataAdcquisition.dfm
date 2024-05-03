@@ -268,4 +268,32 @@ object DataForm: TDataForm
     Value = 0
     OnChange = GainValueChange
   end
+  object DIOButton: TButton
+    Left = 480
+    Top = 16
+    Width = 121
+    Height = 25
+    Caption = 'DIOButton'
+    TabOrder = 15
+    OnClick = DIOButtonClick
+  end
+  object OSReadBtn: TButton
+    Left = 368
+    Top = 14
+    Width = 57
+    Height = 22
+    Caption = 'Read'
+    TabOrder = 16
+    OnClick = OSReadClick
+  end
+  object OSspin: TSpinEdit
+    Left = 432
+    Top = 16
+    Width = 41
+    Height = 22
+    MaxValue = 64
+    MinValue = 0
+    TabOrder = 17
+    Value = 0
+  end
 end
