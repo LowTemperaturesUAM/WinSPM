@@ -151,7 +151,7 @@ object DataForm: TDataForm
     Height = 22
     LargeChange = 100
     Max = 32767
-    Min = -32767
+    Min = -32768
     PageSize = 0
     TabOrder = 4
     OnChange = ScrollBar1Change
@@ -275,6 +275,7 @@ object DataForm: TDataForm
     Height = 25
     Caption = 'DIOButton'
     TabOrder = 15
+    Visible = False
     OnClick = DIOButtonClick
   end
   object OSReadBtn: TButton
@@ -284,6 +285,7 @@ object DataForm: TDataForm
     Height = 22
     Caption = 'Read'
     TabOrder = 16
+    Visible = False
     OnClick = OSReadClick
   end
   object OSspin: TSpinEdit
@@ -295,5 +297,6 @@ object DataForm: TDataForm
     MinValue = 0
     TabOrder = 17
     Value = 0
+    Visible = False
   end
 end

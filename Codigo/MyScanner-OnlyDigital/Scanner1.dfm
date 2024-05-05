@@ -528,7 +528,7 @@ object ScanForm: TScanForm
     Height = 20
     LargeChange = 10
     Max = 32767
-    Min = -32767
+    Min = -32768
     PageSize = 0
     TabOrder = 21
     OnChange = ScrollBar1Change
