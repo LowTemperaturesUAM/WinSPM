@@ -1676,7 +1676,7 @@ numdac:=SpinEdit2.Value;
 Value:=Scrollbar1.Position;
 
 dac_set(numdac,Value, nil);
-Label5.Caption:= FloatToStrF(10*Value/32768,ffGeneral,4,4);
+Label5.Caption:= FloatToStrF(10*Value/32768,ffGeneral,5,5);
 end;
 //Esta se queda
 procedure TDataForm.FormCreate(Sender: TObject);
@@ -1723,8 +1723,8 @@ mux,n: SmallInt;
 begin
 mux:=SpinEdit1.Value;
 n:=SpinEdit3.Value;
-//Label3.Caption:=FloattoStr(adc_take(mux,mux,n));
-adc_take_all(n,AdcWriteCommand,nil)
+Label3.Caption:=FloattoStr(adc_take(mux,mux,n));
+//adc_take_all(n,AdcWriteCommand,nil)
 
 end;
 
@@ -2023,6 +2023,7 @@ values := 65535;
 //Label3.Caption:=FloattoStr(adc_take(mux,mux,n));;
 set_dio_port_new(values);
 end;
+
 
 end.
 
