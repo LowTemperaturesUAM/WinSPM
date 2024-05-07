@@ -79,6 +79,9 @@ type
     Label6: TLabel;
     ZAttDispValue: TLabel;
     BiasAttDispValue: TLabel;
+    DoOSbtn: TButton;
+    OSRatioEdit: TSpinEdit;
+    OSRatioLbl: TLabel;
     procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -106,6 +109,8 @@ type
     procedure chkAcquireBlockClick(Sender: TObject);
     procedure chkPainYesNoClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure DoIV_oversample(Sender: TObject);
+    procedure OSRatioEditChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -137,6 +142,7 @@ type
   Datos1,Datos2,CurvaADerivar: vcurva;
   CurvaDerivada: vcurva;
   PaintYesNo: Boolean; // Es para si se quiere o no pintar las IVs
+  OversamplingRatio: Byte;
   end;
 
 var
@@ -192,6 +198,7 @@ MagField:=StrtoFloat(MagFieldEdit.Text);
 ChartLine.LeftAxis.AxisValuesFormat := '0.####E+0';
 StopIt:=True;
 PaintYesNo:=chkPainYesNo.checked;
+OversamplingRatio:=0;
 end;
 
 //Do
@@ -889,6 +896,160 @@ begin
   scrollSizeBias.Width := scrollSizeBias.Width  + BottomPanel.Width - oldWidth;
 end;
 
+
+procedure TLinerForm.DoIV_oversample(Sender: TObject);
+
+{Salvo y lo meto en:
+  ida                 vuelta
+  DataX[0,i]          DataX[1,i]
+  DataZ[0,i]          DataZ[1,i]
+  DataCurrent[0,i]    DataCurrent[1,i]
+  DataOther[0,i]      DataOther[1,i]}
+
+var
+j,h,k,Princ,Fin: Integer;
+//j: 1..1000; //Los valores que podemos coger en la interfaz estan limitados a este rango
+DataCurrentOld: Array [0..1,0..2048] of single;
+here_previous_ctrl:  Double;
+NumberControl: Integer;
+OSRatio: Byte;
+
+begin
+// Le decimos a la aplicación que procese los mensajes por si aún queda algún evento del temporizador, que no interfiera con la adquisición de la rampa
+Application.ProcessMessages();
+NumberControl:=SpinEdit6.Value;
+
+if CheckBox2.Checked then
+   begin
+    FormPID.Button9Click(nil);  // desactiva el feedback
+    //FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
+   end;
+
+here_previous_ctrl:=0;
+
+  // Creamos los vectores DataCurrentOld que usaremos para el accumulate
+  for h:=0 to PointNumber -1 do
+    begin
+      DataCurrentOld[0,h]:=  0.0;
+      DataCurrentOld[1,h]:=  0.0;
+    end;
+  //Bucle del accumulate. Tomamos tantas curvas como ponga en el SpinEdit de accumulate
+  //y vamos haciendo la media con las anteriores y actualizando el gráfico
+  while (Abort_Measure=False) do
+  begin
+  for j:=0 to SpinEdit2.Value -1 do
+  begin
+
+    // Be careful with the following things, because the voltage will be suddenly modified
+    if LinerConfig.ReverseCheck.Checked then   // This is when we want to reverse the bias
+    begin
+      if LinerConfig.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
+        Princ:=Round(-32768/LinerConfig.seReduceRampFactor.Value*Size_xAxis)
+      else
+    Princ:=Round(-32768*Size_xAxis);
+    end
+    else
+    begin
+      if LinerConfig.chkReduceRamp.Checked then    //This is when we want to make an IV curve with a reduced ramp
+        Princ:=Round(32768/LinerConfig.seReduceRampFactor.Value*Size_xAxis)
+      else
+    Princ:=Round(32768*Size_xAxis);
+    end;
+
+    Fin:=-Princ;
+    // Indicamos por qué iteracion vamos
+    lblAccumulate.Caption := format ('%d of', [j+1]);
+
+    OSRatio := OversamplingRatio;
+    // Forth (Rampa de ida)
+    // Lectura de UNA rampa de ida
+    DataForm.ramp_take_os(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked,OSRatio);
+
+    // Back (rampa de vuelta)
+    //Lectura de UNA rampa de vuelta
+    DataForm.ramp_take_os(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked,OSRatio);
+
+    {FormPID.Button8Click(nil);
+    sleep(20);
+    FormPID.Button9Click(nil);
+    }
+
+    for h:=0 To PointNumber - 1 do
+      begin
+      //Calculamos la media de la curva actual (DataCurrent) con las curvas acumuladas hasta ahora (DataCurrentOld)
+      DataCurrent[0,h]:=  DataCurrentOld[0,h]*(j/(j +1)) + DataCurrent[0,h]*(1/(j+1));
+      DataCurrent[1,h]:=  DataCurrentOld[1,h]*(j/(j+1)) + DataCurrent[1,h]*(1/(j+1));
+
+      DataCurrentOld[0,h]:=  DataCurrent[0,h];
+      DataCurrentOld[1,h]:=  DataCurrent[1,h];
+      end;
+
+    if (PaintYesNo) then RadioGroup2Click(nil); //Pintamos
+
+    // Esto es peligroso, pero lo hacemos, a ver si no da problemas ...
+    // volvemos a poner Princ al valor máximo antes de hacer funcionar el control otra vez
+    if LinerConfig.chkReduceRamp.Checked then
+      if LinerConfig.ReverseCheck.Checked then Princ:=Round(-32768*Size_xAxis)
+      else Princ:=Round(32768*Size_xAxis);
+
+    DataForm.dac_set(x_axisDAC,Princ, nil);
+
+    // Vamos a dejar funcionar el control durante 2 s
+    //j es siempre 0 o positivo. Para que lo comprobamos?
+    //De hecho, deberiamos usar un Cardinal
+    if (j>=0) then
+    begin
+    FormPID.thrdtmr1.Enabled:=False;
+    FormPID.Button8Click(nil);  // activa el feedback
+    // deberiamos activar el feedback solamente si NumberControl>0
+        k:=0;
+    while (k<NumberControl)  do
+      begin
+       k:=k+1;
+         here_previous_ctrl:=FormPID.Controla(1,here_previous_ctrl, True);   // controla SIN threadtimer
+         Sleep(1);
+      end;
+    FormPID.Button9Click(nil);  // desactiva el feedback
+    FormPID.thrdtmr1.Enabled:=True;
+    //Application.ProcessMessages;
+    end;
+
+    Application.ProcessMessages();
+  end;
+  if chkSaveAllCurves.checked then Button4Click(nil); //Guardar automáticamente si está chequeado
+  Abort_Measure:=True;
+  end;
+
+ if (Abort_Measure=True) then Abort_Measure:=False;
+
+ if CheckBox2.Checked then
+   begin
+    FormPID.Button8Click(nil);
+    //FormPID.thrdtmr1.Enabled:=True; //encendemos el timer
+   end;
+
+ //Application.ProcessMessages();
+
+end;
+
+procedure TLinerForm.OSRatioEditChange(Sender: TObject);
+begin
+
+if (OSRatioEdit.Value > OversamplingRatio) and (OversamplingRatio >0) then
+begin
+OversamplingRatio := OversamplingRatio *2;
+end
+else if (OSRatioEdit.Value < OversamplingRatio) then
+begin
+  OversamplingRatio :=  OversamplingRatio div 2;
+end
+else if (OSRatioEdit.Value > OversamplingRatio) and (OversamplingRatio =0)then
+begin
+  OversamplingRatio :=  2;
+end;
+
+OSRatioEdit.Value := OversamplingRatio;
+end;
 
 end.
 

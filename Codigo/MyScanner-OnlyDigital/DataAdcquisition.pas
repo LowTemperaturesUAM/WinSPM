@@ -94,6 +94,7 @@ type
     function adc_take_all(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar) : TVectorDouble ;
     function adc_take_all_os(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar; OSRatio:Byte) : TVectorDouble ;
     function ramp_take(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
+    function ramp_take_os(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean; OSRatio: Byte): boolean;
     function ramp_take_reduce(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
     function send_buffer(bufferToSend: PAnsiChar; bytesToSend: Integer): FTC_STATUS;
     procedure set_dio_port(value: Word);
@@ -794,7 +795,7 @@ var   f : double ;
 //La longitud del mensaje solo depende del numero de dacs que es conocido, asi que lo fijamos como constante
 const MessageLength : Word = 2 * NUM_ADCs -1;
 var wait:Word;
-const old_tconv: Word = 5; //number of cycles to wait between CONVST pulling up and CS pins pulling down
+const old_tconv: Word = 8; //number of cycles to wait between CONVST pulling up and CS pins pulling down
 // This time is necesary to allow for the ADC to finish the read
 var tconv: Word; //variable number of cicles to wait depending on oversampling ratio
 var intentos: Integer; // Para pruebas de cuando faltan datos
@@ -844,6 +845,7 @@ begin
    else
     setLength(LongBuffer,11+3*(old_tconv+1));
    end;
+   //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
    // Construyo la cadena que se enviará. Será la misma en todas las iteraciones
    // Si es sólo ponerla en el buffer, hay que copiarla para cada iteración.
    i := 1; // El primer caracter está reservado para la longitud, se use o no.
@@ -1007,12 +1009,16 @@ begin
    LongBuffer[i] := Char($FB); Inc(i);
    LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i); // is this flush necessary?
    //LongBuffer[0] := Char(i-1); // Longitud de la cadena
+   //RealBuffLength.Caption := IntToStr(i-1);
+   Assert(Length(LongBuffer) = i-1);
   end;
 
   setLength(datosum, NUM_ADCs);
   for j := 0 to NUM_ADCs-1 do
     datosum[j]:=0 ;    // Se pone a 0 al principio del bucle
-  Assert(Length(LongBuffer) = i-1);
+  //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
+  //RealBuffLength.Caption := IntToStr(i-1);
+  //Assert(Length(LongBuffer) = i-1);
   BytesToWrite:= Length (LongBuffer);
   i:=0;
   while (i < n) do // Si se usa un for el optimizador se pasa de listo
@@ -1251,6 +1257,157 @@ begin
   while (i < j) do
   begin
     adcRead:=adc_take_all(LinerForm.LinerMean, AdcReadData, nil);
+    if LinerForm.ReadXFromADC then
+      LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+    if LinerForm.ReadZ then
+    begin
+      //if (Form1.DigitalPID) then
+      //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+      //else
+        LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+    end;
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadCurrent then
+      LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadOther then
+      LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+    i:=i+1;
+  end;
+
+  Result := True;
+end;
+
+function TDataForm.ramp_take_os(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
+var
+i,j,Loc_ADCTopo,Loc_ADCI, Loc_ADCOther: Integer;
+Loc_CalTopo,Loc_AmpTopo,Loc_AmpI,Loc_MultI,Loc_AmpOther,Loc_MultOther,Step,DacVal: Double;
+ReceivesBytes, BytesToReceive: Integer;
+adcRead: TVectorDouble;
+BufferMem: Array[0..FT_Out_Buffer_Size] of Byte;
+safeBufferSize: Integer; // Cuando el buffer se llene hasta esta cantidad de datos, los enviaremos. Debe ser sensiblemente menor que el tamaño del buffer para evitar que se desborde
+BufferPtr: PAnsiChar;
+SPI_Ret: FTC_STATUS;
+
+begin
+
+  safeBufferSize := Round(Length(BufferMem)*0.8);
+  if (not blockAcq) then
+    safeBufferSize := 0; // Si la adquisición es punto a punto no usamos el buffer y enviamos siempre los datos
+  DacVal:=value1;
+  Step:=(value2-value1)/(npoints*jump-1);
+
+  //Cogemos variables de la config del scanner
+  Loc_CalTopo:=ScanForm.CalTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_ADCTopo:=ScanForm.ADCTopo;
+
+  Loc_AmpI:=ScanForm.AmpI;
+  Loc_MultI:=ScanForm.MultI;
+  Loc_ADCI:=ScanForm.ADCI;
+
+  Loc_AmpOther:=ScanForm.AmpOther;
+  Loc_MultOther:=ScanForm.MultOther;
+  Loc_ADCOther:=ScanForm.ADCOther;
+
+  // Lectura de UNA rampa de ida o vuelta
+  BufferPtr := Addr(BufferMem[0]);
+  i:=0;
+  while (LinerForm.Abort_Measure=False) and (i<npoints) do
+  begin
+    j := 0;
+    if not LinerForm.ReadXFromADC then
+      LinerForm.DataX[dataSet,i]:=DacVal*LinerForm.x_axisMult/32768;
+
+    while (j < jump) do
+    begin
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+      DacVal := DacVal+Step;
+      Inc(j);
+      //if blockAcq then
+        //Application.ProcessMessages; // Para que pueda hacer el feedback digital //Hermann
+    end;
+
+    if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+    begin
+      adcRead := adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+      BufferPtr := BufferPtr + Round(adcRead[0]);
+    end;
+
+    // Si se llena el buffer, lo enviamos y empezamos de nuevo desde el principio
+    if ((BufferPtr-Addr(BufferMem[0])) > safeBufferSize) then
+    begin
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+    end;
+
+    // Si estamos adquiriendo punto a punto, adquirimos el punto que toque ahora
+    // que hemos enviado el anterior. No lo meto en el mismo envío para no
+    // tener problemas de latencias. Si se usa la adquisición punto a punto es de
+    // suponer que no hay prisa, podemos tardar un poco más en cada punto.
+    if (not blockAcq) then
+    begin
+      adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcWriteRead, nil,OSRatio);
+      if LinerForm.ReadXFromADC then
+        LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+      if LinerForm.ReadZ then
+      begin
+        //if (Form1.DigitalPID) then
+        //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+        //else
+          LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+      end;
+
+      //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+      //Se vuelve a poner Loc_ADCI
+      if LinerForm.ReadCurrent then
+        LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+      //Hermann, 19/11/2021. se añade una lectura de un ADC adicional
+        if LinerForm.ReadOther then
+        LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+    end;
+
+    Inc(i);
+  end;
+
+  // Si la adquisición es punto a punto, ya habremos terminado. Salimos
+  if (not blockAcq) then
+  begin
+      Result := True;
+      Exit;
+  end;
+
+  // Tenemos un ciclo de latencia, por lo que envío un dato más, para luego
+  // despreciar el primero.
+  adcRead := adc_take_all_os(1, AdcWriteCommand, BufferPtr,OSRatio);
+  BufferPtr := BufferPtr + Round(adcRead[0]);
+
+  // Envía todos los datos del buffer
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+
+  // Recibe los datos de los ADCs
+  // La variable i tendrá el número de puntos que realmente ha pedido. Si se ha
+  // parado la adquisición a medias, será menor que PointNumber. Leemos los datos
+  // que realmente hemos pedido. Aquí no comprobamos si nos han pedido que paremos,
+  // sacamos de los buffers todo lo que hemos pedido.
+
+  // Sacamos el dato extra que hemos metido para compensar la latencia.
+  adc_take_all_os(1, AdcReadData, nil,OSRatio);
+
+  j := i;
+  i:=0;
+  while (i < j) do
+  begin
+    adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcReadData, nil,OSRatio);
     if LinerForm.ReadXFromADC then
       LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
 

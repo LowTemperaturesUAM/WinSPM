@@ -183,7 +183,7 @@ object LinerForm: TLinerForm
     Left = 700
     Top = 56
     Width = 129
-    Height = 521
+    Height = 537
     Anchors = [akTop, akRight]
     BevelOuter = bvNone
     TabOrder = 1
@@ -226,6 +226,14 @@ object LinerForm: TLinerForm
       Top = 30
       Width = 3
       Height = 13
+    end
+    object OSRatioLbl: TLabel
+      Left = 14
+      Top = 510
+      Width = 64
+      Height = 13
+      Caption = 'Oversampling'
+      Visible = False
     end
     object CheckBox2: TCheckBox
       Left = 64
@@ -425,6 +433,20 @@ object LinerForm: TLinerForm
       TabOrder = 10
       OnClick = DeleteBtnClick
     end
+    object OSRatioEdit: TSpinEdit
+      Left = 84
+      Top = 506
+      Width = 36
+      Height = 22
+      EditorEnabled = False
+      Enabled = False
+      MaxValue = 64
+      MinValue = 0
+      TabOrder = 11
+      Value = 0
+      Visible = False
+      OnChange = OSRatioEditChange
+    end
   end
   object TopPanel: TPanel
     Left = 16
@@ -546,6 +568,17 @@ object LinerForm: TLinerForm
       Height = 17
       Caption = 'Save All'
       TabOrder = 8
+    end
+    object DoOSbtn: TButton
+      Left = 256
+      Top = 8
+      Width = 17
+      Height = 25
+      Caption = 'DoOSbtn'
+      Enabled = False
+      TabOrder = 9
+      Visible = False
+      OnClick = DoIV_oversample
     end
   end
   object GraphPanel: TPanel
