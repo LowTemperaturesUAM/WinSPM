@@ -582,8 +582,8 @@ begin
   IV_Scan_Lines:=P_Scan_Lines;
   RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
 end;
-
-TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
+//Increase the X axis of the chart by 5% because the points seem to be outside sometimes
+TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX*1.05, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX*1.05);
 
 if (TopoForm.RadioGroup1.ItemIndex = 0) then // Topo
 begin
