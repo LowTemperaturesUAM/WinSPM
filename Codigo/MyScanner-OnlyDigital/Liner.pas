@@ -828,7 +828,7 @@ if RadioGroup1.ItemIndex=0 then
   RadioGroup1.ItemIndex:=1;
   RadioGroup2Click(nil);
   end
-  else
+else
   RadioGroup2Click(nil);
 end;
 
