@@ -412,19 +412,19 @@ begin
 
    // Construyo la cadena que se enviará
    i := 0; // El primer caracter está reservado para la longitud, se use o no.
-   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-   (BufferDest+i)^ := Char(CadenaCS); Inc(i);
-   (BufferDest+i)^ := Char($FB); Inc(i);
-   (BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
-   (BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
-   (BufferDest+i)^ := Char($00); Inc(i);
-   (BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
-   (BufferDest+i)^ := Char(valor shr 8); Inc(i); // Byte más significativo del valor
-   (BufferDest+i)^ := Char(valor and $FF); Inc(i); // Byte menos significativo del valor
-   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-   (BufferDest+i)^ := Char($FF); Inc(i);
-   (BufferDest+i)^ := Char($FB); Inc(i);
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   (BufferDest+i)^ := AnsiChar(CadenaCS); Inc(i);
+   (BufferDest+i)^ := AnsiChar($FB); Inc(i);
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO); Inc(i);
+   (BufferDest+i)^ := AnsiChar($02); Inc(i); // Numero de bytes a transmitir menos 1?
+   (BufferDest+i)^ := AnsiChar($00); Inc(i);
+   (BufferDest+i)^ := AnsiChar(sele_dac); Inc(i); //Registro?
+   (BufferDest+i)^ := AnsiChar(valor shr 8); Inc(i); // Byte más significativo del valor
+   (BufferDest+i)^ := AnsiChar(valor and $FF); Inc(i); // Byte menos significativo del valor
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+   (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+   (BufferDest+i)^ := AnsiChar($FB); Inc(i);
 //   (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
 
    // Nacho Horcas, agosto de 2017
