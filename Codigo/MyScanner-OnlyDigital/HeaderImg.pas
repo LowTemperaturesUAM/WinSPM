@@ -18,14 +18,15 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure SPMVersion(FileName:string; var Major,Minor, Release, Build: Integer);
+    //Aquí quiero preguntar si hace falta cambiar a AnsiString
   private
     { Private declarations }
   public
     { Public declarations }
     ZAmplitude: Single;
     PosFin:Integer;
-    WSxMHeader: String;
-    Version: String;
+    WSxMHeader: AnsiString;
+    Version: AnsiString;
     MajorVer,MinorVer,ReleaseVer,BuildVer:Integer;
   end;
 
@@ -45,7 +46,7 @@ end;
 
 procedure TForm8.Button1Click(Sender: TObject);
 var
-MyComments, strLine, strUnit: string;
+MyComments, strLine, strUnit: AnsiString;
 
 begin
   DecimalSeparator := '.';
@@ -82,21 +83,21 @@ begin
   if (FormPID = nil) then
     strLine :='    Set Point: ?? %'
   else if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
-  strLine := Format('    Set Point: %s nA', [FormPID.lblCurrentSetPoint.Caption])
-  else strLine := Format('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
+  strLine := MyFormat('    Set Point: %s nA', [FormPID.lblCurrentSetPoint.Caption])
+  else strLine := MyFormat('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
 
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Amplitude: %f nm', [abs(ScanForm.h.xend-ScanForm.h.xstart)*1e9*ScanForm.CalX]);
+  strLine := MyFormat('    X Amplitude: %f nm', [abs(ScanForm.h.xend-ScanForm.h.xstart)*1e9*ScanForm.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    X Offset: %f nm', [ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX]);
+  strLine := MyFormat('    X Offset: %f nm', [ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Amplitude: %f nm', [abs(ScanForm.h.yend-ScanForm.h.ystart)*1e9*ScanForm.CalY]);
+  strLine := MyFormat('    Y Amplitude: %f nm', [abs(ScanForm.h.yend-ScanForm.h.ystart)*1e9*ScanForm.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Y Offset: %f nm', [ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY]);
+  strLine := MyFormat('    Y Offset: %f nm', [ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+#13#10+
@@ -104,20 +105,20 @@ begin
         #13#10+
         '    Image Data Type: double'#13#10;
 
-  strLine := Format('    Number of columns: %d', [ScanForm.P_Scan_Lines]);
+  strLine := MyFormat('    Number of columns: %d', [ScanForm.P_Scan_Lines]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Number of rows: %d', [ScanForm.P_Scan_Lines]);
+  strLine := MyFormat('    Number of rows: %d', [ScanForm.P_Scan_Lines]);
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
-  strLine := Format('    Z Amplitude: 1 %s', [strUnit]); // Si se guardan como flotantes el número se ignora el valor. Se usa la unidad con el valor que venga en la matriz
+  strLine := MyFormat('    Z Amplitude: 1 %s', [strUnit]); // Si se guardan como flotantes el número se ignora el valor. Se usa la unidad con el valor que venga en la matriz
   WSxMHeader := WSxMHeader+strLine+#13#10;
 
   WSxMHeader := WSxMHeader+
         #13#10+
         '[Miscellaneous]'#13#10+
         #13#10+
-        '    Comments: '+Edit1.Text+MyComments+#13#10+
+        '    Comments: '+AnsiString(Edit1.Text)+MyComments+#13#10+
         '    Saved with version: MyScanner '+Version+#13#10+
         '    Version: 1.0 (August 2005)'#13#10+
         '    Z Scale Factor: 1'#13#10+
@@ -127,7 +128,7 @@ begin
         #13#10;
 
   PosFin := Length(WSxMHeader);
-  RichEdit1.Text:= WSxMHeader;
+  RichEdit1.Text:= String(WSxMHeader);
   Label2.Caption:=InttoStr(PosFin);
 end;
 

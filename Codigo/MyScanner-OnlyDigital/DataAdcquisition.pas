@@ -540,6 +540,7 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
    numres:=ord(FT_In_Buffer[(chn*2)])*256 +  ( ord(FT_In_Buffer[(chn*2+1)]));
    if  numres > $7FFF             then    numres:=numres - $10000;      //Conversión (condicional) a nºs negativos
    resultadoooo:=numres/$10000;
+   //Comprobar por qué Nacho cambia el $10000 por $8000
 
   Str( resultadoooo, sTexto2 );
   Str( n, sTexto3 );

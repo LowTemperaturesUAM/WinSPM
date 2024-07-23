@@ -12,9 +12,10 @@
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, Menus, Spin, blqdataset, var_gbl,
-  Buttons, TeeProcs, TeEngine, Chart, Series, HeaderImg ;
+   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, blqloader,var_gbl,
+  Buttons, TeeProcs, TeEngine, Chart, Series, VclTee.TeeGDIPlus,
+  AnsiStrings, HeaderImg;
 
 type
   TDataCurve = Array [0..1,0..2048] of single;
@@ -103,7 +104,7 @@ type
     procedure scrollSizeBiasChange(Sender: TObject);
     procedure SpinEdit5Change(Sender: TObject);
     procedure Button7Click(Sender: TObject);
-    procedure SaveIV(fileName: string; dataSet: Integer; comments: String);
+    procedure SaveIV(fileName: string; dataSet: Integer; comments: AnsiString);
     procedure Button6Click(Sender: TObject);
     procedure ClearChart();
     procedure chkAcquireBlockClick(Sender: TObject);
@@ -137,7 +138,7 @@ type
   
   //b : TblqLoader ;     //bqlLoader solo aparece aqui, creo que podemos eliminarlo
   DS : TblqDataSet ;
-  blqname : string ;
+  blqname : AnsiString ;
   b_offset: Integer;
   Datos1,Datos2,CurvaADerivar: vcurva;
   CurvaDerivada: vcurva;
@@ -149,7 +150,7 @@ var
   LinerForm: TLinerForm;
 
   //b : TblqLoader ;
-  blqname : string ;
+  blqname : AnsiString ;
   b_offset: Integer;
   CurvaADerivar: vcurva;
   CurvaDerivada: vcurva;
@@ -554,31 +555,32 @@ end;
 procedure TLinerForm.Button4Click(Sender: TObject);
 var
 i,j,k,cols,BlockOffset: Integer;
-Fi_Name,BlockFileName,BlockFile,TakeComment:string;
+Fi_Name,BlockFileName: string;
+BlockFile,TakeComment: AnsiString
 number: Double;
 
 begin
 BlockFileName:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
-TakeComment:=DateTimeToStr(Now)+#13+#10+
+TakeComment:=AnsiStr(DateTimeToStr(Now)+#13+#10+
     'T(K)='+FloattoStrF(Temperature,ffGeneral,5,2)+#13+#10+
     'B(T)='+FloattoStrF(MagField,ffGeneral,5,2)+#13+#10+
     'X(nm)='+FloattoStrF(ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX, ffGeneral, 5, 4)+#13+#10+
-    'Y(nm)='+FloattoStrF(ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY, ffGeneral, 5, 4)+#13+#10;
+    'Y(nm)='+FloattoStrF(ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY, ffGeneral, 5, 4)+#13+#10);
   for k:=0 to 1 do
   begin
   BlockOffset:=k;
   number:=SpinEdit1.Value+Presentblknumber/10000+BlockOffset/10000;
-  BlockFile:=Edit1.Text+FloattoStrF(number,ffFixed,5,4);
+  BlockFile:=AnsiStr(Edit1.Text)+AsiStr(FloattoStrF(number,ffFixed,5,4));
   DS:=TblqDataSet.Create(NumCol,PointNumber) ;
   DS._Name:=BlockFile; // Aquí se pone el fichero con .xxxx al final
-  DS._BlockFile:=BlockFileName ; // Es el fichero de verdad, como en dd
+  DS._BlockFile:=AnsiStr(BlockFileName); // Es el fichero de verdad, como en dd
   DS._BlockOffset:=Presentblknumber+BlockOffset ;
   DS._Moment:=Now;
   DS._Time:=Now ;
 
  for i:=0 to NumCol-1 do
   begin
-  BlockFile:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value);
+  BlockFile:=AnsiStr(SaveDialog1.Filename+InttoStr(SpinEdit1.Value));
   if (k=0) then DS._Comment:=TakeComment+'Forth';
   if (k=1) then DS._Comment:=TakeComment+'Back';
   // COL HEADER
@@ -640,11 +642,11 @@ end;
 
 // Guarda las curvas IV en el formato de WSxM
 // Nacho Horcas, diciembre de 2017
-procedure TLinerForm.SaveIV(fileName: string; dataSet: Integer; comments: String);
+procedure TLinerForm.SaveIV(fileName: string; dataSet: Integer; comments: AnsiString);
 var
   myFile : TextFile;
-  commentsWSxM, strLine: string;
-//  strGeneralInfoDir :string;
+  commentsWSxM, strLine: Ansistring;
+//  strGeneralInfoDir : AnsiString;
   factorX, factorY: double;
   i: Integer;
   DataCurve: ^TDataCurve;
@@ -653,7 +655,7 @@ begin
 
   DecimalSeparator := '.';
   factorX := 1;
-  commentsWSxM := StringReplace(comments, #13#10, '\n', [rfReplaceAll, rfIgnoreCase]);
+  commentsWSxM := StringReplace(comments, AnsiString(#13#10), AnsiString('\n'), [rfReplaceAll, rfIgnoreCase]);
 
   AssignFile(myFile, fileName);
   ReWrite(myFile);
@@ -684,7 +686,7 @@ begin
   WriteLn(myFile, '');
   WriteLn(myFile, '    Number of lines: 2'); // Ida y vuelta
 
-  strLine := Format('    Number of points: %d', [PointNumber]);
+  strLine := MyFormat('    Number of points: %d', [PointNumber]);
   WriteLn(myFile, strLine);
 
   WriteLn(myFile, '    X axis text: V[#x]');
@@ -718,7 +720,7 @@ begin
 
   for i:=0 to PointNumber-1 do
   begin
-    strLine := Format('%g %g %g %g', [DataX[0,i]*factorX, DataCurve^[0,i]*factorY,
+    strLine := MyFormat('%g %g %g %g', [DataX[0,i]*factorX, DataCurve^[0,i]*factorY,
       DataX[1,i]*factorX, DataCurve^[1,i]*factorY]);
     WriteLn(myFile, strLine);
   end;
@@ -746,7 +748,7 @@ end;
 //En principio no hace nada, button10 no existe
 procedure TLinerForm.Button10Click(Sender: TObject);
 var
-BlockFile:string;
+BlockFile: AnsiString;
 b_offset: Integer;
 
 begin
