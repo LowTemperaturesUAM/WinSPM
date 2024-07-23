@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, DateUtils, StdCtrls, Spin, Controls, Classes, Graphics, Forms, Dialogs, Scanner1,
-  Liner, FT2232CSPIUnit, SPIDLLFuncUnit,D2XXUnit, StrUtils,IniFiles, WINSOCK, PID, 
+  Liner, FT2232CSPIUnit, SPIDLLFuncUnit,D2XXUnit, StrUtils, IniFiles, WINSOCK, PID,
   ExtCtrls ;
 
   Const
@@ -134,7 +134,7 @@ var
   SupraSPI_Hdl:Dword;
   simulating: Boolean;
   simulatedDac: array[0..7] of Integer;
-  Buffer:String[50]; //En ppio. hay espacio de sobra con esta cantidad
+  Buffer: AnsiString[50]; //En ppio. hay espacio de sobra con esta cantidad
   //Buffer: String[255]; //Lo aumentamos al maximo, pero sigue siendo insuficiente para el oversampling
   //Buffer: AnsiString; //Usamos una codepage mas o menos estandar
   //Buffer: array[0..1024] of AnsiChar; no es compatible con HexToString
@@ -360,8 +360,8 @@ end  ;
  // -1 en caso de error (donde se controle)
  // No encuentro la situacion en la que devolvemos -1
 function TDataForm.dac_set(ndac, valor:integer; BufferOut: PAnsiChar) : Integer ;
-Var sTexto:String;
-Var sTexto2:String;
+Var sTexto: AnsiString;
+Var sTexto2: AnsiString;
 var CadenaCS:integer;
 var sele_dac:integer;
 var BytesToWrite: Integer;
@@ -457,9 +457,9 @@ end;
 function TDataForm.adc_take(chn,mux,n:integer) : double ;
 
 
-Var sTexto:String;
-Var sTexto2:String;
-Var sTexto3:String;
+Var sTexto: AnsiString;
+Var sTexto2: AnsiString;
+Var sTexto3: AnsiString;
 
 var SPI_Ret:Integer;
 var BytesToWrite: Integer;
@@ -574,9 +574,9 @@ end;
 function TDataForm.adc_take_all(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar) : TVectorDouble ;
 
 
-Var sTexto:String;
-Var sTexto2:String;
-Var sTexto3:String;
+Var sTexto: AnsiString;
+Var sTexto2: AnsiString;
+Var sTexto3: AnsiString;
 
 var SPI_Ret:Integer;
 var BytesToWrite: Integer;
@@ -613,9 +613,9 @@ begin
    // Si es sólo ponerla en el buffer, hay que copiarla para cada iteración.
    i := 1; // El primer caracter está reservado para la longitud, se use o no.
    // Activamos la señal de conversión del ADC
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF-Integer(pADCsoc)); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF-Integer(pADCsoc)); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
    // Esperamos un poco hasta que termine la conversión
    (*Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
    Buffer[i] := Char($FF); Inc(i);
@@ -634,28 +634,28 @@ begin
    Buffer[i] := Char($FB); Inc(i);*)
    for wait:= 0 to tconv-1 do
    begin
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
    end;
    // Leemos los datos del ADC
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdReadDI); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdReadDI); Inc(i);
    //Buffer[i] := Char($0B); Inc(i);// Leer 12 bytes para el numero de ADCs que usamos
    //Buffer[i] := Char(2 * NUM_ADCs -1); Inc(i);
    //Buffer[i] := Char($00); Inc(i);
    Assert(Lo(MessageLength) = 11);
    Assert(Hi(MessageLength) = 0);
-   Buffer[i] := Char(Lo(MessageLength)); Inc(i);
-   Buffer[i] := Char(Hi(MessageLength)); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   Buffer[i] := Char($FF); Inc(i);
-   Buffer[i] := Char($FB); Inc(i);
-   Buffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
-   Buffer[0] := Char(i-1); // Longitud de la cadena
+   Buffer[i] := AnsiChar(Lo(MessageLength)); Inc(i);
+   Buffer[i] := AnsiChar(Hi(MessageLength)); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   Buffer[i] := AnsiChar($FF); Inc(i);
+   Buffer[i] := AnsiChar($FB); Inc(i);
+   Buffer[i] := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+   Buffer[0] := AnsiChar(i-1); // Longitud de la cadena
   end;
 
   setLength(datosum, NUM_ADCs);
@@ -773,9 +773,9 @@ end;
 //El programa falla para un ratio mayor que 4 (por el tamaño del buffer)
 function TDataForm.adc_take_all_os(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar;OSRatio: Byte) : TVectorDouble ;
 
-Var sTexto:String;
-Var sTexto2:String;
-Var sTexto3:String;
+Var sTexto: AnsiString;
+Var sTexto2: AnsiString;
+Var sTexto3: AnsiString;
 
 var SPI_Ret:Integer;
 var BytesToWrite: Integer;
@@ -851,9 +851,9 @@ begin
    i := 1; // El primer caracter está reservado para la longitud, se use o no.
    // Activamos la señal de conversión del ADC
 
-   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   LongBuffer[i] := Char($FF-Integer(pADCsoc)); Inc(i);
-   LongBuffer[i] := Char($FB); Inc(i);
+   LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := AnsiChar($FF-Integer(pADCsoc)); Inc(i);
+   LongBuffer[i] := AnsiChar($FB); Inc(i);
    // Esperamos un poco hasta que termine la conversión
    // We set the aproppiate OS pins for each oversampling ratio
    case OSRatio of
@@ -862,152 +862,152 @@ begin
       //tconv := 19;
       for wait:= 0 to tconv-1 do
       begin
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos0)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i)
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i)
       end;
       // Disable OS pins and restore CONVST
       // Set CS to start reading
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
     end;
     4:
     begin
       //tconv := 38;
       for wait:= 0 to tconv-1 do
       begin
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos1)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i)
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)+Integer(pADCos1)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i)
       end;
       // Disable OS pins and restore CONVST
       // Set CS to start reading
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
     end;
     8:
     begin
       //tconv := 78;
       for wait:= 0 to tconv-1 do
       begin
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos1)+Integer(pADCos0)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)+Integer(pADCos1)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
       end;
       // Disable OS pins and restore CONVST
       // Set CS to start reading
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
     end;
     16:
     begin
       //tconv := 156;
       for wait:= 0 to tconv-1 do
       begin
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)+Integer(pADCos2)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
       end;
       // Disable OS pins and restore CONVST
       // Set CS to start reading
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
     end;
     32:
     begin
       //tconv := 316;
       for wait:= 0 to tconv-1 do
       begin
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos0)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
       end;
       // Disable OS pins and restore CONVST
       // Set CS to start reading
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
     end;
     64:
     begin
       //tconv := 630;
       for wait:= 0 to tconv-1 do
       begin
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos1)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos1)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
       end;
       // Restore CONVST
       // Set CS to start reading
-      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
-      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
-      LongBuffer[i] := Char($FF); Inc(i);
-      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := AnsiChar(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FF); Inc(i);
+      LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := AnsiChar($FB); Inc(i);
     end;
    else // No oversampling, or wrong input value
    begin
    for wait:= 0 to old_tconv-1 do
    begin
-    LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-    LongBuffer[i] := Char($FF); Inc(i);
-    LongBuffer[i] := Char($FB); Inc(i);
+    LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+    LongBuffer[i] := AnsiChar($FF); Inc(i);
+    LongBuffer[i] := AnsiChar($FB); Inc(i);
    end;
    // Rrestore CONVST and set CS to start reading
-   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
-   LongBuffer[i] := Char($FB); Inc(i);
+   LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := AnsiChar($FF-Integer(pADCcs)); Inc(i);
+   LongBuffer[i] := AnsiChar($FB); Inc(i);
    end;
    end;
    // Leemos los datos del ADC
-   LongBuffer[i] := Char(MPSSE_CmdReadDI); Inc(i);
+   LongBuffer[i] := AnsiChar(MPSSE_CmdReadDI); Inc(i);
    Assert(Lo(MessageLength) = 11);
    Assert(Hi(MessageLength) = 0);
-   LongBuffer[i] := Char(Lo(MessageLength)); Inc(i);
-   LongBuffer[i] := Char(Hi(MessageLength)); Inc(i);
-   LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
-   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
-   LongBuffer[i] := Char($FF); Inc(i);
-   LongBuffer[i] := Char($FB); Inc(i);
-   LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i); // is this flush necessary?
+   LongBuffer[i] := AnsiChar(Lo(MessageLength)); Inc(i);
+   LongBuffer[i] := AnsiChar(Hi(MessageLength)); Inc(i);
+   LongBuffer[i] := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+   LongBuffer[i] := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := AnsiChar($FF); Inc(i);
+   LongBuffer[i] := AnsiChar($FB); Inc(i);
+   LongBuffer[i] := AnsiChar(MPSSE_CmdSendInmediate); Inc(i); // is this flush necessary?
    //LongBuffer[0] := Char(i-1); // Longitud de la cadena
    //RealBuffLength.Caption := IntToStr(i-1);
    Assert(Length(LongBuffer) = i-1);
@@ -1626,23 +1626,23 @@ begin
 
   // Construyo la cadena que se enviará
   i := 0;
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(0); Inc(i);
-  (BufferDest+i)^ := Char($FF); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
-  (BufferDest+i)^ := Char(2); Inc(i); // Número de bytes a transmitir menos 1
-  (BufferDest+i)^ := Char(0); Inc(i);
-  (BufferDest+i)^ := Char($40); Inc(i); // Direccion del chip y bits de control
-  (BufferDest+i)^ := Char(9); Inc(i); // Registro de datos
-  (BufferDest+i)^ := Char(value); Inc(i); // Valores de cada bit
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(Integer(pDIOcs)); Inc(i); //No estoy seguro de que esto sea correcto
-  (BufferDest+i)^ := Char($FF); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(0); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO2); Inc(i);
+  (BufferDest+i)^ := AnsiChar(2); Inc(i); // Número de bytes a transmitir menos 1
+  (BufferDest+i)^ := AnsiChar(0); Inc(i);
+  (BufferDest+i)^ := AnsiChar($40); Inc(i); // Direccion del chip y bits de control
+  (BufferDest+i)^ := AnsiChar(9); Inc(i); // Registro de datos
+  (BufferDest+i)^ := AnsiChar(value); Inc(i); // Valores de cada bit
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Integer(pDIOcs)); Inc(i); //No estoy seguro de que esto sea correcto
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
@@ -1661,24 +1661,24 @@ begin
   // Construyo la cadena que se enviará
   i := 0;
   // Activo el pin cs
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char($00); Inc(i);//everything to low (DIO high be default) for a cycle
-  (BufferDest+i)^ := Char($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar($00); Inc(i);//everything to low (DIO high be default) for a cycle
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
   //wait for two cycles on idle
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(Integer(pDIOcs)); Inc(i);
-  (BufferDest+i)^ := Char($FF); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(Integer(pDIOcs)); Inc(i);
-  (BufferDest+i)^ := Char($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Integer(pDIOcs)); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Integer(pDIOcs)); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
   //now set OS0 high for a cycle
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
-  (BufferDest+i)^ := Char(Integer($09)); Inc(i); //set OS0 high for a cycle
-  (BufferDest+i)^ := Char($FF); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Integer($09)); Inc(i); //set OS0 high for a cycle
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortH); Inc(i);
   //Go back to normal and send it
-  (BufferDest+i)^ := Char(Integer(pDIOcs)); Inc(i);
-  (BufferDest+i)^ := Char($FF); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Integer(pDIOcs)); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF); Inc(i);
   //(BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
   //(BufferDest+i)^ := Char(0); Inc(i);
   //(BufferDest+i)^ := Char($FF); Inc(i);
@@ -1694,7 +1694,7 @@ begin
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
   (BufferDest+i)^ := Char($FF-Integer(pDIOcs)); Inc(i);
   (BufferDest+i)^ := Char($00); Inc(i);*)
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
@@ -1722,12 +1722,12 @@ begin
   // Construyo la cadena que se enviará
   // esto habrá que cambiarlo todo para pasar a unicode
   i := 0;
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE-Integer(pAttcs)); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
-  (BufferDest+i)^ := Char(2); Inc(i); // Número de bytes a transmitir menos 1
-  (BufferDest+i)^ := Char(0); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE-Integer(pAttcs)); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO2); Inc(i);
+  (BufferDest+i)^ := AnsiChar(2); Inc(i); // Número de bytes a transmitir menos 1
+  (BufferDest+i)^ := AnsiChar(0); Inc(i);
   //if ScanForm.VersionDivider=False then
   //if ScanForm.LHARev = 1 then
   //  begin
@@ -1739,25 +1739,25 @@ begin
   //  begin
       case DACAttNr of
         // Version con solo 2 atenuadores:
-        0: begin (BufferDest+i)^ := Char(03); scan_attenuator:=value; end; // Registro: Ambos DACs (Canales 0 y 2)
+        0: begin (BufferDest+i)^ := AnsiChar(03); scan_attenuator:=value; end; // Registro: Ambos DACs (Canales 0 y 2)
         // Version con 4 atenuadores:
         // La variable que guarda el factor de atenuacion de escaneo solo se cambia
         // una vez al llamar la funcion para el DAC A, pero afecta tambien al DAC B
         // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
-        1: begin (BufferDest+i)^ := Char(00); scan_attenuator:=value; end; // Registro: DAC A (Canal 0)
-        2: (BufferDest+i)^ := Char(01); // Registro: DAC B (Canal 2)
-        3: begin (BufferDest+i)^ := Char(02); z_attenuator:=value; end;// Registro: DAC C (Canal 5)
-        4: begin (BufferDest+i)^ := Char(03); bias_attenuator:=value; end// Registro: DAC D (Canal 6)
+        1: begin (BufferDest+i)^ := AnsiChar(00); scan_attenuator:=value; end; // Registro: DAC A (Canal 0)
+        2: (BufferDest+i)^ := AnsiChar(01); // Registro: DAC B (Canal 2)
+        3: begin (BufferDest+i)^ := AnsiChar(02); z_attenuator:=value; end;// Registro: DAC C (Canal 5)
+        4: begin (BufferDest+i)^ := AnsiChar(03); bias_attenuator:=value; end// Registro: DAC D (Canal 6)
       end;
       Inc(i);
   //  end;
-  (BufferDest+i)^ := Char(Hi(valueDAC)); Inc(i);  // Parte alta del valor del DAC
-  (BufferDest+i)^ := Char(Lo(valueDAC)); Inc(i); // Parte baja del valor del DAC
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Hi(valueDAC)); Inc(i);  // Parte alta del valor del DAC
+  (BufferDest+i)^ := AnsiChar(Lo(valueDAC)); Inc(i); // Parte baja del valor del DAC
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
@@ -1798,19 +1798,19 @@ begin
   // Construyo la cadena que se enviará
   // esto habrá que cambiarlo todo para pasar a unicode
   i := 0;
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE-Integer(pAttcs)); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
-  (BufferDest+i)^ := Char(1); Inc(i); // Número de bytes a transmitir menos 1
-  (BufferDest+i)^ := Char(0); Inc(i);
-  (BufferDest+i)^ := Char(Hi(shortValueDAC)); Inc(i);  // Parte alta del valor del DAC
-  (BufferDest+i)^ := Char(Lo(shortValueDAC)); Inc(i); // Parte baja del valor del DAC
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-  (BufferDest+i)^ := Char($FE); Inc(i);
-  (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE-Integer(pAttcs)); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO2); Inc(i);
+  (BufferDest+i)^ := AnsiChar(1); Inc(i); // Número de bytes a transmitir menos 1
+  (BufferDest+i)^ := AnsiChar(0); Inc(i);
+  (BufferDest+i)^ := AnsiChar(Hi(shortValueDAC)); Inc(i);  // Parte alta del valor del DAC
+  (BufferDest+i)^ := AnsiChar(Lo(shortValueDAC)); Inc(i); // Parte baja del valor del DAC
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FE); Inc(i);
+  (BufferDest+i)^ := AnsiChar($FF-Integer(pDI)); Inc(i);
+  (BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
 
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, BufferDest, i, @BytesWritten);
   If (SPI_Ret <> 0) or (i <> BytesWritten) then
@@ -2023,19 +2023,19 @@ begin
 
 	// Construyo la cadena que se enviará
 	i := 0; // El primer caracter está reservado para la longitud, se use o no.
-	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-	(BufferDest+i)^ := Char(CadenaCS); Inc(i);
-	(BufferDest+i)^ := Char($FB); Inc(i);
-	(BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
-	(BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
-	(BufferDest+i)^ := Char($00); Inc(i);
-	(BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
-	(BufferDest+i)^ := Char($00); Inc(i); // Byte superior del registro. Este valor va a ser ignorado
-	(BufferDest+i)^ := Char(offset); Inc(i); // Byte inferior. Aqui introducimos el valor de la ganancia
-	(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-	(BufferDest+i)^ := Char($FF); Inc(i);
-	(BufferDest+i)^ := Char($FB); Inc(i);
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := AnsiChar(CadenaCS); Inc(i);
+	(BufferDest+i)^ := AnsiChar($FB); Inc(i);
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO); Inc(i);
+	(BufferDest+i)^ := AnsiChar($02); Inc(i); // Numero de bytes a transmitir menos 1?
+	(BufferDest+i)^ := AnsiChar($00); Inc(i);
+	(BufferDest+i)^ := AnsiChar(sele_dac); Inc(i); //Registro?
+	(BufferDest+i)^ := AnsiChar($00); Inc(i); // Byte superior del registro. Este valor va a ser ignorado
+	(BufferDest+i)^ := AnsiChar(offset); Inc(i); // Byte inferior. Aqui introducimos el valor de la ganancia
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := AnsiChar($FF); Inc(i);
+	(BufferDest+i)^ := AnsiChar($FB); Inc(i);
 	
    if (BufferOut = nil) then
    begin
@@ -2092,22 +2092,22 @@ begin
 
 	// Construyo la cadena que se enviará
 	i := 0; // El primer caracter está reservado para la longitud, se use o no.
-	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-	(BufferDest+i)^ := Char(CadenaCS); Inc(i);
-	(BufferDest+i)^ := Char($FB); Inc(i);
-	(BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
-	(BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
-	(BufferDest+i)^ := Char($00); Inc(i);
-	(BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := AnsiChar(CadenaCS); Inc(i);
+	(BufferDest+i)^ := AnsiChar($FB); Inc(i);
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdWriteDO); Inc(i);
+	(BufferDest+i)^ := AnsiChar($02); Inc(i); // Numero de bytes a transmitir menos 1?
+	(BufferDest+i)^ := AnsiChar($00); Inc(i);
+	(BufferDest+i)^ := AnsiChar(sele_dac); Inc(i); //Registro?
   //if offset>=0 then (BufferDest+i)^ := Char($00)
   //else (BufferDest+i)^ := Char($01);Inc(i); //Byte superior del registro. Solo necesitamos el signo
-  (BufferDest+i)^ := Char(Hi(offset) shr 7); Inc(i);//Byte superior del registro. Solo necesitamos el signo que es el bit superior
-	(BufferDest+i)^ := Char(Lo(offset)); Inc(i); // Byte inferior del valor
-	(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
-	(BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
-	(BufferDest+i)^ := Char($FF); Inc(i);
-	(BufferDest+i)^ := Char($FB); Inc(i);
-	
+  (BufferDest+i)^ := AnsiChar(Hi(offset) shr 7); Inc(i);//Byte superior del registro. Solo necesitamos el signo que es el bit superior
+	(BufferDest+i)^ := AnsiChar(Lo(offset)); Inc(i); // Byte inferior del valor
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdSendInmediate); Inc(i);
+	(BufferDest+i)^ := AnsiChar(MPSSE_CmdSetPortL); Inc(i);
+	(BufferDest+i)^ := AnsiChar($FF); Inc(i);
+	(BufferDest+i)^ := AnsiChar($FB); Inc(i);
+
    if (BufferOut = nil) then
    begin
        BytesToWrite:= i;
