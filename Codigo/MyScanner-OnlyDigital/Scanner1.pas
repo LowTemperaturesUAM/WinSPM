@@ -8,8 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, var_gbl, Spin, Math, ClipBrd, jpeg, Paste, Series,
-  Buttons;
+  StdCtrls, ExtCtrls, ComCtrls, var_gbl, Spin, Math, ClipBrd, jpeg,
+  AnsiStrings, Paste, Series, UITypes, Buttons;
 
 type
   TCitsIV = array of single;        // Cada rampa de una IV
@@ -127,7 +127,7 @@ type
     procedure ScrollBar3Change(Sender: TObject);
     function PointGlobalToCanvas(pntGlobal: TPointFloat; canvasSize: Integer):TPoint;
     function PointCanvasToGlobal(pntCanvas: TPoint; canvasSize: Integer):TPointFloat;
-    function StringToLengthNm(strValue: String):Single;
+    function StringToLengthNm(strValue: AnsiString):Single;
     procedure btnMarkNowClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
@@ -1599,8 +1599,8 @@ end;
 // Nacho Horcas, diciembre de 2017
 procedure TScanForm.SaveCits(dataSet: Integer);
 var
-  MiFile, FileNumber, strLine, strDirections : string;
-  strGeneralInfoDir :string;
+  MiFile, FileNumber, strLine, strDirections : AnsiString;
+  strGeneralInfoDir: AnsiString;
   minV, maxV, value : double;
   valueSingle : Single;
   i, j, k, size_double: Integer;
@@ -1655,21 +1655,21 @@ begin
   F.Write(''#13#10, 2+Length(''));
 
   if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
-  strLine := Format('    Set Point: %s nA', [FormPID.lblCurrentSetPoint.Caption])
-  else strLine := Format('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Set Point: %s nA', [FormPID.lblCurrentSetPoint.Caption])
+  else strLine := MyFormat('    Set Point: %d %%', [FormPID.scrlbrSetPoint.Position]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    X Amplitude: %f nm', [abs(ScanForm.h.xend-ScanForm.h.xstart)*1e9*CalX]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    X Amplitude: %f nm', [abs(ScanForm.h.xend-ScanForm.h.xstart)*1e9*CalX]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    X Offset: %f nm', [XOffset*10*AmpX*CalX]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    X Offset: %f nm', [XOffset*10*AmpX*CalX]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Y Amplitude: %f nm', [abs(ScanForm.h.yend-ScanForm.h.ystart)*1e9*CalY]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Y Amplitude: %f nm', [abs(ScanForm.h.yend-ScanForm.h.ystart)*1e9*CalY]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Y Offset: %f nm', [YOffset*10*AmpY*CalY]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Y Offset: %f nm', [YOffset*10*AmpY*CalY]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   F.Write(''#13#10, 2+Length(''));
 
@@ -1677,24 +1677,24 @@ begin
   F.Write(''#13#10, 2+Length(''));
   F.Write('    Image Data Type: double'#13#10, 2+Length('    Image Data Type: double'));
 
-  strLine := Format('    Number of columns: %d', [ScanForm.IV_Scan_Lines]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Number of columns: %d', [ScanForm.IV_Scan_Lines]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of points per ramp: %d', [LinerForm.PointNumber]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Number of points per ramp: %d', [LinerForm.PointNumber]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  strLine := Format('    Number of rows: %d', [ScanForm.IV_Scan_Lines]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine := MyFormat('    Number of rows: %d', [ScanForm.IV_Scan_Lines]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
   F.Write('    Spectroscopy Amplitude: 1 nA'#13#10, 2+Length('    Spectroscopy Amplitude: 1 nA')); // Lo importante es la unidad, no el valor
-  F.Write(PChar(strGeneralInfoDir+#13#10)^, 2+Length(strGeneralInfoDir));
+  F.Write(PAnsiChar(strGeneralInfoDir+#13#10)^, 2+Length(strGeneralInfoDir));
   F.Write('    Z Amplitude: 1 nm'#13#10, 2+Length('    Z Amplitude: 1 nm')); // Lo importante es la unidad, no el valor
   F.Write(''#13#10, 2+Length(''));
 
   F.Write('[Miscellaneous]'#13#10, 2+Length('[Miscellaneous]'));
   F.Write(''#13#10, 2+Length(''));
-  strLine:= Format('    Saved with version: MyScanner %s',[Form8.Version]);
-  F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+  strLine:= MyFormat('    Saved with version: MyScanner %s',[Form8.Version]);
+  F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
   F.Write('    Version: 1.0 (August 2005)'#13#10, 2+Length('    Version: 1.0 (August 2005)'));
   F.Write('    Z Scale Factor: 1'#13#10, 2+Length('    Z Scale Factor: 1'));
   F.Write('    Z Scale Offset: 0'#13#10, 2+Length('    Z Scale Offset: 0'));
@@ -1709,8 +1709,8 @@ begin
 
   for i := 0 to LinerForm.PointNumber-1 do
   begin
-    strLine := Format('    Image %.3d: %.4f V', [i, minV+i*(maxV-minV)/(LinerForm.PointNumber-1)]);
-    F.Write(PChar(strLine+#13#10)^, 2+Length(strLine));
+    strLine := MyFormat('    Image %.3d: %.4f V', [i, minV+i*(maxV-minV)/(LinerForm.PointNumber-1)]);
+    F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
   end;
 
   F.Write(''#13#10, 2+Length(''));
@@ -1757,7 +1757,7 @@ end;
 procedure TScanForm.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
 var
 MyStrLength,LengthDiff,i: Integer;
-Buf: String;
+Buf: AnsiString;
 
 begin
 Buf:='';
@@ -2008,22 +2008,22 @@ begin
   Result.Y := Round(tempY);
 end;
 
-function TScanForm.StringToLengthNm(strValue: String):Single;
+function TScanForm.StringToLengthNm(strValue: AnsiString):Single;
 var
-  strNumber, strUnit: String;
+  strNumber, strUnit: AnsiString;
   value: Single;
   i: integer;
 begin
   try
     strValue := Trim(strValue);
-    i := LastDelimiter(' ', strValue);
+    i := LastDelimiter(AnsiString(' '), strValue);
     if (i > 0) then
     begin
       strNumber := Copy(strValue, 1, i-1);
       strUnit := Copy(strValue, i+1, Length(strValue)-i);
     end;
 
-    value := StrToFloat(strNumber); // Leemos el número
+    value := StrToFloat(String(strNumber)); // Leemos el número
 
     // Convertimos las unidades, si hiciera falta
     if strUnit = 'Å' then
@@ -2184,7 +2184,7 @@ var
   x, y, sizeX, sizeY, value: Single;
   numParamsRead, i: Integer; // Número de datos que hemos podido obtener de la cabecera
   fileTemp: TextFile;
-  fileLine, strLabel, strValue: string;
+  fileLine, strLabel, strValue: AnsiString;
 
 begin
   // Para no borrar por error algo que no toque
@@ -2267,7 +2267,7 @@ begin
 
         fileLine := Trim(fileLine);
         // Si el campo tiene algún valor, lo leemos
-        i := LastDelimiter(':', fileLine);
+        i := LastDelimiter(AnsiString(':'), fileLine);
         if (i > 0) then
         begin
           strLabel := Copy(fileLine, 1, i-1);

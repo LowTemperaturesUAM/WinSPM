@@ -1,7 +1,7 @@
 unit var_gbl;
 
 interface
-uses Windows, Graphics;
+uses Windows, Graphics, SysUtils;
 
 const
 ldatos = 2048;
@@ -68,7 +68,7 @@ TIMGheader = record
   end ;
 
 infocurva = record
-               name : string;
+               name : AnsiString;
                decolor :integer;
                     w1   : word;
                     w2   : word;

@@ -1,6 +1,6 @@
 object ScanForm: TScanForm
-  Left = 861
-  Top = 24
+  Left = 678
+  Top = 65
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'WinSPM'
@@ -12,10 +12,9 @@ object ScanForm: TScanForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
+  Position = poDesigned
   OnClose = FormClose
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object Label29: TLabel
     Left = 251
@@ -117,7 +116,6 @@ object ScanForm: TScanForm
       Top = 35
       Width = 53
       Height = 21
-      ItemHeight = 13
       TabOrder = 1
       Text = '1'
       OnChange = ComboBox1Change
@@ -231,7 +229,6 @@ object ScanForm: TScanForm
       Top = 16
       Width = 65
       Height = 21
-      ItemHeight = 13
       ItemIndex = 5
       TabOrder = 0
       Text = '256'

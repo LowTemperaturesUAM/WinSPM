@@ -40,7 +40,7 @@ type
       function GetValue(n:integer) : double ;
       procedure SetValue(n:integer;f:double) ;
 
-      function GetAxisTitle:string ;
+      function GetAxisTitle: AnsiString ;
       procedure SetAxisUnits(n:Integer) ;
 
       constructor Create(n:integer) ;
@@ -61,7 +61,7 @@ type
 
       property Value[n:integer] : double read GetValue write SetValue ; default ;
       property AxisType:Integer read FAxisType ;
-      property AxisTitle:string read GetAxisTitle ;
+      property AxisTitle: AnsiString read GetAxisTitle ;
       property AxisUnits:Integer write SetAxisUnits ;
 
       property MinIndex : integer read GetMinIndex ;
@@ -87,12 +87,12 @@ type
       FNcols : Integer ;
       FNrows : Integer ;
       FCol : TList ;
-      FName : string ;
+      FName : AnsiString ;
       FMoment : double ;
       FTime : double ;
-      FComment : string ;
+      FComment : AnsiString ;
 
-      FBlockFile : string ;
+      FBlockFile : AnsiString ;
       FBlockOffset : Integer ;
       FXCol,FY1Col,FY2Col : Integer ;
 
@@ -113,14 +113,14 @@ type
       property Ncols:integer read FNcols ;
       property Moment : double read FMoment ;
       property Time : double read FTime ;
-      property Comment : string read FComment write FComment;
+      property Comment : AnsiString read FComment write FComment;
 
       // SECRETAS
-      property _Name:string write FName ;
+      property _Name: AnsiString write FName ;
       property _Moment : double write FMoment;
       property _Time : double write FTime ;
-      property _Comment : string write FComment ;
-      property _BlockFile:string write FBlockFile;
+      property _Comment : AnsiString write FComment ;
+      property _BlockFile: AnsiString write FBlockFile;
       property _BlockOffset:Integer write FBlockOffset ;
 
   end ;
@@ -128,12 +128,12 @@ type
   T_BLQ_Head = record
     v0 : word ; // $4444
     v1,v2,v3 : word ;
-    Name : array [0..31] of Char ;
+    Name : array [0..31] of AnsiChar ;
     NCols : Integer ;
     NRows : Integer ;
     Moment : double ;
     Time : double ;
-    Comment : array [0..127] of Char ;
+    Comment : array [0..127] of AnsiChar ;
 
     User : Integer ;
     UserReserved : array [0..99] of byte ;
@@ -161,7 +161,7 @@ type
 
   function LoadDataSetFromBlock(BlockFile:string;BlockOffset:Integer;var DS:TblqDataSet) : Boolean ;
   function WriteDataSetInBlock(BlockFile:string;DS:TblqDataSet;TwoTerminal:Boolean) : Boolean ;
-
+                                         //¿No sería AnsiString aquí también?
 const
   units_unknown=0 ; units_displacement=100 ; units_voltage=200 ;
   units_current=300 ; units_time=400 ; units_force=500 ; units_conductance=600 ;
@@ -281,8 +281,8 @@ begin
   FParamB[n]:=d ;
 end ;
 
-function TDataSetCol.GetAxistitle : string ;
-var s,u,n : string ;
+function TDataSetCol.GetAxistitle : AnsiString ;
+var s,u,n : AnsiString ;
 begin
   case FAxisType of
     units_unknown : begin n:='unknown' ; u:='' ; end ;
@@ -360,7 +360,7 @@ begin
   //DS.Free ;
   DS:=TblqDataSet.Create(BLQ_Head.NCols,BLQ_Head.Nrows) ;
   DS._Name:=BLQ_Head.Name ;
-  DS._BlockFile:=BlockFile ;
+  DS._BlockFile:=AnsiString(BlockFile) ;
   DS._BlockOffset:=BlockOffset ;
   DS._Moment:=BLQ_Head.Moment ;
   DS._Time:=BLQ_Head.Time ;
@@ -456,13 +456,13 @@ begin
   // CABECERA GENERAL
   h.V0:=$4444 ; h.V1:=1 ; h.V2:=0 ; h.V3:=0 ;
   for i:=0 to 31 do h.Name[i]:=#0 ;
-  strcopy(h.Name,PChar(DS.Name)) ;
+  strcopy(h.Name,PAnsiChar(DS.Name)) ;
   h.NCols:=DS.NCols ;
   h.NRows:=DS.NRows ;
   h.Moment:=DS.Moment ;
   h.Time:=DS.Time ;
   for i:=0 to 127 do h.Comment[i]:=#0 ;
-  strcopy(h.Comment,PChar(DS.Comment)) ;
+  strcopy(h.Comment,PAnsiChar(DS.Comment)) ;
   h.User:=1 ;
   for i:=0 to 99 do h.UserReserved[i]:=0 ;
   h.Unid:=1 ;
