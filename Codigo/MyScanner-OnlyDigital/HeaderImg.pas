@@ -49,11 +49,10 @@ var
 MyComments, strLine, strUnit: AnsiString;
 
 begin
-  DecimalSeparator := '.';
 
   //Obtenemos la version del programa para incluirlo en los header
   SPMVersion(ExtractFileName(ParamStr(0)),MajorVer,MinorVer,ReleaseVer,BuildVer);
-  Version := FloatToStr(MajorVer) + '.' +FloatToStr(MinorVer) + '.'+FloatToStr(ReleaseVer);
+  Version := AnsiString(IntToStr(MajorVer) + '.' +IntToStr(MinorVer) + '.'+IntToStr(ReleaseVer));
 
   if RadioGroup1.ItemIndex=0 then MyComments:='Forth'
   else MyComments:='Back';
@@ -141,12 +140,12 @@ var
   Temp: DWORD;
 begin
   //Funcion para obtener la version del programa usando la API de windows
-  InfoSize := GetFileVersionInfoSize(PAnsiChar(FileName), Temp);
+  InfoSize := GetFileVersionInfoSize(PWideChar(FileName), Temp);
   if not(InfoSize =0) then
   begin
   GetMem(Info,InfoSize);
     try
-      GetFileVersionInfo(PAnsiChar(FileName), 0, InfoSize, Info);
+      GetFileVersionInfo(PWideChar(FileName), 0, InfoSize, Info);
       VerQueryValue(Info, PathDelim, Pointer(FileInfo), FileSize);
       Major := HiWord(FileInfo.dwFileVersionMS);
       Minor := LoWord(FileInfo.dwFileVersionMS);

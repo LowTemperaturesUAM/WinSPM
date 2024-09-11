@@ -1,10 +1,10 @@
 object LinerForm: TLinerForm
   Left = 24
   Top = 24
-  Width = 852
-  Height = 649
   HorzScrollBar.Visible = False
   Caption = 'Bias Module'
+  ClientHeight = 611
+  ClientWidth = 840
   Color = clBtnFace
   Constraints.MinHeight = 649
   Constraints.MinWidth = 852
@@ -13,36 +13,21 @@ object LinerForm: TLinerForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    836
-    610)
-  PixelsPerInch = 96
+    840
+    611)
   TextHeight = 13
-  object Label3: TLabel
-    Left = 512
-    Top = 48
-    Width = 41
-    Height = 13
-    Caption = 'ZAttText'
-  end
-  object Label6: TLabel
-    Left = 512
-    Top = 64
-    Width = 41
-    Height = 13
-    Caption = 'ZAttText'
-  end
   object BottomPanel: TPanel
     Left = 16
-    Top = 516
+    Top = 517
     Width = 682
     Height = 85
     Anchors = [akLeft, akBottom]
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 516
     DesignSize = (
       682
       85)
@@ -180,13 +165,14 @@ object LinerForm: TLinerForm
     end
   end
   object RightPanel: TPanel
-    Left = 700
+    Left = 704
     Top = 56
     Width = 129
     Height = 537
     Anchors = [akTop, akRight]
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitLeft = 700
     object Label5: TLabel
       Left = 16
       Top = 56
@@ -260,7 +246,6 @@ object LinerForm: TLinerForm
       Width = 105
       Height = 21
       Hint = 'Point Number'
-      ItemHeight = 13
       ItemIndex = 9
       ParentShowHint = False
       ShowHint = True
@@ -595,13 +580,9 @@ object LinerForm: TLinerForm
       Width = 682
       Height = 457
       AllowPanning = pmVertical
-      AnimatedZoom = True
-      BackWall.Brush.Color = clWhite
       BackWall.Brush.Style = bsClear
-      Title.Font.Charset = DEFAULT_CHARSET
+      Legend.Visible = False
       Title.Font.Color = clBlack
-      Title.Font.Height = -11
-      Title.Font.Name = 'Arial'
       Title.Font.Style = [fsBold, fsItalic]
       Title.Text.Strings = (
         'Ramp')
@@ -612,7 +593,6 @@ object LinerForm: TLinerForm
       DepthAxis.Maximum = 0.500000000000000000
       DepthAxis.Minimum = -0.500000000000000000
       LeftAxis.ExactDateTime = False
-      Legend.Visible = False
       RightAxis.Automatic = False
       RightAxis.AutomaticMaximum = False
       RightAxis.AutomaticMinimum = False
@@ -621,37 +601,30 @@ object LinerForm: TLinerForm
       TopAxis.AutomaticMinimum = False
       View3D = False
       View3DWalls = False
+      Zoom.Animated = True
       Align = alClient
       Color = clWhite
       TabOrder = 0
+      DefaultCanvas = 'TGDIPlusCanvas'
+      ColorPaletteIndex = 13
       object ChartLineSerie0: TFastLineSeries
-        Marks.ArrowLength = 8
-        Marks.Visible = False
+        HoverElement = []
         PercentFormat = '##0,## %'
         SeriesColor = clRed
         ValueFormat = '#,##0,###'
         LinePen.Color = clRed
-        XValues.DateTime = False
         XValues.Name = 'X'
-        XValues.Multiplier = 1.000000000000000000
         XValues.Order = loAscending
-        YValues.DateTime = False
         YValues.Name = 'Y'
-        YValues.Multiplier = 1.000000000000000000
         YValues.Order = loNone
       end
       object ChartLineSerie1: TFastLineSeries
-        Marks.ArrowLength = 8
-        Marks.Visible = False
+        HoverElement = []
         SeriesColor = clBlue
         LinePen.Color = clBlue
-        XValues.DateTime = False
         XValues.Name = 'X'
-        XValues.Multiplier = 1.000000000000000000
         XValues.Order = loAscending
-        YValues.DateTime = False
         YValues.Name = 'Y'
-        YValues.Multiplier = 1.000000000000000000
         YValues.Order = loNone
       end
     end
