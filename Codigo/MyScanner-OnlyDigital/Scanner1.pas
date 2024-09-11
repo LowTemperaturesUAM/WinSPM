@@ -105,7 +105,7 @@ type
     procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
     procedure SaveCits(dataSet: Integer);
-    procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
+    procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: AnsiString);
     procedure HeaderImgBtnClick(Sender: TObject);
     procedure SaveImgButtonClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -194,6 +194,9 @@ uses Config1, Scanning, Liner, Trip, HeaderImg, FileNames, DataAdcquisition,
 
 var
   F: TFileStream;
+{$IFNDEF VER150}
+  FormatSet: TFormatSettings;
+{$ENDIF}
 
 {$R *.DFM}
 
@@ -208,8 +211,16 @@ begin
 //if Application.MessageBox('LHA Version with extra attenuators?','LHA version', MB_YESNO)=IDYES
 //  then VersionDivider:=True
 //  else VersionDivider:=False;
-DecimalSeparator := '.'; //Fijamos el formato de los decimales
-ThousandSeparator := #0;
+{$IFDEF VER150}
+  DecimalSeparator := '.'; //Fijamos el formato de los decimales
+  ThousandSeparator := #0;
+{$ELSE}
+  FormatSet := TformatSettings.Create;
+  FormatSet.DecimalSeparator := '.';
+  FormatSet.ThousandSeparator := #0;
+  System.SysUtils.FormatSettings := FormatSet;
+{$ENDIF}
+
 FormConfig.Show;
 XDAC:=FormConfig.SpinEdit1.Value;
 YDAC:=FormConfig.SpinEdit2.Value;
@@ -1599,7 +1610,8 @@ end;
 // Nacho Horcas, diciembre de 2017
 procedure TScanForm.SaveCits(dataSet: Integer);
 var
-  MiFile, FileNumber, strLine, strDirections : AnsiString;
+  MiFile, FileNumber, strDirections : String;
+  strLine : AnsiString;
   strGeneralInfoDir: AnsiString;
   minV, maxV, value : double;
   valueSingle : Single;
@@ -1607,7 +1619,6 @@ var
   ImageTopo: ^TImageSingle;
 
 begin
-  DecimalSeparator := '.';
   if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
 
@@ -1754,7 +1765,7 @@ begin
   F.Destroy;
 end;
 
-procedure TScanForm.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
+procedure TScanForm.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: AnsiString);
 var
 MyStrLength,LengthDiff,i: Integer;
 Buf: AnsiString;

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Tipos;
+  Tipos, AnsiStrings;
 
 type
   TblqDataSetForm = class(TForm)
@@ -106,8 +106,8 @@ type
       property y1col : integer read Fy1col write Fy1col ;
       property y2col : integer read Fy2col write Fy2col ;
       property Col[n:Integer] : TDataSetCol read GetCol ; default ;
-      property Name:string read FName ;
-      property BlockFile:string read FBlockFile ;
+      property Name:Ansistring read FName ;
+      property BlockFile:Ansistring read FBlockFile ;
       property BlockOffset:integer read FBlockOffset ;
       property Nrows:integer read FNrows ;
       property Ncols:integer read FNcols ;
@@ -185,6 +185,8 @@ var
   f : Double ;
 
 constructor TDataSetCol.Create(n:integer) ;
+var
+  i : integer;
 begin
   inherited Create ;
   GetMem(FData,4*n) ;
@@ -217,6 +219,8 @@ end ;
 
 
 constructor TblqDataSet.Create(ncols,nrows:Integer) ;
+var
+ i : integer;
 begin
   inherited Create ;
   Fncols:=ncols ;
@@ -237,6 +241,8 @@ begin
 end ;
 
 destructor TblqDataSet.Destroy ;
+var
+  i : integer;
 begin
   for i:=0 to Ncols-1 do TDataSetCol(FCol[i]).Free ;
   FCol.Clear ;
@@ -337,7 +343,7 @@ type
   TSmallInt_array = array [0..65535] of SmallInt ;
   TShortInt_array = array [0..65535] of ShortInt ;
 var
-  j : integer ;
+  i,j : integer ;
   data_single : ^Tsingle_array ;
   data_double : ^TDouble_array ;
   data_smallint : ^TSmallint_array ;
@@ -432,7 +438,7 @@ var
   FF : TFileStream ;
   h : T_BLQ_Head ;
   c : T_Col_Head ;
-  k : integer ;
+  i,k : integer ;
   bufs : array[0..16384] of single ;
   bufd : array[0..16384] of double ;
   f1,f2 : double ;
@@ -456,13 +462,15 @@ begin
   // CABECERA GENERAL
   h.V0:=$4444 ; h.V1:=1 ; h.V2:=0 ; h.V3:=0 ;
   for i:=0 to 31 do h.Name[i]:=#0 ;
-  strcopy(h.Name,PAnsiChar(DS.Name)) ;
+  //strcopy(h.Name,PAnsiChar(DS.Name)) ;
+  AnsiStrings.StrCopy(h.Name,PAnsiChar(DS.Name));
   h.NCols:=DS.NCols ;
   h.NRows:=DS.NRows ;
   h.Moment:=DS.Moment ;
   h.Time:=DS.Time ;
   for i:=0 to 127 do h.Comment[i]:=#0 ;
-  strcopy(h.Comment,PAnsiChar(DS.Comment)) ;
+  //strcopy(h.Comment,PAnsiChar(DS.Comment)) ;//moved to AnsiStrings unit
+  AnsiStrings.StrCopy(h.Comment,PAnsiChar(DS.Comment)) ;
   h.User:=1 ;
   for i:=0 to 99 do h.UserReserved[i]:=0 ;
   h.Unid:=1 ;

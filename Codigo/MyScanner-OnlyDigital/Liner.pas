@@ -13,7 +13,7 @@ interface
 
 uses
    Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, {xyyGraph,} Menus, Spin, blqdataset, blqloader,var_gbl,
+  StdCtrls, ExtCtrls, Menus, Spin, blqdataset,var_gbl,
   Buttons, TeeProcs, TeEngine, Chart, Series, VclTee.TeeGDIPlus,
   AnsiStrings, HeaderImg;
 
@@ -76,8 +76,6 @@ type
     GraphPanel: TPanel;
     ZAttText: TLabel;
     BiasAttText: TLabel;
-    Label3: TLabel;
-    Label6: TLabel;
     ZAttDispValue: TLabel;
     BiasAttDispValue: TLabel;
     DoOSbtn: TButton;
@@ -556,12 +554,12 @@ procedure TLinerForm.Button4Click(Sender: TObject);
 var
 i,j,k,cols,BlockOffset: Integer;
 Fi_Name,BlockFileName: string;
-BlockFile,TakeComment: AnsiString
+BlockFile,TakeComment: AnsiString;
 number: Double;
 
 begin
 BlockFileName:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
-TakeComment:=AnsiStr(DateTimeToStr(Now)+#13+#10+
+TakeComment:=AnsiString(DateTimeToStr(Now)+#13+#10+
     'T(K)='+FloattoStrF(Temperature,ffGeneral,5,2)+#13+#10+
     'B(T)='+FloattoStrF(MagField,ffGeneral,5,2)+#13+#10+
     'X(nm)='+FloattoStrF(ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX, ffGeneral, 5, 4)+#13+#10+
@@ -570,17 +568,17 @@ TakeComment:=AnsiStr(DateTimeToStr(Now)+#13+#10+
   begin
   BlockOffset:=k;
   number:=SpinEdit1.Value+Presentblknumber/10000+BlockOffset/10000;
-  BlockFile:=AnsiStr(Edit1.Text)+AsiStr(FloattoStrF(number,ffFixed,5,4));
+  BlockFile:=AnsiString(Edit1.Text)+AnsiString(FloattoStrF(number,ffFixed,5,4));
   DS:=TblqDataSet.Create(NumCol,PointNumber) ;
   DS._Name:=BlockFile; // Aquí se pone el fichero con .xxxx al final
-  DS._BlockFile:=AnsiStr(BlockFileName); // Es el fichero de verdad, como en dd
+  DS._BlockFile:=AnsiString(BlockFileName); // Es el fichero de verdad, como en dd
   DS._BlockOffset:=Presentblknumber+BlockOffset ;
   DS._Moment:=Now;
   DS._Time:=Now ;
 
  for i:=0 to NumCol-1 do
   begin
-  BlockFile:=AnsiStr(SaveDialog1.Filename+InttoStr(SpinEdit1.Value));
+  BlockFile:=AnsiString(SaveDialog1.Filename+InttoStr(SpinEdit1.Value));
   if (k=0) then DS._Comment:=TakeComment+'Forth';
   if (k=1) then DS._Comment:=TakeComment+'Back';
   // COL HEADER
@@ -653,7 +651,6 @@ var
 
 begin
 
-  DecimalSeparator := '.';
   factorX := 1;
   commentsWSxM := StringReplace(comments, AnsiString(#13#10), AnsiString('\n'), [rfReplaceAll, rfIgnoreCase]);
 
@@ -748,7 +745,7 @@ end;
 //En principio no hace nada, button10 no existe
 procedure TLinerForm.Button10Click(Sender: TObject);
 var
-BlockFile: AnsiString;
+BlockFile: String;
 b_offset: Integer;
 
 begin
