@@ -4,8 +4,8 @@ object DataForm: TDataForm
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'DAC and ADC handling'
-  ClientHeight = 132
-  ClientWidth = 1370
+  ClientHeight = 131
+  ClientWidth = 1366
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

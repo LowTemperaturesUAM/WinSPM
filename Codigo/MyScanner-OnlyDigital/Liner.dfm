@@ -4,7 +4,7 @@ object LinerForm: TLinerForm
   HorzScrollBar.Visible = False
   Caption = 'Bias Module'
   ClientHeight = 611
-  ClientWidth = 840
+  ClientWidth = 857
   Color = clBtnFace
   Constraints.MinHeight = 649
   Constraints.MinWidth = 852
@@ -16,7 +16,7 @@ object LinerForm: TLinerForm
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    840
+    857
     611)
   TextHeight = 13
   object BottomPanel: TPanel
@@ -27,7 +27,6 @@ object LinerForm: TLinerForm
     Anchors = [akLeft, akBottom]
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 516
     DesignSize = (
       682
       85)
@@ -172,7 +171,6 @@ object LinerForm: TLinerForm
     Anchors = [akTop, akRight]
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 700
     object Label5: TLabel
       Left = 16
       Top = 56
@@ -601,7 +599,6 @@ object LinerForm: TLinerForm
       TopAxis.AutomaticMinimum = False
       View3D = False
       View3DWalls = False
-      Zoom.Animated = True
       Align = alClient
       Color = clWhite
       TabOrder = 0

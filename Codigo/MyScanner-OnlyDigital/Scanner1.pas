@@ -9,7 +9,11 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, var_gbl, Spin, Math, ClipBrd, jpeg,
-  AnsiStrings, Paste, Series, UITypes, Buttons;
+  Paste, Series, Buttons
+  {$IF CompilerVersion>=30.0}
+    ,AnsiStrings, UITypes
+  {$IFEND}
+  ;
 
 type
   TCitsIV = array of single;        // Cada rampa de una IV

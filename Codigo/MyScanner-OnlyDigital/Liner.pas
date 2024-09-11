@@ -14,14 +14,18 @@ interface
 uses
    Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, Menus, Spin, blqdataset,var_gbl,
-  Buttons, TeeProcs, TeEngine, Chart, Series, VclTee.TeeGDIPlus,
-  AnsiStrings, HeaderImg;
+  Buttons, TeeProcs, TeEngine, Chart, Series, HeaderImg, VclTee.TeeGDIPlus
+  {$IF CompilerVersion>=30.0}
+    ,AnsiStrings
+  {$IFEND}
+  ;
+  //VclTee.TeeGDIPlus always gets added automatically outside the compiler directive
+  //It requires to be removed manually in order to compile on older versions of delphi
 
 type
   TDataCurve = Array [0..1,0..2048] of single;
 
   TLinerForm = class(TForm)
-//    xyyGraph1: TxyyGraph;
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;

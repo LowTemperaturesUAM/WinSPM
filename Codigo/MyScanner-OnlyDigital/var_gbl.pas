@@ -1,7 +1,11 @@
 unit var_gbl;
 
 interface
-uses Windows, Graphics, SysUtils, AnsiStrings;
+uses Windows, Graphics, SysUtils
+{$IF CompilerVersion>=30.0}
+ ,AnsiStrings
+{$IFEND}
+ ;
 
 const
 ldatos = 2048;

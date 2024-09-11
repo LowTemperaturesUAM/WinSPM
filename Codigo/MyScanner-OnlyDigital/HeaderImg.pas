@@ -140,12 +140,12 @@ var
   Temp: DWORD;
 begin
   //Funcion para obtener la version del programa usando la API de windows
-  InfoSize := GetFileVersionInfoSize(PWideChar(FileName), Temp);
+  InfoSize := GetFileVersionInfoSize(PChar(FileName), Temp);
   if not(InfoSize =0) then
   begin
   GetMem(Info,InfoSize);
     try
-      GetFileVersionInfo(PWideChar(FileName), 0, InfoSize, Info);
+      GetFileVersionInfo(PChar(FileName), 0, InfoSize, Info);
       VerQueryValue(Info, PathDelim, Pointer(FileInfo), FileSize);
       Major := HiWord(FileInfo.dwFileVersionMS);
       Minor := LoWord(FileInfo.dwFileVersionMS);

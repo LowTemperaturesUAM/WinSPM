@@ -12,7 +12,6 @@ object ScanForm: TScanForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  Position = poDesigned
   OnClose = FormClose
   OnShow = FormShow
   TextHeight = 13

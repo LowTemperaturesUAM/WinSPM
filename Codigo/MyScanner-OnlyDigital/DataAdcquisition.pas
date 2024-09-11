@@ -5,7 +5,11 @@ interface
 uses
   Windows, Messages, SysUtils, DateUtils, StdCtrls, Spin, Controls, Classes, Graphics, Forms, Dialogs, Scanner1,
   Liner, FT2232CSPIUnit, SPIDLLFuncUnit,D2XXUnit, StrUtils, IniFiles, WINSOCK, PID,
-  ExtCtrls, UITypes ;
+  ExtCtrls
+  {$IF CompilerVersion>=30.0}
+    ,UITypes
+  {$IFEND}
+  ;
 
   Const
   FT_DLL_Name = 'ftd2xx.dll';
@@ -175,13 +179,13 @@ begin
   for I := 1 to length (H) div 2 do
     Result:= Result+AnsiChar(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
 end;
-function HexToBuffer(H: String; var destBuffer: array of uint8): uint8;
-var I: Integer;
-begin
-  Result:= 0;
-  for I := 1 to length (H) div 2 do
-    destBuffer[i] := uint8(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
-end;
+//function HexToBuffer(H: String; var destBuffer: array of uint8): uint8;
+//var I: Integer;
+//begin
+//  Result:= 0;
+//  for I := 1 to length (H) div 2 do
+//    destBuffer[i] := uint8(StrToInt('$'+Copy(H,(I-1)*2+1,2)));
+//end;
 
 
 Function Get_USB_Device_QueueStatus(ReceivesBytes: Dword): Dword;
@@ -537,7 +541,7 @@ if (n<1) or (chn<0) or (chn>5)  then Exit ;
     begin
       //Str( ReceivesBytes, sTexto );
       sTexto := IntToStr(ReceivesBytes);
-      OutputDebugString(PWideChar('ADC_take Recibidos: ' + sTexto));
+      OutputDebugString(PChar('ADC_take Recibidos: ' + sTexto));
     end;
 
   // LECTURA DE DATOS ADC RECIBIDOS
@@ -737,7 +741,7 @@ begin
         begin
           //Str( ReceivesBytes, sTexto );
           sTexto := IntToStr(ReceivesBytes);
-          OutputDebugString(PWideChar('Recibidos: ' + sTexto));
+          OutputDebugString(PChar('Recibidos: ' + sTexto));
         end;
         SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, ReceivesBytes, @BytesReturned);
       end
@@ -1097,7 +1101,7 @@ begin
         begin
           //Str( ReceivesBytes, sTexto );
           sTexto := IntToStr(ReceivesBytes);
-          OutputDebugString(PWideChar('Recibidos: ' + sTexto));
+          OutputDebugString(PChar('Recibidos: ' + sTexto));
         end;
         SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, ReceivesBytes, @BytesReturned);
       end

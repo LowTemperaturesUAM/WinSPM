@@ -4,8 +4,11 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Tipos, AnsiStrings;
-
+  Tipos
+  {$IF CompilerVersion>=30.0}
+    ,AnsiStrings
+  {$IFEND}
+  ;
 type
   TblqDataSetForm = class(TForm)
   private
@@ -462,15 +465,21 @@ begin
   // CABECERA GENERAL
   h.V0:=$4444 ; h.V1:=1 ; h.V2:=0 ; h.V3:=0 ;
   for i:=0 to 31 do h.Name[i]:=#0 ;
-  //strcopy(h.Name,PAnsiChar(DS.Name)) ;
-  AnsiStrings.StrCopy(h.Name,PAnsiChar(DS.Name));
+  {$IF CompilerVersion>=30.0}
+   AnsiStrings.StrCopy(h.Name,PAnsiChar(DS.Name));
+  {$ELSE}
+   strcopy(h.Name,PAnsiChar(DS.Name)) ;
+  {$ENDIF}
   h.NCols:=DS.NCols ;
   h.NRows:=DS.NRows ;
   h.Moment:=DS.Moment ;
   h.Time:=DS.Time ;
   for i:=0 to 127 do h.Comment[i]:=#0 ;
-  //strcopy(h.Comment,PAnsiChar(DS.Comment)) ;//moved to AnsiStrings unit
-  AnsiStrings.StrCopy(h.Comment,PAnsiChar(DS.Comment)) ;
+  {$IF CompilerVersion>=30.0}
+   AnsiStrings.StrCopy(h.Comment,PAnsiChar(DS.Comment));
+  {$ELSE}
+   strcopy(h.Comment,PAnsiChar(DS.Comment)) ;
+  {$IFEND}
   h.User:=1 ;
   for i:=0 to 99 do h.UserReserved[i]:=0 ;
   h.Unid:=1 ;
