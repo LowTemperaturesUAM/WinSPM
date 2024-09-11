@@ -12,7 +12,9 @@ object Form8: TForm8
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = False
   OnCreate = FormCreate
+  PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 8
@@ -67,14 +69,8 @@ object Form8: TForm8
     Top = 112
     Width = 257
     Height = 385
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
     Lines.Strings = (
       'RichEdit1')
-    ParentFont = False
     TabOrder = 3
   end
   object Edit1: TEdit

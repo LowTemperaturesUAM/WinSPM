@@ -105,7 +105,7 @@ type
     procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
     procedure SaveCits(dataSet: Integer);
-    procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: AnsiString);
+    procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
     procedure HeaderImgBtnClick(Sender: TObject);
     procedure SaveImgButtonClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -194,9 +194,6 @@ uses Config1, Scanning, Liner, Trip, HeaderImg, FileNames, DataAdcquisition,
 
 var
   F: TFileStream;
-{$IFNDEF VER150}
-  FormatSet: TFormatSettings;
-{$ENDIF}
 
 {$R *.DFM}
 
@@ -211,21 +208,8 @@ begin
 //if Application.MessageBox('LHA Version with extra attenuators?','LHA version', MB_YESNO)=IDYES
 //  then VersionDivider:=True
 //  else VersionDivider:=False;
-<<<<<<< HEAD
-{$IFDEF VER150}
-  DecimalSeparator := '.'; //Fijamos el formato de los decimales
-  ThousandSeparator := #0;
-{$ELSE}
-  FormatSet := TformatSettings.Create;
-  FormatSet.DecimalSeparator := '.';
-  FormatSet.ThousandSeparator := #0;
-  System.SysUtils.FormatSettings := FormatSet;
-{$ENDIF}
-
-=======
 DecimalSeparator := '.'; //Fijamos el formato de los decimales
 ThousandSeparator := #0;
->>>>>>> 8b0ed918760cf505f8b8862a09ceb8adbc9e710b
 FormConfig.Show;
 XDAC:=FormConfig.SpinEdit1.Value;
 YDAC:=FormConfig.SpinEdit2.Value;
@@ -1615,12 +1599,7 @@ end;
 // Nacho Horcas, diciembre de 2017
 procedure TScanForm.SaveCits(dataSet: Integer);
 var
-<<<<<<< HEAD
-  MiFile, FileNumber, strDirections : String;
-  strLine : AnsiString;
-=======
   MiFile, FileNumber, strLine, strDirections : AnsiString;
->>>>>>> 8b0ed918760cf505f8b8862a09ceb8adbc9e710b
   strGeneralInfoDir: AnsiString;
   minV, maxV, value : double;
   valueSingle : Single;
@@ -1628,6 +1607,7 @@ var
   ImageTopo: ^TImageSingle;
 
 begin
+  DecimalSeparator := '.';
   if Form9.Label5.Caption='.\data' then Button3Click(nil); // default value for the path
   MiFile:=Form9.Label5.Caption; //Here is directory
 
@@ -1774,7 +1754,7 @@ begin
   F.Destroy;
 end;
 
-procedure TScanForm.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: AnsiString);
+procedure TScanForm.SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
 var
 MyStrLength,LengthDiff,i: Integer;
 Buf: AnsiString;
