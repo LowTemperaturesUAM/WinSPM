@@ -469,7 +469,7 @@ begin
    AnsiStrings.StrCopy(h.Name,PAnsiChar(DS.Name));
   {$ELSE}
    strcopy(h.Name,PAnsiChar(DS.Name)) ;
-  {$ENDIF}
+  {$IFEND}
   h.NCols:=DS.NCols ;
   h.NRows:=DS.NRows ;
   h.Moment:=DS.Moment ;
