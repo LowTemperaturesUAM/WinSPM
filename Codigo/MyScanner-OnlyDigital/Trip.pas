@@ -181,7 +181,7 @@ end;
 
 procedure TForm5.MakeSteps(numSteps, direction: Integer);
 var
-i,j: Integer;
+i,j: SmallInt;
 enviaZ: Integer;
 
 begin
@@ -189,7 +189,15 @@ begin
   i:=0;
   while (i<numSteps) and (StopTrip=False) do
   begin
-    for j:=-32767 to 32767 do
+    for j:= 0 to 32767 do
+    begin
+      if Frac(j/Speed)=0 then
+      begin
+        enviaZ:=direction*Mult*Round(j*Size/10);
+        DataForm.dac_set(ZPDac,enviaZ, nil);
+      end;
+    end;
+    for j:= -32768 to 0 do
     begin
       if Frac(j/Speed)=0 then
       begin
