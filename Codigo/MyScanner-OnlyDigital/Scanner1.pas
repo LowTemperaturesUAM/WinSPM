@@ -1614,7 +1614,7 @@ end;
 // Nacho Horcas, diciembre de 2017
 procedure TScanForm.SaveCits(dataSet: Integer);
 var
-  MiFile, FileNumber, strDirections : String;
+  MiFile, FileNumber, strDirections : AnsiString;
   strLine : AnsiString;
   strGeneralInfoDir: AnsiString;
   minV, maxV, value : double;
@@ -1661,13 +1661,13 @@ begin
   F:=TFileStream.Create(MiFile,fmCreate) ;
 
   // Guardamos la cabecera del fichero
-  F.Write('WSxM file copyright UAM'+#13#10, 2+Length('WSxM file copyright UAM'));
-  F.Write('Spectroscopy Imaging Image file'#13#10, 2+Length('Spectroscopy Imaging Image file'));
-  F.Write('Image header size: 0'#13#10, 2+Length('Image header size: 0')); // No se usa el tamaño de la cabecera, pero mejor que aparezca la línea
-  F.Write(''#13#10, 2+Length(''));
+  F.Write(PAnsiChar('WSxM file copyright UAM'+#13#10)^, 2+Length('WSxM file copyright UAM'));
+  F.Write(PAnsiChar('Spectroscopy Imaging Image file'+#13#10)^, 2+Length('Spectroscopy Imaging Image file'));
+  F.Write(PAnsiChar('Image header size: 0'+#13#10)^, 2+Length('Image header size: 0')); // No se usa el tamaño de la cabecera, pero mejor que aparezca la línea
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
 
-  F.Write('[Control]'#13#10, 2+Length('[Control]'));
-  F.Write(''#13#10, 2+Length(''));
+  F.Write(PAnsiChar('[Control]'+#13#10)^, 2+Length('[Control]'));
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
 
   if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
   strLine := MyFormat('    Set Point: %s nA', [FormPID.lblCurrentSetPoint.Caption])
@@ -1686,11 +1686,11 @@ begin
   strLine := MyFormat('    Y Offset: %f nm', [YOffset*10*AmpY*CalY]);
   F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  F.Write(''#13#10, 2+Length(''));
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
 
-  F.Write('[General Info]'#13#10, 2+Length('[General Info]'));
-  F.Write(''#13#10, 2+Length(''));
-  F.Write('    Image Data Type: double'#13#10, 2+Length('    Image Data Type: double'));
+  F.Write(PAnsiChar('[General Info]'+#13#10)^, 2+Length('[General Info]'));
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
+  F.Write(PAnsiChar('    Image Data Type: double'+#13#10)^, 2+Length('    Image Data Type: double'));
 
   strLine := MyFormat('    Number of columns: %d', [ScanForm.IV_Scan_Lines]);
   F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
@@ -1701,22 +1701,22 @@ begin
   strLine := MyFormat('    Number of rows: %d', [ScanForm.IV_Scan_Lines]);
   F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
 
-  F.Write('    Spectroscopy Amplitude: 1 nA'#13#10, 2+Length('    Spectroscopy Amplitude: 1 nA')); // Lo importante es la unidad, no el valor
+  F.Write(PAnsiChar('    Spectroscopy Amplitude: 1 nA'+#13#10)^, 2+Length('    Spectroscopy Amplitude: 1 nA')); // Lo importante es la unidad, no el valor
   F.Write(PAnsiChar(strGeneralInfoDir+#13#10)^, 2+Length(strGeneralInfoDir));
-  F.Write('    Z Amplitude: 1 nm'#13#10, 2+Length('    Z Amplitude: 1 nm')); // Lo importante es la unidad, no el valor
-  F.Write(''#13#10, 2+Length(''));
+  F.Write(PAnsiChar('    Z Amplitude: 1 nm'+#13#10)^, 2+Length('    Z Amplitude: 1 nm')); // Lo importante es la unidad, no el valor
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
 
-  F.Write('[Miscellaneous]'#13#10, 2+Length('[Miscellaneous]'));
-  F.Write(''#13#10, 2+Length(''));
+  F.Write(PAnsiChar('[Miscellaneous]'+#13#10)^, 2+Length('[Miscellaneous]'));
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
   strLine:= MyFormat('    Saved with version: MyScanner %s',[Form8.Version]);
   F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
-  F.Write('    Version: 1.0 (August 2005)'#13#10, 2+Length('    Version: 1.0 (August 2005)'));
-  F.Write('    Z Scale Factor: 1'#13#10, 2+Length('    Z Scale Factor: 1'));
-  F.Write('    Z Scale Offset: 0'#13#10, 2+Length('    Z Scale Offset: 0'));
-  F.Write(''#13#10, 2+Length(''));
+  F.Write(PAnsiChar('    Version: 1.0 (August 2005)'+#13#10)^, 2+Length('    Version: 1.0 (August 2005)'));
+  F.Write(PAnsiChar('    Z Scale Factor: 1'+#13#10)^, 2+Length('    Z Scale Factor: 1'));
+  F.Write(PAnsiChar('    Z Scale Offset: 0'+#13#10)^, 2+Length('    Z Scale Offset: 0'));
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
 
-  F.Write('[Spectroscopy images ramp value list]'#13#10, 2+Length('[Spectroscopy images ramp value list]'));
-  F.Write(''#13#10, 2+Length(''));
+  F.Write(PAnsiChar('[Spectroscopy images ramp value list]'+#13#10)^, 2+Length('[Spectroscopy images ramp value list]'));
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
 
   // Guarda las tensiones de cada punto del IV
   maxV := 10*LinerForm.Size_xAxis;
@@ -1728,8 +1728,8 @@ begin
     F.Write(PAnsiChar(strLine+#13#10)^, 2+Length(strLine));
   end;
 
-  F.Write(''#13#10, 2+Length(''));
-  F.Write('[Header end]'#13#10, 2+Length('[Header end]'));
+  F.Write(PAnsiChar(''+#13#10)^, 2+Length(''));
+  F.Write(PAnsiChar('[Header end]'+#13#10)^, 2+Length('[Header end]'));
 
   // Nacho, diciembre de 2017. No me gusta nada esta manera de escribir los datos
   // en fichero, pero no encuentro una mejor para escribir directametne en binario
@@ -2262,7 +2262,7 @@ begin
       Reset(fileTemp);
 
       // Vamos leyendo línea a línea hasta que aparezca el título que buscamos
-      while (not Eof(fileTemp)) and (fileLine <> '[Control]') do
+      while (not Eof(fileTemp)) and (fileLine <> PAnsiChar('[Control]')^) do
       begin
         ReadLn(fileTemp, fileLine);
       end;
