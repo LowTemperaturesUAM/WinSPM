@@ -1614,7 +1614,7 @@ end;
 // Nacho Horcas, diciembre de 2017
 procedure TScanForm.SaveCits(dataSet: Integer);
 var
-  MiFile, FileNumber, strDirections : AnsiString;
+  MiFile, FileNumber, strDirections: string;
   strLine : AnsiString;
   strGeneralInfoDir: AnsiString;
   minV, maxV, value : double;

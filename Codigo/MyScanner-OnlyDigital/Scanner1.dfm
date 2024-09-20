@@ -285,7 +285,7 @@ object ScanForm: TScanForm
     end
     object STSConfigBtn: TButton
       Left = 62
-      Top = 303
+      Top = 304
       Width = 65
       Height = 17
       Caption = 'IV Config'
@@ -573,8 +573,8 @@ object ScanForm: TScanForm
     OnClick = PasteImgBtnClick
   end
   object ScrollBar2: TScrollBar
-    Left = 423
-    Top = 57
+    Left = 424
+    Top = 56
     Width = 17
     Height = 401
     Kind = sbVertical
