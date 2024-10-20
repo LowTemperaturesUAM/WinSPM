@@ -1,4 +1,4 @@
-object Form5: TForm5
+object TripForm: TTripForm
   Left = 57
   Top = 673
   BorderIcons = [biSystemMenu, biMinimize]
@@ -17,35 +17,35 @@ object Form5: TForm5
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
+  object SpeedName: TLabel
     Left = 16
     Top = 120
     Width = 31
     Height = 13
     Caption = 'Speed'
   end
-  object Label2: TLabel
+  object SizeName: TLabel
     Left = 16
     Top = 152
     Width = 20
     Height = 13
     Caption = 'Size'
   end
-  object Label5: TLabel
+  object SpeedLbl: TLabel
     Left = 200
     Top = 120
     Width = 24
     Height = 13
     Caption = '1000'
   end
-  object Label6: TLabel
+  object SizeLbl: TLabel
     Left = 200
     Top = 152
     Width = 6
     Height = 13
     Caption = '1'
   end
-  object Label8: TLabel
+  object StepsLbl: TLabel
     Left = 16
     Top = 88
     Width = 77
@@ -58,7 +58,7 @@ object Form5: TForm5
     Font.Style = []
     ParentFont = False
   end
-  object Button1: TButton
+  object ApproachBtn: TButton
     Left = 16
     Top = 16
     Width = 105
@@ -71,9 +71,9 @@ object Form5: TForm5
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 0
-    OnClick = Button1Click
+    OnClick = ApproachBtnClick
   end
-  object Button2: TButton
+  object SeparateBtn: TButton
     Left = 232
     Top = 16
     Width = 89
@@ -86,9 +86,9 @@ object Form5: TForm5
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 1
-    OnClick = Button2Click
+    OnClick = SeparateBtnClick
   end
-  object Button3: TButton
+  object Separate100Btn: TButton
     Left = 232
     Top = 48
     Width = 89
@@ -101,9 +101,9 @@ object Form5: TForm5
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 2
-    OnClick = Button3Click
+    OnClick = Separate100BtnClick
   end
-  object Button4: TButton
+  object AutoApproachBtn: TButton
     Left = 16
     Top = 48
     Width = 105
@@ -116,9 +116,9 @@ object Form5: TForm5
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 3
-    OnClick = Button4Click
+    OnClick = AutoApproachBtnClick
   end
-  object Spinedit1: TSpinEdit
+  object StepsEdit: TSpinEdit
     Left = 136
     Top = 84
     Width = 65
@@ -133,9 +133,9 @@ object Form5: TForm5
     ParentFont = False
     TabOrder = 4
     Value = 1
-    OnChange = Spinedit1Change
+    OnChange = StepsEditChange
   end
-  object ScrollBar1: TScrollBar
+  object SpeedBar: TScrollBar
     Left = 72
     Top = 120
     Width = 121
@@ -146,9 +146,9 @@ object Form5: TForm5
     PageSize = 0
     Position = 1000
     TabOrder = 5
-    OnChange = ScrollBar1Change
+    OnChange = SpeedBarChange
   end
-  object ScrollBar2: TScrollBar
+  object SizeBar: TScrollBar
     Left = 72
     Top = 152
     Width = 121
@@ -158,18 +158,18 @@ object Form5: TForm5
     PageSize = 0
     Position = 1
     TabOrder = 6
-    OnChange = ScrollBar2Change
+    OnChange = SizeBarChange
   end
-  object Button5: TButton
+  object ConfigBtn: TButton
     Left = 240
     Top = 84
     Width = 75
     Height = 22
     Caption = 'Config'
     TabOrder = 7
-    OnClick = Button5Click
+    OnClick = ConfigBtnClick
   end
-  object Button6: TButton
+  object StopBtn: TButton
     Left = 128
     Top = 16
     Width = 97
@@ -183,24 +183,24 @@ object Form5: TForm5
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 8
-    OnClick = Button6Click
+    OnClick = StopBtnClick
   end
-  object Button7: TButton
+  object StepsDiv10Btn: TButton
     Left = 102
     Top = 84
     Width = 33
     Height = 22
     Caption = '/10'
     TabOrder = 9
-    OnClick = Button7Click
+    OnClick = StepsDiv10BtnClick
   end
-  object Button8: TButton
+  object StepsMul10Btn: TButton
     Left = 200
     Top = 84
     Width = 33
     Height = 22
     Caption = 'x10'
     TabOrder = 10
-    OnClick = Button8Click
+    OnClick = StepsMul10BtnClick
   end
 end

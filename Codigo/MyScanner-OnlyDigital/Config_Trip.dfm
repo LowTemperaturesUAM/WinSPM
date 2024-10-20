@@ -1,11 +1,11 @@
-object Form6: TForm6
+object TripConfig: TTripConfig
   Left = 653
   Top = 326
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'ConfigCoarseApproach'
-  ClientHeight = 173
-  ClientWidth = 405
+  ClientHeight = 124
+  ClientWidth = 289
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,71 +21,71 @@ object Form6: TForm6
     Width = 257
     Height = 89
     TabOrder = 0
-    object Label1: TLabel
+    object OutLabel: TLabel
       Left = 24
-      Top = 16
+      Top = 12
       Width = 60
       Height = 13
       Caption = 'Z prime DAC'
     end
-    object Label2: TLabel
+    object InLabel: TLabel
       Left = 24
-      Top = 40
+      Top = 36
       Width = 59
       Height = 13
       Caption = 'Current ADC'
     end
     object lblCurrentLimit: TLabel
       Left = 24
-      Top = 64
+      Top = 60
       Width = 74
       Height = 13
       Caption = 'Current limit (%):'
     end
-    object SpinEdit1: TSpinEdit
+    object OutDacEdit: TSpinEdit
       Left = 104
       Top = 8
-      Width = 41
+      Width = 42
       Height = 22
       MaxValue = 7
       MinValue = 0
       TabOrder = 0
       Value = 4
-      OnChange = SpinEdit1Change
+      OnChange = OutDacEditChange
     end
-    object SpinEdit2: TSpinEdit
+    object InADCEdit: TSpinEdit
       Left = 104
       Top = 32
-      Width = 41
+      Width = 42
       Height = 22
       MaxValue = 5
       MinValue = 0
       TabOrder = 1
       Value = 0
-      OnChange = SpinEdit2Change
+      OnChange = InADCEditChange
     end
-    object CheckBox1: TCheckBox
+    object InvertZPChk: TCheckBox
       Left = 152
-      Top = 16
+      Top = 10
       Width = 81
       Height = 17
       Caption = 'ZP times -1'
       TabOrder = 2
-      OnClick = CheckBox1Click
+      OnClick = InvertZPChkClick
     end
-    object CheckBox2: TCheckBox
+    object InvertCurChk: TCheckBox
       Left = 152
-      Top = 40
+      Top = 34
       Width = 97
       Height = 17
       Caption = 'Detect I times -1'
       TabOrder = 3
-      OnClick = CheckBox2Click
+      OnClick = InvertCurChkClick
     end
     object spinCurrentLimit: TSpinEdit
       Left = 104
-      Top = 60
-      Width = 37
+      Top = 56
+      Width = 42
       Height = 22
       MaxValue = 99
       MinValue = 0

@@ -7,35 +7,35 @@ uses
   StdCtrls, Spin, math;
 
 type
-  TForm5 = class(TForm)
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
-    Button4: TButton;
-    Spinedit1: TSpinEdit;
-    ScrollBar1: TScrollBar;
-    ScrollBar2: TScrollBar;
-    Label1: TLabel;
-    Label2: TLabel;
-    Button5: TButton;
-    Label5: TLabel;
-    Label6: TLabel;
-    Button6: TButton;
-    Label8: TLabel;
-    Button7: TButton;
-    Button8: TButton;
-    procedure Button5Click(Sender: TObject);
-    procedure ScrollBar2Change(Sender: TObject);
-    procedure ScrollBar1Change(Sender: TObject);
+  TTripForm = class(TForm)
+    ApproachBtn: TButton;
+    SeparateBtn: TButton;
+    Separate100Btn: TButton;
+    AutoApproachBtn: TButton;
+    StepsEdit: TSpinEdit;
+    SpeedBar: TScrollBar;
+    SizeBar: TScrollBar;
+    SpeedName: TLabel;
+    SizeName: TLabel;
+    ConfigBtn: TButton;
+    SpeedLbl: TLabel;
+    SizeLbl: TLabel;
+    StopBtn: TButton;
+    StepsLbl: TLabel;
+    StepsDiv10Btn: TButton;
+    StepsMul10Btn: TButton;
+    procedure ConfigBtnClick(Sender: TObject);
+    procedure SizeBarChange(Sender: TObject);
+    procedure SpeedBarChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Spinedit1Change(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Button7Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
+    procedure ApproachBtnClick(Sender: TObject);
+    procedure StepsEditChange(Sender: TObject);
+    procedure SeparateBtnClick(Sender: TObject);
+    procedure Separate100BtnClick(Sender: TObject);
+    procedure AutoApproachBtnClick(Sender: TObject);
+    procedure StopBtnClick(Sender: TObject);
+    procedure StepsDiv10BtnClick(Sender: TObject);
+    procedure StepsMul10BtnClick(Sender: TObject);
     procedure SetMoving(moving: Boolean);
     procedure MakeSteps(numSteps, direction: Integer);
   private
@@ -43,86 +43,80 @@ type
   public
     { Public declarations }
   Speed, Size, times, ZPDac, IADC, Mult, MultI: Integer;
-  StopTrip: Boolean; // Cuidado con StopTrip, se está asignando varias veces en la aproximación automática. Es poco probable pero podría darse el caso que una de estas asignaciones coincidiera con la pulsación del usuario para parar, lo machacase y no parara.
+  StopTrip: Boolean;
+  // Cuidado con StopTrip, se está asignando varias veces en la aproximación automática.
+  // Es poco probable pero podría darse el caso que una de estas asignaciones coincidiera con la pulsación del usuario para parar, lo machacase y no parara.
   end;
 
 var
-  Form5: TForm5;
+  TripForm: TTripForm;
 
 implementation
 
-uses Config_Trip, Liner, DataAdcquisition,
-  Scanner1;
+uses Config_Trip, Liner, DataAdcquisition, Scanner1;
 
-function dac_set(ndac,valor:integer) : boolean ; external 'take_dilucion.dll' ;
-function dac_init : boolean ;  external 'take_dilucion.dll' ;
-function adc_take(chn,mux,n:integer) : boolean ; external 'take_dilucion.dll' ;
-function adc_init : boolean ;  external 'take_dilucion.dll' ;
-function PID1_hold(b:Boolean) : Boolean ;  external 'take_dilucion.dll' ;
-function Bit_Modula(b:Boolean) : Boolean ;  external 'take_dilucion.dll' ;
-function take_initialize : boolean ;  external 'take_dilucion.dll' ;
-function take_finalize : boolean ;  external 'take_dilucion.dll' ;
 
 {$R *.DFM}
 
-procedure TForm5.Button5Click(Sender: TObject);
+procedure TTripForm.ConfigBtnClick(Sender: TObject);
 begin
-Form6.Show;
+TripConfig.Show;
 end;
 
-procedure TForm5.ScrollBar2Change(Sender: TObject);
+procedure TTripForm.SizeBarChange(Sender: TObject);
 begin
-Size:=ScrollBar2.Position;
-Label6.Caption:=InttoStr(Size);
+Size:=SizeBar.Position;
+SizeLbl.Caption:=InttoStr(Size);
 end;
 
-procedure TForm5.ScrollBar1Change(Sender: TObject);
+procedure TTripForm.SpeedBarChange(Sender: TObject);
 begin
-Speed:=ScrollBar1.Position;
-Label5.Caption:=InttoStr(Speed);
+Speed:=SpeedBar.Position;
+SpeedLbl.Caption:=InttoStr(Speed);
 end;
 
-procedure TForm5.FormShow(Sender: TObject);
+procedure TTripForm.FormShow(Sender: TObject);
 begin
-Form6.Show;
-Size:=ScrollBar2.Position;
-Speed:=ScrollBar1.Position;
-times:=SpinEdit1.Value;
-Form6.Show;
-ZPDAC:=Form6.SpinEdit1.Value;
-IADC:=Form6.Spinedit2.Value;
-if (Form6.Checkbox1.checked) then Mult:=1 else Mult:=-1;
-if (Form6.Checkbox2.checked) then MultI:=1 else MultI:=-1;
-Form6.Hide;
+TripConfig.Show;
+Size:=SizeBar.Position;
+Speed:=SpeedBar.Position;
+times:=StepsEdit.Value;
+TripConfig.Show;
+ZPDAC:=TripConfig.OutDacEdit.Value;
+IADC:=TripConfig.InADCEdit.Value;
+if (TripConfig.InvertZPChk.checked) then Mult:=1 else Mult:=-1;
+if (TripConfig.InvertCurChk.checked) then MultI:=1 else MultI:=-1;
+TripConfig.Hide;
 end;
 
-procedure TForm5.Button1Click(Sender: TObject);
+procedure TTripForm.ApproachBtnClick(Sender: TObject);
 begin
   SetMoving(true);
   MakeSteps(times, 1);
   SetMoving(false);
 end;
 
-procedure TForm5.Spinedit1Change(Sender: TObject);
+procedure TTripForm.StepsEditChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit1.Text, times);
+  //TryStrToInt(StepsEdit.Text, times);
+  times := StepsEdit.Value;
 end;
 
-procedure TForm5.Button2Click(Sender: TObject);
+procedure TTripForm.SeparateBtnClick(Sender: TObject);
 begin
   SetMoving(true);
   MakeSteps(times, -1);
   SetMoving(false);
 end;
 
-procedure TForm5.Button3Click(Sender: TObject);
+procedure TTripForm.Separate100BtnClick(Sender: TObject);
 begin
   SetMoving(true);
   MakeSteps(100, -1);
   SetMoving(false);
 end;
 
-procedure TForm5.Button4Click(Sender: TObject);
+procedure TTripForm.AutoApproachBtnClick(Sender: TObject);
 var
 Strom_jetzt: Single;
 punto_salida: boolean;
@@ -136,50 +130,50 @@ begin
   punto_salida:=false;
   while (punto_salida=false) do
   begin
-    Strom_jetzt:=  DataForm.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,ScanForm.P_Scan_Mean);
+    Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,ScanForm.P_Scan_Mean);
     //Label7.caption:=Floattostr(Strom_jetzt);
     //times:=1000;
-    while (abs(Strom_jetzt)<(Form6.spinCurrentLimit.Value/100)) and (StopTrip=False) do
+    while (abs(Strom_jetzt)<(TripConfig.spinCurrentLimit.Value/100)) and (StopTrip=False) do
     begin
       MakeSteps(times, 1);
-      Strom_jetzt:=  DataForm.adc_take(Form6.SpinEdit2.Value,Form6.SpinEdit2.Value,ScanForm.P_Scan_Mean);
+      Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,ScanForm.P_Scan_Mean);
     end;
     punto_salida:=True;
-    //times:=Spinedit1.Value;
+    //times:=StepsEdit.Value;
   end;
   SetMoving(false);
 end;
 
-procedure TForm5.Button6Click(Sender: TObject);
+procedure TTripForm.StopBtnClick(Sender: TObject);
 begin
   StopTrip:=True;
 end;
 
-procedure TForm5.Button7Click(Sender: TObject);
+procedure TTripForm.StepsDiv10BtnClick(Sender: TObject);
 begin
-  if (Round(SpinEdit1.Value/10)>0) then
-    SpinEdit1.Value:=Round(SpinEdit1.Value/10)
+  if (Round(StepsEdit.Value/10)>0) then
+    StepsEdit.Value:=Round(StepsEdit.Value/10)
   else
-    SpinEdit1.Value:=1;
+    StepsEdit.Value:=1;
 end;
 
-procedure TForm5.Button8Click(Sender: TObject);
+procedure TTripForm.StepsMul10BtnClick(Sender: TObject);
 begin
-  SpinEdit1.Value:=SpinEdit1.Value*10;
+  StepsEdit.Value:=StepsEdit.Value*10;
 end;
 
-procedure TForm5.SetMoving(moving: Boolean);
+procedure TTripForm.SetMoving(moving: Boolean);
 begin
   // Habilitamos o deshabilitamos los botones de movimiento que correspondan
-  Button1.Enabled := not moving;
-  Button2.Enabled := not moving;
-  Button3.Enabled := not moving;
-  Button4.Enabled := not moving;
-  Button6.Enabled := moving; // Stop
+  ApproachBtn.Enabled := not moving;
+  SeparateBtn.Enabled := not moving;
+  Separate100Btn.Enabled := not moving;
+  AutoApproachBtn.Enabled := not moving;
+  StopBtn.Enabled := moving; // Stop
 end;
 
 
-procedure TForm5.MakeSteps(numSteps, direction: Integer);
+procedure TTripForm.MakeSteps(numSteps, direction: Integer);
 var
 i,j: SmallInt;
 enviaZ: Integer;

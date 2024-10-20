@@ -7,20 +7,20 @@ uses
   StdCtrls, Spin, ExtCtrls;
 
 type
-  TForm6 = class(TForm)
+  TTripConfig = class(TForm)
     Panel1: TPanel;
-    Label1: TLabel;
-    Label2: TLabel;
-    SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
-    CheckBox1: TCheckBox;
-    CheckBox2: TCheckBox;
+    OutLabel: TLabel;
+    InLabel: TLabel;
+    OutDacEdit: TSpinEdit;
+    InADCEdit: TSpinEdit;
+    InvertZPChk: TCheckBox;
+    InvertCurChk: TCheckBox;
     lblCurrentLimit: TLabel;
     spinCurrentLimit: TSpinEdit;
-    procedure SpinEdit1Change(Sender: TObject);
-    procedure SpinEdit2Change(Sender: TObject);
-    procedure CheckBox1Click(Sender: TObject);
-    procedure CheckBox2Click(Sender: TObject);
+    procedure OutDacEditChange(Sender: TObject);
+    procedure InADCEditChange(Sender: TObject);
+    procedure InvertZPChkClick(Sender: TObject);
+    procedure InvertCurChkClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -28,7 +28,7 @@ type
   end;
 
 var
-  Form6: TForm6;
+  TripConfig: TTripConfig;
 
 implementation
 
@@ -36,24 +36,26 @@ uses Trip;
 
 {$R *.DFM}
 
-procedure TForm6.SpinEdit1Change(Sender: TObject);
+procedure TTripConfig.OutDacEditChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit1.Text, Form5.ZPDac);
+  //TryStrToInt(OutDacEdit.Text, TripForm.ZPDac);
+  TripForm.ZPDAC:=OutDacEdit.Value;
 end;
 
-procedure TForm6.SpinEdit2Change(Sender: TObject);
+procedure TTripConfig.InADCEditChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit2.Text, Form5.IADC);
+  //TryStrToInt(SpinEdit2.Text, TripForm.IADC);
+  TripForm.IADC:=InADCEdit.Value;
 end;
 
-procedure TForm6.CheckBox1Click(Sender: TObject);
+procedure TTripConfig.InvertZPChkClick(Sender: TObject);
 begin
-if (Checkbox1.checked) then Form5.Mult:=1 else Form5.Mult:=-1;
+if (InvertZPChk.Checked) then TripForm.Mult:=1 else TripForm.Mult:=-1;
 end;
 
-procedure TForm6.CheckBox2Click(Sender: TObject);
+procedure TTripConfig.InvertCurChkClick(Sender: TObject);
 begin
-if (Checkbox2.checked) then Form5.MultI:=1 else Form5.MultI:=-1;
+if (InvertCurChk.Checked) then TripForm.MultI:=1 else TripForm.MultI:=-1;
 end;
 
 end.

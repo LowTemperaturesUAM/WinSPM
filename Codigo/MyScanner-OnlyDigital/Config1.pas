@@ -156,11 +156,11 @@ try
   //LinerConfig.seReduceRampFactor.Value := IniFile.ReadInteger(String(iniLiner)), 'ReduceRamp', 1);
 
   //Parametros de Trip
-  Form6.SpinEdit1.Value := IniFile.ReadInteger(String(iniTrip), 'CoarseDac', 4);
-  Form6.SpinEdit2.Value := CurrentChanEdit.Value;
-  Form6.spinCurrentLimit.Value := IniFile.ReadInteger(String(iniTrip), 'CurrentLim', 50);
-  Form6.CheckBox1.Checked := IniFile.ReadBool(String(iniTrip), 'ZPInverse', False);
-  Form6.CheckBox2.Checked := IniFile.ReadBool(String(iniTrip), 'CurrentInverse', False);
+  TripConfig.OutDacEdit.Value := IniFile.ReadInteger(String(iniTrip), 'CoarseDac', 4);
+  TripConfig.InADCEdit.Value := CurrentChanEdit.Value;
+  TripConfig.spinCurrentLimit.Value := IniFile.ReadInteger(String(iniTrip), 'CurrentLim', 50);
+  TripConfig.InvertZPChk.Checked := IniFile.ReadBool(String(iniTrip), 'ZPInverse', False);
+  TripConfig.InvertCurChk.Checked := IniFile.ReadBool(String(iniTrip), 'CurrentInverse', False);
   //Parametros PID
   FormPID.spinPID_In.Value := CurrentChanEdit.Value;
   FormPID.spinPID_Out.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
@@ -289,10 +289,10 @@ try
   IniFile.WriteInteger(String(iniLiner), 'IVReadAdc', LinerConfig.seADCxaxis.Value);
   IniFile.WriteString(String(iniLiner), 'IVMult', LinerConfig.xDACMultiplier.Text);
   //Parametros de Trip
-  IniFile.WriteInteger(String(iniTrip), 'CoarseDac', Form6.SpinEdit1.Value);
-  IniFile.WriteInteger(String(iniTrip), 'CurrentLim', Form6.spinCurrentLimit.Value);
-  IniFile.WriteBool(String(iniTrip), 'ZPInverse', Form6.CheckBox1.Checked);
-  IniFile.WriteBool(String(iniTrip), 'CurrentInverse', Form6.CheckBox2.Checked);
+  IniFile.WriteInteger(String(iniTrip), 'CoarseDac', TripConfig.OutDacEdit.Value);
+  IniFile.WriteInteger(String(iniTrip), 'CurrentLim', TripConfig.spinCurrentLimit.Value);
+  IniFile.WriteBool(String(iniTrip), 'ZPInverse', TripConfig.InvertZPChk.Checked);
+  IniFile.WriteBool(String(iniTrip), 'CurrentInverse', TripConfig.InvertCurChk.Checked);
   //Parametros PID
   IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.spinPID_Out.Value);
   IniFile.WriteBool(String(iniPID), 'PIDReverseOut', FormPID.CheckBox2.Checked);

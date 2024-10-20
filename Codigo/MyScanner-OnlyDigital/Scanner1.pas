@@ -261,7 +261,7 @@ TrackBar3Change(nil); // Simulo que se ha cambiado el tamaño para que acutalice 
 SizeOfWindow:=400;
 StopAction:=True;
 LinerForm.Show; //Estamos mostrando la ventana antes de que se cree, esto no parece buena idea
-Form5.Show;
+TripForm.Show;
 FormPID.Show;
 //Count_Live:= FormPID.SpinEdit4.Value;
 //take_initialize;
@@ -1314,7 +1314,7 @@ end;
 
 procedure TScanForm.OpenTripBtnClick(Sender: TObject);
 begin
-Form5.Show;
+TripForm.Show;
 end;
 
 procedure TScanForm.ScanButtonClick(Sender: TObject);
@@ -1509,7 +1509,7 @@ until not TopoForm.ScanLoop.Checked;
 
 if (TopoForm.CheckBox2.Checked)then
 begin
-  Form5.Button3Click(nil);
+  TripForm.Separate100BtnClick(nil);
   TopoForm.CheckBox2.Checked:=False;
 end;
 end;

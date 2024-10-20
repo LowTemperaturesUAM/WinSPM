@@ -4,11 +4,11 @@ uses
   Forms,
   Scanner1 in 'Scanner1.pas' {ScanForm},
   Scanning in 'Scanning.pas' {TopoForm},
-  Trip in 'Trip.pas' {Form5},
+  Trip in 'Trip.pas' {TripForm},
   Liner in 'Liner.pas' {LinerForm},
   Config_Liner in 'Config_Liner.pas' {LinerConfig},
   Config1 in 'Config1.pas' {FormConfig},
-  Config_Trip in 'Config_Trip.pas' {Form6},
+  Config_Trip in 'Config_Trip.pas' {TripConfig},
   blqDataSet in 'blqDataSet.pas' {blqDataSetForm},
   var_gbl in 'var_gbl.pas',
   HeaderImg in 'HeaderImg.pas' {Form8},
@@ -25,11 +25,11 @@ begin
   Application.Initialize;
   Application.Title := 'WinSPM';
   Application.CreateForm(TScanForm, ScanForm);
-  Application.CreateForm(TForm6, Form6);
+  Application.CreateForm(TTripConfig, TripConfig);
   Application.CreateForm(TTopoForm, TopoForm);
   Application.CreateForm(TLinerForm, LinerForm);
   Application.CreateForm(TLinerConfig, LinerConfig);
-  Application.CreateForm(TForm5, Form5);
+  Application.CreateForm(TTripForm, TripForm);
   Application.CreateForm(TblqDataSetForm, blqDataSetForm);
   Application.CreateForm(TForm8, Form8);
   Application.CreateForm(TForm9, Form9);
