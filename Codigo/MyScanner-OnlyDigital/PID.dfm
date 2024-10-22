@@ -178,8 +178,6 @@ object FormPID: TFormPID
     Width = 57
     Height = 17
     Caption = 'ShowIt'
-    Checked = True
-    State = cbChecked
     TabOrder = 0
     OnClick = chkShowValuesClick
   end
@@ -386,7 +384,7 @@ object FormPID: TFormPID
     MaxValue = 1000
     MinValue = 0
     TabOrder = 20
-    Value = 1
+    Value = 0
     OnChange = se1Change
   end
   object SleepCtrlBtn: TButton
@@ -410,7 +408,7 @@ object FormPID: TFormPID
   end
   object thrdtmr1: TThreadedTimer
     AllowZero = True
-    Interval = 1
+    Interval = 0
     OnTimer = thrdtmr1Timer
     ThreadPriority = tpLowest
     Left = 272

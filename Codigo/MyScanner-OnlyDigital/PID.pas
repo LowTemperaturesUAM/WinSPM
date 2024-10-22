@@ -142,7 +142,7 @@ else
 thrdtmr1.Enabled:=True;
 //Limitamos el numero de veces que actualizamos los valores de In y Out
 showValues:=0;
-showInterval:=51;
+showInterval:=403;
 end;
 
 procedure TFormPID.chkShowValuesClick(Sender: TObject);
