@@ -4,8 +4,8 @@ object Form9: TForm9
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Files Directories'
-  ClientHeight = 125
-  ClientWidth = 765
+  ClientHeight = 66
+  ClientWidth = 712
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -29,20 +29,6 @@ object Form9: TForm9
     Height = 13
     Caption = 'IV Files'
   end
-  object Label3: TLabel
-    Left = 16
-    Top = 48
-    Width = 34
-    Height = 13
-    Caption = 'IZ Files'
-  end
-  object Label4: TLabel
-    Left = 16
-    Top = 64
-    Width = 31
-    Height = 13
-    Caption = 'Others'
-  end
   object Label5: TLabel
     Left = 112
     Top = 16
@@ -53,20 +39,6 @@ object Form9: TForm9
   object Label6: TLabel
     Left = 112
     Top = 32
-    Width = 29
-    Height = 13
-    Caption = '.\data'
-  end
-  object Label7: TLabel
-    Left = 112
-    Top = 48
-    Width = 29
-    Height = 13
-    Caption = '.\data'
-  end
-  object Label8: TLabel
-    Left = 112
-    Top = 64
     Width = 29
     Height = 13
     Caption = '.\data'
