@@ -38,6 +38,7 @@ type
     procedure StepsMul10BtnClick(Sender: TObject);
     procedure SetMoving(moving: Boolean);
     procedure MakeSteps(numSteps, direction: Integer);
+    procedure MakeStepsBuf(numSteps, direction: Integer);
   private
     { Private declarations }
   public
@@ -50,6 +51,7 @@ type
 
 var
   TripForm: TTripForm;
+  TripBuffer: array [1..6554*12]of AnsiChar; //Maximum size for Speed =10 and 12 bytes per dac value
 
 implementation
 
@@ -92,7 +94,7 @@ end;
 procedure TTripForm.ApproachBtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  MakeSteps(times, 1);
+  MakeStepsBuf(times, 1);
   SetMoving(false);
 end;
 
@@ -172,7 +174,10 @@ begin
   StopBtn.Enabled := moving; // Stop
 end;
 
-
+//we could implement a version of this using a buffer
+//we can match the speed, but the slope would be more consistent
+// and we can just go through more DAC values in between
+//at max speed it takes about 65us per point
 procedure TTripForm.MakeSteps(numSteps, direction: Integer);
 var
 i,j: SmallInt;
@@ -183,8 +188,11 @@ begin
   i:=0;
   while (i<numSteps) and (StopTrip=False) do
   begin
+    //we could start at one as it always ends in zero the iteration befora
+    //maybe add a zero befora the loop to make sure we start from the correct value
     for j:= 0 to 32767 do
     begin
+      //its around 65 pints at max speed
       if Frac(j/Speed)=0 then
       begin
         enviaZ:=direction*Mult*Round(j*Size/10);
@@ -196,13 +204,69 @@ begin
       if Frac(j/Speed)=0 then
       begin
         enviaZ:=direction*Mult*Round(j*Size/10);
+
         DataForm.dac_set(ZPDac,enviaZ, nil);
       end;
     end;
     Application.ProcessMessages;
     i:=i+1;
   end;
-  DataForm.dac_set(ZPDac,0, nil);
+  // I think this one is redundant now, as the generated ramp always ends in 0
+  // and due to the process message in betwee, it waits for a long time (over 1ms)
+  //DataForm.dac_set(ZPDac,0, nil);
+end;
+
+procedure TTripForm.MakeStepsBuf(numSteps, direction: Integer);
+var
+i,j: SmallInt;
+n : Integer;
+enviaZ: Integer;
+//TripBuffer2: array of AnsiChar;
+
+begin
+  StopTrip:=False;
+  i:=0;
+  //SetLength(TripBuffer2,6554*12); //Maximum size for Speed =10
+  // we can be more clever when creating the size of the buffer,
+  // as it would typically be much smaller
+
+  while (i<numSteps) and (StopTrip=False) do
+  begin
+    n:=1;
+    //we could start at one as it always ends in zero the iteration befora
+    //maybe add a zero before the loop to make sure we start from the correct value
+    for j:= 0 to 32767 do
+    begin
+      //its around 65 pints at max speed
+      if Frac(j/Speed)=0 then
+      begin
+        enviaZ:=direction*Mult*Round(j*Size/10);
+        if (ZPDac < 5) then enviaZ:=-enviaZ;
+        if enviaZ >32767 then enviaZ:=32767;
+        if enviaZ<-32768 then enviaZ:=-32768;
+        n := n + DataForm.dac_set_buff(ZPDac,enviaZ, @TripBuffer[n]);
+      end;
+    end;
+    for j:= -32768 to 0 do
+    begin
+      if Frac(j/Speed)=0 then
+      begin
+        enviaZ:=direction*Mult*Round(j*Size/10);
+        if (ZPDac < 5) then enviaZ:=-enviaZ;
+        if enviaZ >32767 then enviaZ:=32767;
+        if enviaZ<-32768 then enviaZ:=-32768;
+        n := n +DataForm.dac_set_buff(ZPDac,enviaZ, @TripBuffer[n]);
+      end;
+    end;
+    //Send the ramp for one step
+    DataForm.send_buffer(@TripBuffer[1], n);
+    Application.ProcessMessages;
+    i:=i+1;
+  end;
+  //n := DataForm.dac_set(ZPDac,0, Addr(TripBuffer[n]));
+  // I think this one is redundant now, as the generated ramp always ends in 0
+  // and due to the process message in betwee, it waits for a long time (over 1ms)
+  DataForm.send_buffer(@TripBuffer[1], n);
 end;
 
 end.

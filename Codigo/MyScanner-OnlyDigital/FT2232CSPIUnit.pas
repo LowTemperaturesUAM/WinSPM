@@ -148,7 +148,7 @@ end;
 
 const
   FT2232CSPI_DLL_Name = 'ftcspi.dll';
-  otra_DLL_Name ='ftd2xx.dll';
+  //otra_DLL_Name ='ftd2xx.dll';
 
   ADBUS3ChipSelect = 0;
   ADBUS4GPIOL1 = 1;

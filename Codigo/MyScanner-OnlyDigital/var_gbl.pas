@@ -354,8 +354,15 @@ signo_lect : array [0..2] of integer;
   b : array [0..3*1024-1] of byte ;
   FPalette : array [0..511,0..2] of byte ;
 
+  type
+    dacStates = array [0..7] of SmallInt;
+  var
+    dacValues : dacStates = (0,0,0,0,0,0,0,0);
 
-
+const dac_adr : array[0..7] of Integer = (4,5,6,7,4,5,6,7);
+     //pADCcs = $10,     // CS_ADC   (Chip Select ADC), Salida
+   //pDAC2cs = $20,
+const dac_cs : array[0..7] of Integer = ($10,$10,$10,$10,$20,$20,$20,$20);
 
 implementation
 

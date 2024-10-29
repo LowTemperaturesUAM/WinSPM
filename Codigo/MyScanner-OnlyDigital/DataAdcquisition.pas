@@ -5,10 +5,10 @@ interface
 uses
   Windows, Messages, SysUtils, DateUtils, StdCtrls, Spin, Controls, Classes, Graphics, Forms, Dialogs, Scanner1,
   Liner, FT2232CSPIUnit, SPIDLLFuncUnit,D2XXUnit, StrUtils,IniFiles, WINSOCK, PID, 
-  ExtCtrls ;
+  ExtCtrls, var_gbl ;
 
   Const
-  FT_DLL_Name = 'ftd2xx.dll';
+  //FT_DLL_Name = 'ftd2xx.dll';
   TRAZAS = false;       // Para definir si se lanzan mensajes o no
   MPSSE_BadCommand = $FA;         // If detects a bad command send back 2 bytes to the PC: 0xFA + the bad command byte.
   MPSSE_CmdWriteDO = $10;         // Clock Data Bytes Out on +ve Clock Edge MSB First (no Read)
@@ -19,7 +19,8 @@ uses
   MPSSE_CmdReadPortH = $83;       // Read Data Bits High Byte
   MPSSE_CmdReadDI = $20;          // Clock Data Bytes In on +ve Clock Edge MSB First (no Write) Lengh=0->1byte
   NUM_ADCs = 6;                   // Número de ADCs que podemos leer de la electrónica
-  NUM_DACs = 8;
+  NUM_DACs = 8;                   // Número de DACs que dispone la electronica
+  simulating = false;             // Flag por si no tenemos conectado el FTDI
 
 type
 
@@ -90,6 +91,7 @@ type
     procedure ScrollBar1Change(Sender: TObject);
     function InitDataAcq : boolean ;
     function dac_set(ndac,valor:integer; BufferOut: PAnsiChar) : integer;
+    function dac_set_buff(ndac,valor:integer; BufferOut: PAnsiChar) : integer;
     function adc_take(chn,mux,n:integer) : double;
     function adc_take_all(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar) : TVectorDouble ;
     function adc_take_all_os(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar; OSRatio:Byte) : TVectorDouble ;
@@ -132,7 +134,6 @@ type
 var
   DataForm: TDataForm;
   SupraSPI_Hdl:Dword;
-  simulating: Boolean;
   simulatedDac: array[0..7] of Integer;
   Buffer:String[50]; //En ppio. hay espacio de sobra con esta cantidad
   //Buffer: String[255]; //Lo aumentamos al maximo, pero sigue siendo insuficiente para el oversampling
@@ -151,13 +152,13 @@ uses Config_Liner,Config1;
   Function SPI_SetHiSpeedDeviceGPIOs(fthandle: Dword; ChipSelectsDisableStates: PFtcChipSelectPins; HighInputOutputPins: PFtcInputOutputPins): FTC_STATUS; stdcall ; External FT2232CSPI_DLL_Name name 'SPI_SetHiSpeedDeviceGPIOs';
   Function SPI_Close (fthandle: Dword): FTC_STATUS; stdcall ; External FT2232CSPI_DLL_Name name 'SPI_Close';
 
-  Function FT_Read ( lngHandle:dword; lpszBuffer: Pointer;  lngBufferSize:dword;lngBytesReturned:Pointer):FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_Read';
-  Function FT_GetQueueStatus (lngHandle:dword; lngRxBytes:pointer ):   FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_GetQueueStatus';
-  Function FT_Write(ftHandle:Dword; FTOutBuf : Pointer; BufferSize : LongInt; ResultPtr : Pointer ) : FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_Write';
-  Function FT_Purge(ftHandle:Dword; dwMask:Dword):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_Purge';
-  Function FT_SetChars(ftHandle:Dword; uEventCh, uEventChEn, uErrorCh, uErrorChEn: Char):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_SetChars';
-  Function FT_ResetDevice(ftHandle:Dword):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_ResetDevice';
-  Function FT_SetFlowControl(ftHandle:Dword; usFlowControl: Word; uXon, uXoff: Char):  FTC_STATUS ; stdcall ; External otra_DLL_Name name 'FT_SetFlowControl';
+  Function FT_Read ( lngHandle:dword; lpszBuffer: Pointer;  lngBufferSize:dword;lngBytesReturned:Pointer):FTC_STATUS ; stdcall ; External FT_DLL_Name name 'FT_Read';
+  Function FT_GetQueueStatus (lngHandle:dword; lngRxBytes:pointer ):   FTC_STATUS ; stdcall ; External FT_DLL_Name name 'FT_GetQueueStatus';
+  Function FT_Write(ftHandle:Dword; FTOutBuf : Pointer; BufferSize : LongInt; ResultPtr : Pointer ) : FTC_STATUS ; stdcall ; External FT_DLL_Name name 'FT_Write';
+  Function FT_Purge(ftHandle:Dword; dwMask:Dword):  FTC_STATUS ; stdcall ; External FT_DLL_Name name 'FT_Purge';
+  Function FT_SetChars(ftHandle:Dword; uEventCh, uEventChEn, uErrorCh, uErrorChEn: Char):  FTC_STATUS ; stdcall ; External FT_DLL_Name name 'FT_SetChars';
+  Function FT_ResetDevice(ftHandle:Dword):  FTC_STATUS ; stdcall ; External FT_DLL_Name name 'FT_ResetDevice';
+  Function FT_SetFlowControl(ftHandle:Dword; usFlowControl: Word; uXon, uXoff: Char):  FTC_STATUS ; stdcall ; External FT_DLL_Name name 'FT_SetFlowControl';
 
 {$R *.DFM}
 
@@ -200,7 +201,7 @@ Function TDataForm.InitDataAcq : boolean  ;
 
 
 begin
-  simulating := false;
+  //simulating := false;
   SPI_Ret :=0;
  Result:=False;
 
@@ -384,18 +385,18 @@ begin
 // Se saturan los valores según indicaciones de Isabel
   if valor>32767 then valor:=32767 ;
   if valor<-32768 then valor:=-32768 ;
-
+  var_gbl.dacValues[ndac] := valor; //update the state of the dac
   // El los registros para enviar la señal a los Canales 0 a 3 de cada DAC son respectivamente 4 a 7
   // Para los primeros 4 canales de la electronica, tenemos que sumar 4 al valor que usamos,
   // y para los siguientes 4 podemos dejarlo tal cual
   if (ndac  > 3) then
   begin
-    CadenaCS:=$FF-Integer(pDAC2cs);  //DF
+    CadenaCS:=$FF-Ord(pDAC2cs);  //DF
     sele_dac:=ndac;
   end
   else
   begin
-    CadenaCS:=$FF-Integer(pDACcs);  //F7
+    CadenaCS:=$FF-Ord(pDACcs);  //F7
     sele_dac:=ndac+4;
   end;
 
@@ -450,6 +451,83 @@ begin
 if TRAZAS then MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtError, [mbOk], 0);
 
   Result:=i;
+
+end;
+
+function TDataForm.dac_set_buff(ndac, valor:integer; BufferOut: PAnsiChar) : Integer ;
+Var sTexto:String;
+Var sTexto2:String;
+var CadenaCS:integer;
+var sele_dac:integer;
+var BytesToWrite: Integer;
+var BytesWritten:Integer;
+var SPI_Ret:Integer;
+var total:integer;
+var i: Integer;
+var BufferDest: PAnsiChar;
+
+
+begin
+
+  // Si vamos a invertir el valor, lo hacemos antes de saturar para evitar desbordamientos con -(-32768)
+  //if (ndac> 4) then valor:=-valor;    // No están invertidos, así que se puede hacer por SW para coherencia con las otras salidas del DAC
+  //if (ndac < 5) then valor:=-valor;    // Es mejor que un nº positivo ofrezca una salida positiva, de modo que se hace de este modo en vez de como estaba inicialmente previsto en la línea anterior
+  // No estoy seguro de si esto corresponde con la configuracion actual, y no nos sirve para las nuevas versiones con 4 atenuadores
+// Se saturan los valores según indicaciones de Isabel
+  //if valor>32767 then valor:=32767 ;
+  //if valor<-32768 then valor:=-32768 ; Eliminamos la comprobacion de los limites del dac. nos tenermos que asegurar de que son validos antes de llamarlo aqui
+
+  // El los registros para enviar la señal a los Canales 0 a 3 de cada DAC son respectivamente 4 a 7
+  // Para los primeros 4 canales de la electronica, tenemos que sumar 4 al valor que usamos,
+  // y para los siguientes 4 podemos dejarlo tal cual
+  var_gbl.dacValues[ndac] := valor; //update the state of the dac
+  //instead of conditionals, we just a basic lookup table to figure out what
+  // set of values each dac requires
+  CadenaCS:=$FF-dac_cs[ndac];
+  sele_dac:=dac_adr[ndac];
+  {if (ndac  > 3) then
+  begin
+    CadenaCS:=$FF-Ord(pDAC2cs);  //DF
+    sele_dac:=ndac;
+  end
+  else
+  begin
+    CadenaCS:=$FF-Ord(pDACcs);  //F7
+    sele_dac:=ndac+4;
+  end;}
+
+  //Expect that a proper buffer has been provided
+  BufferDest := BufferOut;
+  // Construyo la cadena que se enviará
+  i := 0; // El primer caracter está reservado para la longitud, se use o no.
+  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := Char(CadenaCS); Inc(i);
+  (BufferDest+i)^ := Char($FB); Inc(i);
+  (BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
+  (BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
+  (BufferDest+i)^ := Char($00); Inc(i);
+  (BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
+  (BufferDest+i)^ := Char(valor shr 8); Inc(i); // Byte más significativo del valor
+  (BufferDest+i)^ := Char(valor and $FF); Inc(i); // Byte menos significativo del valor
+  //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
+  (BufferDest+i)^ := Char($FF); Inc(i);
+  (BufferDest+i)^ := Char($FB); Inc(i);
+  //Assert(i = 12); //Confirmamos que es el numero correcto
+  //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
+
+
+if simulating then simulatedDac[ndac] := valor;
+
+
+if TRAZAS then // debug
+begin
+  Str( ndac, sTexto );
+  Str( valor, sTexto2 );
+  MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtError, [mbOk], 0);
+end;
+
+Result:=i;
 
 end;
 
