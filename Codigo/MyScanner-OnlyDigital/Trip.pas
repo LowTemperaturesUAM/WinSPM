@@ -51,7 +51,7 @@ type
 
 var
   TripForm: TTripForm;
-  TripBuffer: array [1..6554*12]of AnsiChar; //Maximum size for Speed =10 and 12 bytes per dac value
+  TripBuffer: array [1..6554*12] of AnsiChar; //Maximum size for Speed =10 and 12 bytes per dac value
 
 implementation
 
@@ -220,6 +220,7 @@ procedure TTripForm.MakeStepsBuf(numSteps, direction: Integer);
 var
 i,j: SmallInt;
 n : Integer;
+calcZ: Integer;
 enviaZ: Integer;
 //TripBuffer2: array of AnsiChar;
 
@@ -240,22 +241,26 @@ begin
       //its around 65 pints at max speed
       if Frac(j/Speed)=0 then
       begin
-        enviaZ:=direction*Mult*Round(j*Size/10);
-        if (ZPDac < 5) then enviaZ:=-enviaZ;
-        if enviaZ >32767 then enviaZ:=32767;
-        if enviaZ<-32768 then enviaZ:=-32768;
+        calcZ:=direction*Mult*Round(j*Size/10);
+        if (ZPDac < 5) then calcZ:=-calcZ; //Mantenemos este paso, aunque no tiene mucho sentido
+        //if enviaZ >32767 then enviaZ:=32767;
+        //if enviaZ<-32768 then enviaZ:=-32768;
+        enviaZ := DataForm.clampToDAC16(calcZ);
         n := n + DataForm.dac_set_buff(ZPDac,enviaZ, @TripBuffer[n]);
+        //n := n + DataForm.dac_set_buff2(ZPDac,enviaZ, Slice(@TripBuffer[n],12));
       end;
     end;
     for j:= -32768 to 0 do
     begin
       if Frac(j/Speed)=0 then
       begin
-        enviaZ:=direction*Mult*Round(j*Size/10);
-        if (ZPDac < 5) then enviaZ:=-enviaZ;
-        if enviaZ >32767 then enviaZ:=32767;
-        if enviaZ<-32768 then enviaZ:=-32768;
+        calcZ:=direction*Mult*Round(j*Size/10);
+        if (ZPDac < 5) then calcZ:=-calcZ; //Mantenemos este paso, aunque no tiene mucho sentido
+        //if enviaZ >32767 then enviaZ:=32767;
+        //if enviaZ<-32768 then enviaZ:=-32768;
+        enviaZ := DataForm.clampToDAC16(calcZ);
         n := n +DataForm.dac_set_buff(ZPDac,enviaZ, @TripBuffer[n]);
+        //n := n + DataForm.dac_set_buff2(ZPDac,enviaZ, Slice(@TripBuffer[n],12));
       end;
     end;
     //Send the ramp for one step
@@ -266,7 +271,7 @@ begin
   //n := DataForm.dac_set(ZPDac,0, Addr(TripBuffer[n]));
   // I think this one is redundant now, as the generated ramp always ends in 0
   // and due to the process message in betwee, it waits for a long time (over 1ms)
-  DataForm.send_buffer(@TripBuffer[1], n);
+  //DataForm.send_buffer(@TripBuffer[1], n);
 end;
 
 end.

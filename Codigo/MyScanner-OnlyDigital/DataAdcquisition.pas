@@ -91,7 +91,8 @@ type
     procedure ScrollBar1Change(Sender: TObject);
     function InitDataAcq : boolean ;
     function dac_set(ndac,valor:integer; BufferOut: PAnsiChar) : integer;
-    function dac_set_buff(ndac,valor:integer; BufferOut: PAnsiChar) : integer;
+    function dac_set_buff(ndac: Integer; valor:SmallInt; BufferOut: PAnsiChar) : integer;
+    function dac_set_buff2(ndac,valor:integer; BufferOut: array of AnsiChar) : integer;
     function adc_take(chn,mux,n:integer) : double;
     function adc_take_all(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar) : TVectorDouble ;
     function adc_take_all_os(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar; OSRatio:Byte) : TVectorDouble ;
@@ -119,6 +120,7 @@ type
     procedure OffsetValueChange(Sender: TObject);
     procedure GainValueChange(Sender: TObject);
     procedure DIOButtonClick(Sender: TObject);
+    function clampToDAC16(value: Integer): SmallInt;
 
   private
     { Private declarations }
@@ -183,6 +185,19 @@ Function Get_USB_Device_QueueStatus(ReceivesBytes: Dword): Dword;
 begin
    Result:= FT_GetQueueStatus(SupraSPI_Hdl, @ReceivesBytes);
 End;
+
+function TDataForm.clampToDAC16(value: Integer): SmallInt;
+begin
+  //if (ZPDac < 5) then enviaZ:=-enviaZ;
+  if value >32767 then Result:=32767
+  else
+  begin
+    if value<-32768 then Result:=-32768
+    else Result := value;
+  end;
+
+  //Result:=value;
+end;
 
 Function TDataForm.InitDataAcq : boolean  ;
 
@@ -454,15 +469,15 @@ if TRAZAS then MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtE
 
 end;
 
-function TDataForm.dac_set_buff(ndac, valor:integer; BufferOut: PAnsiChar) : Integer ;
+function TDataForm.dac_set_buff(ndac:integer; valor:SmallInt; BufferOut: PAnsiChar) : Integer ;
 Var sTexto:String;
 Var sTexto2:String;
 var CadenaCS:integer;
 var sele_dac:integer;
 var BytesToWrite: Integer;
 var BytesWritten:Integer;
-var SPI_Ret:Integer;
-var total:integer;
+//var SPI_Ret:Integer;
+//var total:integer;
 var i: Integer;
 var BufferDest: PAnsiChar;
 
@@ -515,6 +530,83 @@ begin
   (BufferDest+i)^ := Char($FB); Inc(i);
   //Assert(i = 12); //Confirmamos que es el numero correcto
   //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
+
+
+if simulating then simulatedDac[ndac] := valor;
+
+
+if TRAZAS then // debug
+begin
+  Str( ndac, sTexto );
+  Str( valor, sTexto2 );
+  MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtError, [mbOk], 0);
+end;
+
+Result:=i;
+
+end;
+
+function TDataForm.dac_set_buff2(ndac, valor:integer; BufferOut: array of AnsiChar) : Integer ;
+Var sTexto:String;
+Var sTexto2:String;
+var CadenaCS:integer;
+var sele_dac:integer;
+var BytesToWrite: Integer;
+var BytesWritten:Integer;
+//var SPI_Ret:Integer;
+var total:integer;
+var i: Integer;
+//var BufferDest: PAnsiChar;
+
+
+begin
+
+  // Si vamos a invertir el valor, lo hacemos antes de saturar para evitar desbordamientos con -(-32768)
+  //if (ndac> 4) then valor:=-valor;    // No están invertidos, así que se puede hacer por SW para coherencia con las otras salidas del DAC
+  //if (ndac < 5) then valor:=-valor;    // Es mejor que un nº positivo ofrezca una salida positiva, de modo que se hace de este modo en vez de como estaba inicialmente previsto en la línea anterior
+  // No estoy seguro de si esto corresponde con la configuracion actual, y no nos sirve para las nuevas versiones con 4 atenuadores
+// Se saturan los valores según indicaciones de Isabel
+  //if valor>32767 then valor:=32767 ;
+  //if valor<-32768 then valor:=-32768 ; Eliminamos la comprobacion de los limites del dac. nos tenermos que asegurar de que son validos antes de llamarlo aqui
+
+  // El los registros para enviar la señal a los Canales 0 a 3 de cada DAC son respectivamente 4 a 7
+  // Para los primeros 4 canales de la electronica, tenemos que sumar 4 al valor que usamos,
+  // y para los siguientes 4 podemos dejarlo tal cual
+  var_gbl.dacValues[ndac] := valor; //update the state of the dac
+  //instead of conditionals, we just a basic lookup table to figure out what
+  // set of values each dac requires
+  CadenaCS:=$FF-dac_cs[ndac];
+  sele_dac:=dac_adr[ndac];
+  {if (ndac  > 3) then
+  begin
+    CadenaCS:=$FF-Ord(pDAC2cs);  //DF
+    sele_dac:=ndac;
+  end
+  else
+  begin
+    CadenaCS:=$FF-Ord(pDACcs);  //F7
+    sele_dac:=ndac+4;
+  end;}
+
+  //Expect that a proper buffer has been provided
+  //BufferDest := BufferOut;
+  // Construyo la cadena que se enviará
+  i := 0; // El primer caracter está reservado para la longitud, se use o no.
+  BufferOut[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+  BufferOut[i] := Char(CadenaCS); Inc(i);
+  BufferOut[i] := Char($FB); Inc(i);
+  BufferOut[i] := Char(MPSSE_CmdWriteDO); Inc(i);
+  BufferOut[i] := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
+  BufferOut[i] := Char($00); Inc(i);
+  BufferOut[i] := Char(sele_dac); Inc(i); //Registro?
+  BufferOut[i] := Char(valor shr 8); Inc(i); // Byte más significativo del valor
+  BufferOut[i] := Char(valor and $FF); Inc(i); // Byte menos significativo del valor
+  //BufferOut[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
+  BufferOut[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+  BufferOut[i] := Char($FF); Inc(i);
+  BufferOut[i] := Char($FB); Inc(i);
+  //Assert(i = 12); //Confirmamos que es el numero correcto
+  //BufferOut[i] := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
 
 
 if simulating then simulatedDac[ndac] := valor;
