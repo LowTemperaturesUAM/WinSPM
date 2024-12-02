@@ -148,6 +148,13 @@ object FormConfig: TFormConfig
       Height = 13
       Caption = 'Amplifier'
     end
+    object SpeedLbl: TLabel
+      Left = 200
+      Top = 80
+      Width = 109
+      Height = 13
+      Caption = 'Speed (points per step)'
+    end
     object SpinEdit1: TSpinEdit
       Left = 56
       Top = 16
@@ -259,6 +266,21 @@ object FormConfig: TFormConfig
       Height = 21
       TabOrder = 5
       Text = '5'
+    end
+    object PosSpeedBar: TTrackBar
+      Left = 200
+      Top = 100
+      Width = 150
+      Height = 30
+      Ctl3D = False
+      Max = 100
+      Min = 1
+      ParentCtl3D = False
+      Frequency = 10
+      Position = 100
+      TabOrder = 11
+      TickMarks = tmTopLeft
+      OnChange = PosSpeedBarChange
     end
   end
   object ReadPanel: TPanel

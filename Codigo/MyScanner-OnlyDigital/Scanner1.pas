@@ -152,6 +152,7 @@ type
   StopAction,PauseAction: Boolean;
   P_Scan_Mean, P_Scan_Jump, P_Scan_Lines, IV_Scan_Lines: Integer;
   P_Scan_Size : Single;
+  P_Pos_Jump: Integer;
   //Images up to 512 pts, with x in 0 and y's in 1..2
   Dat_Image_Forth: Array [0..10] of TImageSingle;
   Dat_Image_Back: Array [0..10] of TImageSingle;
@@ -245,7 +246,7 @@ IV_Scan_Lines:=StrToInt(Form11.ComboBox1.Text);
 P_Scan_Mean:=Trackbar1.Position;
 P_Scan_Jump:= Trackbar2.Position;
 P_Scan_Size:=Trackbar3.Position/1000;
-
+P_Pos_Jump:=100; //initial value set as the fastest. It can be changed later in the config window
 // Preparamos el fichero o los ficheros temporales para manejar los CITs en formato WSxM
 CreateCitsTempFiles();
 RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
@@ -301,13 +302,13 @@ begin
   Princ:=DacvalX;
   Fin:=Round(XOffset*32767);
 
-  MoveDac(nil, XDAC_Pos, Princ, Fin, P_Scan_Jump, nil);
+  MoveDac(nil, XDAC_Pos, Princ, Fin, P_Pos_Jump, nil);
 
   DacValX:=Fin;
   Princ:=DacvalY;
   Fin:=Round(YOffset*32767);
 
-  MoveDac(nil, YDAC_Pos, Princ, Fin, P_Scan_Jump, nil);
+  MoveDac(nil, YDAC_Pos, Princ, Fin, P_Pos_Jump, nil);
 
   DacvalY:=Fin;
   UpdateCanvas(nil);
@@ -472,8 +473,8 @@ TopoForm.Show;
 
 //Llevar el DAC a la posición inicial
 Prin:=Round(int(32767*P_Scan_Size));
-if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, 0, -Prin, P_Scan_Jump, nil) // Scan en X Hay que llevar el DAC a cero
-else MoveDac(nil, YDAC, 0, -Prin, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, 0, -Prin, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+else MoveDac(nil, YDAC, 0, -Prin, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
  k:=0;
 while (StopAction<>True) do
@@ -940,8 +941,8 @@ end;
 if StopAction then
 begin
   // Si salimos, hay que llevar la punta a su sitio
-  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Scan_Jump, nil)
-  else MoveDac(nil, YDAC, LastY, 0, P_Scan_Jump, nil);
+  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
+  else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
 end;
 
 // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
@@ -1154,8 +1155,8 @@ end;
 if StopAction then
 begin
   // Si salimos, hay que llevar la punta a su sitio
-  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Scan_Jump, nil)
-  else MoveDac(nil, YDAC, LastY, 0, P_Scan_Jump, nil);
+  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
+  else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
 end;
 
 
@@ -1368,8 +1369,10 @@ repeat
 
    PrincY:=Round(-int(32767*P_Scan_Size)); //Punto inicial en Y
    PrincX:=Round(-int(32767*P_Scan_Size)); //Punto inicial en X
-   MoveDac(nil, XDAC, 0, PrincX, P_Scan_Jump, nil);
-   MoveDac(nil, YDAC, 0, PrincY, P_Scan_Jump, nil);
+   //Este movimiento se realiza con el dac de barrido, no de posición,
+   //pero queremos poder cambiar la velocidad independientemente de la de la imagen
+   MoveDac(nil, XDAC, 0, PrincX, P_Pos_Jump, nil);
+   MoveDac(nil, YDAC, 0, PrincY, P_Pos_Jump, nil);
    //sleep(500*StrToInt(SpinEdit3.Text));
    //FormPID.se1.Text:='0';
    //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
@@ -1420,8 +1423,8 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        if (not StopAction) then MoveDac(nil, XDAC, PrincX, 0, P_Scan_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
-        MoveDac(nil, YDAC, DacvalY_Local, 0, P_Scan_Jump, nil); //porque en la X se vuelve con makeline
+        if (not StopAction) then MoveDac(nil, XDAC, PrincX, 0, P_Pos_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
+        MoveDac(nil, YDAC, DacvalY_Local, 0, P_Pos_Jump, nil); //porque en la X se vuelve con makeline
       end
   else //Now scan in Y
       begin
@@ -1465,8 +1468,8 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        MoveDac(nil, XDAC, DacValX_Local, 0, P_Scan_Jump, nil);
-        if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Scan_Jump, nil);
+        MoveDac(nil, XDAC, DacValX_Local, 0, P_Pos_Jump, nil);
+        if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Pos_Jump, nil);
       end;
 
       StopBtn.Enabled:=False;

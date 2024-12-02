@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, Spin, Math, IniFiles, Buttons;
+  StdCtrls, ExtCtrls, Spin, Math, IniFiles, Buttons, ComCtrls;
 
 type
   TFormConfig = class(TForm)
@@ -62,12 +62,15 @@ type
     UpdateCfg: TSpeedButton;
     LHAVersionSel: TComboBox;
     LHAVerLbl: TLabel;
+    PosSpeedBar: TTrackBar;
+    SpeedLbl: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure MakeIVCheckClick(Sender: TObject);
     procedure SaveCfgClick(Sender: TObject);
     procedure UpdateCfgClick(Sender: TObject);
     procedure LHAVersionSelChange(Sender: TObject);
+    procedure PosSpeedBarChange(Sender: TObject);
   private
     { Private declarations }
     IniFile: TMemIniFile;
@@ -407,5 +410,12 @@ begin
   ScanForm.LHARev := TLHArev(LHAVersionSel.ItemIndex+1);
   DataForm.InitDataAcq; //Inicializamos para que los atenuadores queden debidamente configurados
 end;
+
+procedure TFormConfig.PosSpeedBarChange(Sender: TObject);
+begin
+  ScanForm.P_Pos_Jump := PosSpeedBar.Position;
+end;
+
+
 
 end.
