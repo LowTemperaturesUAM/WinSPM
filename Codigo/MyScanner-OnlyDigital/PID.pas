@@ -53,6 +53,7 @@ type
     SleepCtrlEdit: TSpinEdit;
     lblCurrentLabel: TLabel;
     lblCurrentSetPoint: TLabel;
+    LockPIDChk: TCheckBox;
     procedure FormShow(Sender: TObject);
     procedure chkShowValuesClick(Sender: TObject);
     procedure spinPID_InChange(Sender: TObject);
@@ -79,6 +80,7 @@ type
     procedure thrdtmr1Timer(Sender: TObject);
     procedure se1Change(Sender: TObject);
     procedure SleepCtrlBtnClick(Sender: TObject);
+    procedure LockPIDChkClick(Sender: TObject);
 private
     { Private declarations }
 public
@@ -388,5 +390,36 @@ begin
 end;
 
 
+procedure TFormPID.LockPIDChkClick(Sender: TObject);
+begin
+if  LockPIDChk.Checked then
+begin
+  scrlbrP.Enabled := False;
+  scrlbrI.Enabled := False;
+  scrlbrD.Enabled := False;
+  Gain_P.Enabled := False;
+  Gain_I.Enabled := False;
+  Gain_D.Enabled := False;
+  spinPID_In.Enabled := False;
+  spinPID_Out.Enabled := False;
+  scrlbrSetPoint.Enabled := False;
+end
+else
+begin
+  scrlbrP.Enabled := True;
+  scrlbrI.Enabled := True;
+  scrlbrD.Enabled := True;
+  Gain_P.Enabled := True;
+  Gain_I.Enabled := True;
+  Gain_D.Enabled := True;
+  spinPID_In.Enabled := True;
+  spinPID_Out.Enabled := True;
+  scrlbrSetPoint.Enabled := True;
+end;
+
+
+
+
+end;
 
 end.

@@ -406,6 +406,18 @@ object FormPID: TFormPID
     TabOrder = 22
     Value = 1
   end
+  object LockPIDChk: TCheckBox
+    Left = 232
+    Top = 80
+    Width = 85
+    Height = 17
+    Hint = 'Locks PID controls to avoid unintended changes'
+    Caption = 'Lock controls'
+    Ctl3D = False
+    ParentCtl3D = False
+    TabOrder = 23
+    OnClick = LockPIDChkClick
+  end
   object thrdtmr1: TThreadedTimer
     AllowZero = True
     Interval = 0
