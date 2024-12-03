@@ -395,7 +395,7 @@ object LinerForm: TLinerForm
       Font.Height = -9
       Font.Name = 'MS Sans Serif'
       Font.Style = []
-      MaxValue = 42
+      MaxValue = 100
       MinValue = 1
       ParentFont = False
       TabOrder = 7
