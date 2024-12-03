@@ -17,10 +17,13 @@ type
     InvertCurChk: TCheckBox;
     lblCurrentLimit: TLabel;
     spinCurrentLimit: TSpinEdit;
+    MeanLbl: TLabel;
+    MeanSpin: TSpinEdit;
     procedure OutDacEditChange(Sender: TObject);
     procedure InADCEditChange(Sender: TObject);
     procedure InvertZPChkClick(Sender: TObject);
     procedure InvertCurChkClick(Sender: TObject);
+    procedure MeanSpinChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -56,6 +59,11 @@ end;
 procedure TTripConfig.InvertCurChkClick(Sender: TObject);
 begin
 if (InvertCurChk.Checked) then TripForm.MultI:=1 else TripForm.MultI:=-1;
+end;
+
+procedure TTripConfig.MeanSpinChange(Sender: TObject);
+begin
+  TripForm.TripMean:=MeanSpin.Value;
 end;
 
 end.

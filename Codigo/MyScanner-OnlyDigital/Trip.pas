@@ -45,6 +45,7 @@ type
     { Public declarations }
   Speed, Size, times, ZPDac, IADC, Mult, MultI: Integer;
   StopTrip: Boolean;
+  TripMean: Integer;
   // Cuidado con StopTrip, se está asignando varias veces en la aproximación automática.
   // Es poco probable pero podría darse el caso que una de estas asignaciones coincidiera con la pulsación del usuario para parar, lo machacase y no parara.
   end;
@@ -52,6 +53,7 @@ type
 var
   TripForm: TTripForm;
   TripBuffer: array [1..6554*12] of AnsiChar; //Maximum size for Speed =10 and 12 bytes per dac value
+  //TripMean: Integer;
 
 implementation
 
@@ -88,6 +90,7 @@ ZPDAC:=TripConfig.OutDacEdit.Value;
 IADC:=TripConfig.InADCEdit.Value;
 if (TripConfig.InvertZPChk.checked) then Mult:=1 else Mult:=-1;
 if (TripConfig.InvertCurChk.checked) then MultI:=1 else MultI:=-1;
+TripMean:=TripConfig.MeanSpin.Value;
 TripConfig.Hide;
 end;
 
@@ -132,13 +135,13 @@ begin
   punto_salida:=false;
   while (punto_salida=false) do
   begin
-    Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,ScanForm.P_Scan_Mean);
+    Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,TripMean);
     //Label7.caption:=Floattostr(Strom_jetzt);
     //times:=1000;
     while (abs(Strom_jetzt)<(TripConfig.spinCurrentLimit.Value/100)) and (StopTrip=False) do
     begin
       MakeStepsBuf(times, 1);
-      Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,ScanForm.P_Scan_Mean);
+      Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,TripMean);
     end;
     punto_salida:=True;
     //times:=StepsEdit.Value;

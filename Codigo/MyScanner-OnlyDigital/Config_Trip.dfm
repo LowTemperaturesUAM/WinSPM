@@ -42,6 +42,13 @@ object TripConfig: TTripConfig
       Height = 13
       Caption = 'Current limit (%):'
     end
+    object MeanLbl: TLabel
+      Left = 152
+      Top = 60
+      Width = 27
+      Height = 13
+      Caption = 'Mean'
+    end
     object OutDacEdit: TSpinEdit
       Left = 104
       Top = 8
@@ -91,6 +98,17 @@ object TripConfig: TTripConfig
       MinValue = 0
       TabOrder = 4
       Value = 50
+    end
+    object MeanSpin: TSpinEdit
+      Left = 184
+      Top = 56
+      Width = 42
+      Height = 22
+      MaxValue = 100
+      MinValue = 1
+      TabOrder = 5
+      Value = 10
+      OnChange = MeanSpinChange
     end
   end
 end
