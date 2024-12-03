@@ -155,6 +155,15 @@ object FormConfig: TFormConfig
       Height = 13
       Caption = 'Speed (points per step)'
     end
+    object SpeedVal: TLabel
+      Left = 312
+      Top = 80
+      Width = 26
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = '100'
+    end
     object SpinEdit1: TSpinEdit
       Left = 56
       Top = 16

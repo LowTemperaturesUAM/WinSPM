@@ -64,6 +64,7 @@ type
     LHAVerLbl: TLabel;
     PosSpeedBar: TTrackBar;
     SpeedLbl: TLabel;
+    SpeedVal: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure MakeIVCheckClick(Sender: TObject);
@@ -414,7 +415,10 @@ end;
 procedure TFormConfig.PosSpeedBarChange(Sender: TObject);
 begin
   ScanForm.P_Pos_Jump := PosSpeedBar.Position;
+  SpeedVal.Caption:=IntToStr(ScanForm.P_Pos_Jump);
 end;
+
+
 
 
 
