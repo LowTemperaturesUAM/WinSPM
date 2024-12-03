@@ -107,14 +107,14 @@ end;
 procedure TTripForm.SeparateBtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  MakeSteps(times, -1);
+  MakeStepsBuf(times, -1);
   SetMoving(false);
 end;
 
 procedure TTripForm.Separate100BtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  MakeSteps(100, -1);
+  MakeStepsBuf(100, -1);
   SetMoving(false);
 end;
 
@@ -137,7 +137,7 @@ begin
     //times:=1000;
     while (abs(Strom_jetzt)<(TripConfig.spinCurrentLimit.Value/100)) and (StopTrip=False) do
     begin
-      MakeSteps(times, 1);
+      MakeStepsBuf(times, 1);
       Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,ScanForm.P_Scan_Mean);
     end;
     punto_salida:=True;
@@ -238,7 +238,7 @@ begin
     //maybe add a zero before the loop to make sure we start from the correct value
     for j:= 0 to 32767 do
     begin
-      //its around 65 pints at max speed
+      //its around 65 points at max speed
       if Frac(j/Speed)=0 then
       begin
         calcZ:=direction*Mult*Round(j*Size/10);
