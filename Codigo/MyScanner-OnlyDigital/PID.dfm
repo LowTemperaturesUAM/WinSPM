@@ -258,7 +258,7 @@ object FormPID: TFormPID
     TabOrder = 7
     OnChange = scrlbrSetPointChange
   end
-  object CheckBox2: TCheckBox
+  object ReversePIDChk: TCheckBox
     Left = 24
     Top = 376
     Width = 65
@@ -267,9 +267,9 @@ object FormPID: TFormPID
     Checked = True
     State = cbChecked
     TabOrder = 8
-    OnClick = CheckBox2Click
+    OnClick = ReversePIDChkClick
   end
-  object SpinEdit4: TSpinEdit
+  object LiveSpin: TSpinEdit
     Left = 240
     Top = 264
     Width = 65
@@ -278,18 +278,18 @@ object FormPID: TFormPID
     MinValue = 1
     TabOrder = 9
     Value = 1
-    OnChange = SpinEdit4Change
+    OnChange = LiveSpinChange
   end
-  object Button3: TButton
+  object ResetPIDBtn: TButton
     Left = 232
     Top = 112
     Width = 75
     Height = 17
     Caption = 'RESET'
     TabOrder = 10
-    OnClick = Button3Click
+    OnClick = ResetPIDBtnClick
   end
-  object SpinEdit5: TSpinEdit
+  object AvgSpin: TSpinEdit
     Left = 240
     Top = 336
     Width = 65
@@ -298,43 +298,43 @@ object FormPID: TFormPID
     MinValue = 1
     TabOrder = 11
     Value = 1
-    OnChange = SpinEdit5Change
+    OnChange = AvgSpinChange
   end
-  object Button4: TButton
+  object Avg10MultBtn: TButton
     Left = 240
     Top = 360
     Width = 35
     Height = 17
     Caption = 'x10'
     TabOrder = 12
-    OnClick = Button4Click
+    OnClick = Avg10MultBtnClick
   end
-  object Button5: TButton
+  object Avg10DivBtn: TButton
     Left = 272
     Top = 360
     Width = 35
     Height = 17
     Caption = '/10'
     TabOrder = 13
-    OnClick = Button5Click
+    OnClick = Avg10DivBtnClick
   end
-  object Button6: TButton
+  object Live10MultBtn: TButton
     Left = 240
     Top = 288
     Width = 33
     Height = 17
     Caption = 'x10'
     TabOrder = 14
-    OnClick = Button6Click
+    OnClick = Live10MultBtnClick
   end
-  object Button7: TButton
+  object Live10DivBtn: TButton
     Left = 272
     Top = 288
     Width = 33
     Height = 17
     Caption = '/10'
     TabOrder = 15
-    OnClick = Button7Click
+    OnClick = Live10DivBtnClick
   end
   object Button8: TButton
     Left = 16
@@ -376,7 +376,7 @@ object FormPID: TFormPID
     Value = 0
     OnChange = Gain_DChange
   end
-  object se1: TSpinEdit
+  object TimerSpin: TSpinEdit
     Left = 232
     Top = 168
     Width = 65
@@ -385,7 +385,7 @@ object FormPID: TFormPID
     MinValue = 0
     TabOrder = 20
     Value = 0
-    OnChange = se1Change
+    OnChange = TimerSpinChange
   end
   object SleepCtrlBtn: TButton
     Left = 152

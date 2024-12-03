@@ -167,7 +167,7 @@ try
   //Parametros PID
   FormPID.spinPID_In.Value := CurrentChanEdit.Value;
   FormPID.spinPID_Out.Value := IniFile.ReadInteger(String(iniPID), 'OutputDac', 6);
-  FormPID.CheckBox2.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', True);
+  FormPID.ReversePIDChk.Checked := IniFile.ReadBool(String(iniPID), 'PIDReverseOut', True);
   //Informatcion sobre la version de la electronica LHA, devolvemos 0 si no se indica
   ScanForm.LHARev := TLHARev(IniFile.ReadInteger(String(iniRev), 'Revision', 0));
 finally
@@ -298,7 +298,7 @@ try
   IniFile.WriteBool(String(iniTrip), 'CurrentInverse', TripConfig.InvertCurChk.Checked);
   //Parametros PID
   IniFile.WriteInteger(String(iniPID), 'OutputDac', FormPID.spinPID_Out.Value);
-  IniFile.WriteBool(String(iniPID), 'PIDReverseOut', FormPID.CheckBox2.Checked);
+  IniFile.WriteBool(String(iniPID), 'PIDReverseOut', FormPID.ReversePIDChk.Checked);
   //Si la revision contiene un valor valido, la escribimos
   if (ScanForm.LHARev >= revB ) and (ScanForm.LHARev <= revE) then
   IniFile.WriteInteger(String(iniRev), 'Revision', Ord(ScanForm.LHARev));

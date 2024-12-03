@@ -29,25 +29,25 @@ type
     scrlbrSetPoint: TScrollBar;
     Label12: TLabel;
     Label13: TLabel;
-    CheckBox2: TCheckBox;
+    ReversePIDChk: TCheckBox;
     Label14: TLabel;
-    SpinEdit4: TSpinEdit;
-    Button3: TButton;
+    LiveSpin: TSpinEdit;
+    ResetPIDBtn: TButton;
     Label15: TLabel;
     Label16: TLabel;
-    SpinEdit5: TSpinEdit;
+    AvgSpin: TSpinEdit;
     Label17: TLabel;
-    Button4: TButton;
-    Button5: TButton;
-    Button6: TButton;
-    Button7: TButton;
+    Avg10MultBtn: TButton;
+    Avg10DivBtn: TButton;
+    Live10MultBtn: TButton;
+    Live10DivBtn: TButton;
     Label19: TLabel;
     Button8: TButton;
     Button9: TButton;
     Gain_I: TSpinEdit;
     Gain_D: TSpinEdit;
     thrdtmr1: TThreadedTimer;
-    se1: TSpinEdit;
+    TimerSpin: TSpinEdit;
     lbl1: TLabel;
     SleepCtrlBtn: TButton;
     SleepCtrlEdit: TSpinEdit;
@@ -58,14 +58,14 @@ type
     procedure chkShowValuesClick(Sender: TObject);
     procedure spinPID_InChange(Sender: TObject);
     procedure spinPID_OutChange(Sender: TObject);
-    procedure SpinEdit4Change(Sender: TObject);
-    procedure CheckBox2Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
-    procedure SpinEdit5Change(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Button7Click(Sender: TObject);
+    procedure LiveSpinChange(Sender: TObject);
+    procedure ReversePIDChkClick(Sender: TObject);
+    procedure ResetPIDBtnClick(Sender: TObject);
+    procedure AvgSpinChange(Sender: TObject);
+    procedure Avg10MultBtnClick(Sender: TObject);
+    procedure Avg10DivBtnClick(Sender: TObject);
+    procedure Live10MultBtnClick(Sender: TObject);
+    procedure Live10DivBtnClick(Sender: TObject);
     function Controla(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
@@ -78,7 +78,7 @@ type
     procedure Gain_IChange(Sender: TObject);
     procedure Gain_DChange(Sender: TObject);
     procedure thrdtmr1Timer(Sender: TObject);
-    procedure se1Change(Sender: TObject);
+    procedure TimerSpinChange(Sender: TObject);
     procedure SleepCtrlBtnClick(Sender: TObject);
     procedure LockPIDChkClick(Sender: TObject);
 private
@@ -121,11 +121,11 @@ P_PID:=scrlbrP.Position;
 lblPValue.Caption:=InttoStr(scrlbrP.Position);
 InPID_ADC:=spinPID_In.Value;
 OutPID_DAC:=spinPID_out.Value;
-if checkbox2.checked then reverse:=1 else reverse:=-1;
+if ReversePIDChk.Checked then reverse:=1 else reverse:=-1;
 //PIDReset:=True; // Mejor que resetee la primera vez, para que inicialice todos los acumuladores
-MeanReadI:=SpinEdit5.Value;
+MeanReadI:=AvgSpin.Value;
 //previous_ctrl:=0;
-Count_Live:= FormPID.SpinEdit4.Value;
+Count_Live:= LiveSpin.Value;
 
 if (InPID_ADC = ScanForm.ADCI) then
   begin
@@ -175,50 +175,56 @@ begin
   TryStrToInt(spinPID_out.Text, OutPID_DAC);
 end;
 
-procedure TFormPID.SpinEdit4Change(Sender: TObject);
+procedure TFormPID.LiveSpinChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit4.Text, Count_Live);
+  TryStrToInt(LiveSpin.Text, Count_Live);
 end;
 
-procedure TFormPID.CheckBox2Click(Sender: TObject);
+procedure TFormPID.ReversePIDChkClick(Sender: TObject);
 begin
-if checkbox2.checked then reverse:=1 else reverse:=-1;
+if ReversePIDChk.Checked then reverse:=1 else reverse:=-1;
 end;
 
-procedure TFormPID.Button3Click(Sender: TObject);
+procedure TFormPID.ResetPIDBtnClick(Sender: TObject);
 begin
 PIDReset:=True;
 end;
 
-procedure TFormPID.SpinEdit5Change(Sender: TObject);
+procedure TFormPID.AvgSpinChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit5.Text, MeanReadI);
+  TryStrToInt(AvgSpin.Text, MeanReadI);
 end;
 
-procedure TFormPID.Button4Click(Sender: TObject);
+procedure TFormPID.Avg10MultBtnClick(Sender: TObject);
 begin
-SpinEdit5.Value:=SpinEdit5.Value*10;
-MeanReadI:=SpinEdit5.Value;
+  MeanReadI:=AvgSpin.Value*10;
+  AvgSpin.Value:=MeanReadI;
 end;
 
-procedure TFormPID.Button5Click(Sender: TObject);
+procedure TFormPID.Avg10DivBtnClick(Sender: TObject);
+var temp:Integer;
 begin
-if (Round(SpinEdit5.Value/10)>0) then SpinEdit5.Value:=Round(SpinEdit5.Value/10)
-else SpinEdit5.Value:=1;
-MeanReadI:=SpinEdit5.Value;
+  temp := Round(AvgSpin.Value/10);
+  //Clamp to 1
+  if temp>0 then MeanReadI:=temp
+  else MeanReadI:=1;
+  AvgSpin.Value:=MeanReadI;
 end;
 
-procedure TFormPID.Button6Click(Sender: TObject);
+procedure TFormPID.Live10MultBtnClick(Sender: TObject);
 begin
-SpinEdit4.Value:=SpinEdit4.Value*10;
-Count_Live:=SpinEdit4.Value;
+  Count_Live:=LiveSpin.Value*10;
+  LiveSpin.Value:=Count_Live;
 end;
 
-procedure TFormPID.Button7Click(Sender: TObject);
+procedure TFormPID.Live10DivBtnClick(Sender: TObject);
+var temp:Integer;
 begin
-if (Round(SpinEdit4.Value/10)>0) then SpinEdit4.Value:=Round(SpinEdit4.Value/10)
-else SpinEdit4.Value:=1;
-Count_Live:=SpinEdit4.Value;
+  temp := Round(LiveSpin.Value/10);
+  //Clamp to 1
+  if temp>0 then Count_Live:=temp
+  else Count_Live:=1;
+  LiveSpin.Value:=Count_Live;
 end;
 
 function TFormPID.Controla(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
@@ -364,10 +370,10 @@ begin
   previous_ctrl:=FormPID.Controla(Count_Live,previous_ctrl, True);
 end;
 
-procedure TFormPID.se1Change(Sender: TObject);
+procedure TFormPID.TimerSpinChange(Sender: TObject);
   var temp64 : Int64; // Temporalmente 64 bits para no perder precisión
 begin
-  TryStrToInt64(se1.Text, temp64);
+  TryStrToInt64(TimerSpin.Text, temp64);
   thrdtmr1.Interval := temp64;
   Application.ProcessMessages;
   //Vamos a limitarlo a 5Hz (200ms) para representarlo.
@@ -403,6 +409,16 @@ begin
   spinPID_In.Enabled := False;
   spinPID_Out.Enabled := False;
   scrlbrSetPoint.Enabled := False;
+  AvgSpin.Enabled := False;
+  Avg10MultBtn.Enabled := False;
+  Avg10DivBtn.Enabled := False;
+  LiveSpin.Enabled := False;
+  Live10MultBtn.Enabled := False;
+  Live10DivBtn.Enabled := False;
+  TimerSpin.Enabled := False;
+  ResetPIDBtn.Enabled := False;
+  ReversePIDChk.Enabled := False;
+  chkShowValues.Enabled := False;
 end
 else
 begin
@@ -415,6 +431,16 @@ begin
   spinPID_In.Enabled := True;
   spinPID_Out.Enabled := True;
   scrlbrSetPoint.Enabled := True;
+  AvgSpin.Enabled := True;
+  Avg10MultBtn.Enabled := True;
+  Avg10DivBtn.Enabled := True;
+  LiveSpin.Enabled := True;
+  Live10MultBtn.Enabled := True;
+  Live10DivBtn.Enabled := True;
+  TimerSpin.Enabled := True;
+  ResetPIDBtn.Enabled := True;
+  ReversePIDChk.Enabled := True;
+  chkShowValues.Enabled := True;
 end;
 
 
