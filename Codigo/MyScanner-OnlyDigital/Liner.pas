@@ -870,7 +870,7 @@ procedure TLinerForm.chkAcquireBlockClick(Sender: TObject);
 begin
   if chkAcquireBlock.Checked then
     begin
-      SpinEdit3.MaxValue := 100; // Try to increase it
+      SpinEdit3.MaxValue := 42; // any value higher breaks for 2048pts curves
       if SpinEdit3.Value > SpinEdit3.MaxValue then
         SpinEdit3.Value := SpinEdit3.MaxValue;
     end
