@@ -628,7 +628,7 @@ begin
       // lo del temporizador lo deja todo muy oscuro, no comprendo bien el resto del código. Hermann 22/09/20
       end;
 
-    if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
+    if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then  //si no queremos tomar espectros en cada punto, sino cada varios
     begin
       if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
       begin
@@ -1414,6 +1414,9 @@ repeat
           DacValY_Local:=PrincY+Step*i;
           if (i<>0) then MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
+          // if the number of points for the spectroscopy has been reduced,
+          // this should be reflected here, as we don't have to take spectroscopies on every line
+          // but only every few
           if (p>=EraseLines) then
             begin
   //            TopoForm.xyyGraph1.Clear;

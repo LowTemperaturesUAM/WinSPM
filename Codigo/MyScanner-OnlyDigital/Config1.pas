@@ -339,6 +339,7 @@ ScanForm.ReadOther:=OtherCheck.checked;
 ScanForm.ADCOther:=OtherChanEdit.Value;
 ScanForm.AmpOther:=power(10,-1*(StrtoFloat(OtherAmpBox.Text)-1));
 ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
+ScanForm.P_Pos_Jump:=PosSpeedBar.Position;
 
 // Si está activo el atenuador, el efecto será el mismo que bajar las ganancias de los amplificadores un factor 10
 if (chkAttenuator.Checked) then
@@ -414,7 +415,7 @@ end;
 
 procedure TFormConfig.PosSpeedBarChange(Sender: TObject);
 begin
-  ScanForm.P_Pos_Jump := PosSpeedBar.Position;
+  //ScanForm.P_Pos_Jump := PosSpeedBar.Position;
   SpeedVal.Caption:=IntToStr(ScanForm.P_Pos_Jump);
 end;
 
