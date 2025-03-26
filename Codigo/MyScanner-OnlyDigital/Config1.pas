@@ -390,7 +390,7 @@ if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
   //Conversion a corriente en nA:
   //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
   //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
-  FormPID.lblCurrentSetPoint.Caption :=Format('%2.2f',[FormPID.scrlbrSetPoint.Position/FormPID.scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
+  FormPID.lblCurrentSetPoint.Caption :=Format('%2.2f',[FormPID.scrlbrSetPoint.Position/FormPID.scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI*abs(ScanForm.MultI)] );
   end
 else
   begin
