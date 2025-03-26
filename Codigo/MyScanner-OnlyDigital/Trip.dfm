@@ -142,7 +142,7 @@ object TripForm: TTripForm
     Height = 17
     LargeChange = 10
     Max = 1000
-    Min = 10
+    Min = 100
     PageSize = 0
     Position = 1000
     TabOrder = 5
