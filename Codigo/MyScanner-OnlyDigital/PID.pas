@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Spin, math, ExtCtrls, ThdTimer;
+  StdCtrls, Spin, math, ExtCtrls, ThdTimer,var_gbl;
 
 type
   TFormPID = class(TForm)
@@ -81,6 +81,11 @@ type
     procedure TimerSpinChange(Sender: TObject);
     procedure SleepCtrlBtnClick(Sender: TObject);
     procedure LockPIDChkClick(Sender: TObject);
+    //function log_current(input:Integer): SmallInt;
+
+    function logPID(input,setPoint: SmallInt; P,I: Double; Iterm: Double) : SmallInt;
+    function linPID(input,setPoint: SmallInt; P,I: Double; Iterm: Double) : SmallInt;
+    function Controla2(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
 private
     { Private declarations }
 public
@@ -227,7 +232,7 @@ begin
   LiveSpin.Value:=Count_Live;
 end;
 
-function TFormPID.Controla(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
+function TFormPID.Controla2(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
 var
 i: LongInt;
 thisError: Double;
@@ -289,7 +294,97 @@ begin
   Result:=prevError;
 end;
 
+function TFormPID.logPID(input,setPoint: SmallInt; P,I: Double; Iterm: Double) : SmallInt;
+var
+  logI : SmallInt;
+  logI0 : SmallInt;
+  error : Double;
+  Pterm : Double;
+  //Iterm : Double;
+begin
+  logI := var_gbl.log_lookup_16bit[Abs(input)];
+  logI0 := var_gbl.log_lookup_16bit[setPoint];
+  error := logI0 - logI; //reverse
+  Pterm := P*error;
+  Iterm  := Iterm + I*error;
+  //CLamp Iterm to the range of digital values allowed NOT IMPLEMENTED
 
+  Result := round(Pterm + Iterm); //should also clamp it instead of relying on implicit casting
+end;
+
+
+function TFormPID.linPID(input,setPoint: SmallInt; P,I: Double; Iterm: Double) : SmallInt;
+var
+  //logI : SmallInt;
+  //logI0 : SmallInt;
+  error : Double;
+  Pterm : Double;
+  //Iterm : Double;
+begin
+  //logI := var_gbl.log_lookup_16bit[input];
+  //logI0 := var_gbl.log_lookup_16bit[setPoint];
+  error := setPoint - Abs(input);
+  Pterm := P*error;
+  Iterm  := Iterm + I*error;
+  //Clamp Iterm to the range of digital values allowed NOT IMPLEMENTED
+
+  Result := round(Pterm + Iterm); //should also clamp it instead of relying on implicit casting
+end;
+
+
+function TFormPID.Controla(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
+var
+i: LongInt;
+//thisError: Double;
+input : SmallInt;
+
+begin
+
+  if (Flag_PIDisworking = False) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
+  //if Timer1.Enabled = False then // No debería pasar, pero por si acaso
+//    if thrdtmr1.Enabled = False then // No debería pasar, pero por si acaso
+//    Exit;
+
+
+  i:=0;
+  while (i<NumberC) do
+  begin
+    if (PIDReset) then //no podemos hacer esto antes del bucle y ya esta?
+    begin
+      prevError:=0;
+      lastIntegral:=0;
+      PIDReset:=False;
+      Action_PID:=0; //Asi podemos poner a cero otra vez el control
+    end;
+    input :=round(DataForm.adc_take(InPID_ADC,InPID_ADC,MeanReadI)*32768); //get 16bit ADC value
+    //Read_PID := abs(Round(DataForm.adc_take(InPID_ADC,InPID_ADC,MeanReadI)*32768));
+    Action_PID := Action_PID + reverse*linPID(input,Abs(round(Set_PID/1000*32768)),Gain*P_PID/100,Gain_of_I*I_PID/100,lastIntegral);
+    //thisError := (Set_PID/1000*32768)-Read_PID;
+    //lastIntegral := lastIntegral+thisError/1000; // Siendo formales, habría que multiplicar thisError por dt. Hermann prefiere no hacerlo.
+    // Es que podríamos ponerlo, pero dt va a ser casi siempre 0.001 s, por lo que es un factor multiplicativo un tanto arbitrario, pongo 1000, también en la derivada
+    //Action_PID := Action_PID+reverse*Round((Gain*P_PID/100)*thisError + (Gain_of_I*I_PID/100)*(lastIntegral) + (Gain_of_D*D_PID/100)*(thisError-prevError)*1000);
+    Action_PID := DataForm.clampToDAC16(Action_PID);
+    DataForm.dac_set(OutPID_DAC,Action_PID, nil);
+    //prevError:=thisError;
+    i:=i+1;
+  end;
+
+  //Representamos los valores con menor periodicidad que el timer
+  Inc(showValues);
+  if ((Check_Show and updateUI) and (showValues = showInterval))  then
+  begin
+    lblInValue.Caption:=InttoStr(input);
+    lblOutValue.Caption:=InttoStr(Action_PID);
+    showValues := 0;
+  end;
+
+  Result:=prevError;
+end;
 
 procedure TFormPID.Button8Click(Sender: TObject);
 begin
@@ -447,5 +542,12 @@ end;
 
 
 end;
+
+
+//function log_current(input:Integer): SmallInt;
+//begin
+//  Result := var_gbl.log_lookup_16bit[input]
+//var_gbl.dacValues[ndac]
+//end;
 
 end.
