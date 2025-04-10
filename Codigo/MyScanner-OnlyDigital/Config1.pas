@@ -415,12 +415,8 @@ end;
 
 procedure TFormConfig.PosSpeedBarChange(Sender: TObject);
 begin
-  //ScanForm.P_Pos_Jump := PosSpeedBar.Position;
-  SpeedVal.Caption:=IntToStr(ScanForm.P_Pos_Jump);
+  SpeedVal.Caption:=IntToStr(PosSpeedBar.Position);
 end;
-
-
-
 
 
 end.

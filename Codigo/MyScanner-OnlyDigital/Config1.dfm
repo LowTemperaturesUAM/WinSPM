@@ -151,9 +151,10 @@ object FormConfig: TFormConfig
     object SpeedLbl: TLabel
       Left = 200
       Top = 80
-      Width = 109
+      Width = 110
       Height = 13
-      Caption = 'Speed (points per step)'
+      AutoSize = False
+      Caption = 'Movement Speed'
     end
     object SpeedVal: TLabel
       Left = 312
