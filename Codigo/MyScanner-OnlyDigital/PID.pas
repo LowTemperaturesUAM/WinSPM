@@ -232,7 +232,7 @@ begin
   LiveSpin.Value:=Count_Live;
 end;
 
-function TFormPID.Controla2(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
+function TFormPID.Controla(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
 var
 i: LongInt;
 thisError: Double;
@@ -332,7 +332,7 @@ begin
 end;
 
 
-function TFormPID.Controla(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
+function TFormPID.Controla2(NumberC: Integer; prevError: Double; updateUI: Boolean) : Double;
 var
 i: LongInt;
 //thisError: Double;
@@ -356,10 +356,11 @@ begin
   begin
     if (PIDReset) then //no podemos hacer esto antes del bucle y ya esta?
     begin
-      prevError:=0;
+      //prevError:=0;
       lastIntegral:=0;
       PIDReset:=False;
-      Action_PID:=0; //Asi podemos poner a cero otra vez el control
+      //Lets not change the output all of a sudden, and just reset the integral
+      //Action_PID:=0; //Asi podemos poner a cero otra vez el control
     end;
     input :=round(DataForm.adc_take(InPID_ADC,InPID_ADC,MeanReadI)*32768); //get 16bit ADC value
     //Read_PID := abs(Round(DataForm.adc_take(InPID_ADC,InPID_ADC,MeanReadI)*32768));
