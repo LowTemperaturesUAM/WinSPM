@@ -147,7 +147,7 @@ type
   SleepDo: Integer;
   BiasDAC: Integer;
   MultBias: Single;
-  ReadTopo, ReadCurrent, ReadOther: Boolean;
+  ReadTopo, ReadCurrent, ReadOther, DigitalTopo: Boolean;
   PosXSTM,PosYSTM,DacValX,DacvalY: Integer;
   StopAction,PauseAction: Boolean;
   P_Scan_Mean, P_Scan_Jump, P_Scan_Lines, IV_Scan_Lines: Integer;
@@ -230,6 +230,7 @@ CalTopo:=StrtoFloat(FormConfig.TopoCalEdit.Text);
 MultI:=StrtoInt(FormConfig.CurrentMultEdit.Text);
 ReadTopo:=FormConfig.TopoCheck.checked;
 ReadCurrent:=FormConfig.CurrentCheck.checked;
+DigitalTOpo:=True; // enabled for comparison purposes
 
 
 //FormConfig.Hide;
@@ -452,48 +453,52 @@ end;
 procedure TScanForm.TestButtonClick(Sender: TObject);
 var
 k, Prin,OldEraseLines: Integer;
-A:Boolean;
+restoreIV:Boolean;
 begin
 TryStrToInt(TopoForm.SpinEdit1.Text, OldEraseLines);;
 //Si no mostramos ninguna linea en el scan, lo cambiamos a 2 para test
 if OldEraseLines = 0 then
-  begin
+begin
   EraseLines := 2;
   TopoForm.SpinEdit1.Text := FloattoStr(EraseLines);
-  end;
+end;
 
 //FormPID.se1.Text:='0';    //Comentado por Fran
 
-A:=False;
-if MakeIVChk.Checked=True then A:=True;
-MakeIVChk.Checked:=False;
+//restoreIV:=False;
+//if MakeIVChk.Checked then restoreIV:=True;
+//MakeIVChk.Checked:=False;
 StopAction:=False;
 StopBtn.Enabled:=True;
 TopoForm.Show;
 
 //Llevar el DAC a la posición inicial
-Prin:=Round(int(32767*P_Scan_Size));
-if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, 0, -Prin, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
-else MoveDac(nil, YDAC, 0, -Prin, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+Prin:=Round(32767*P_Scan_Size); // no need to convert to int if we are rounding
+if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, 0, -Prin, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC al borde de la ventana
+else MoveDac(nil, YDAC, 0, -Prin, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC al borde de la ventana
 
- k:=0;
-while (StopAction<>True) do
- begin
-   k:=k+1;
-   TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
- MakeLine(nil, False, 0);
- Application.ProcessMessages;
- if (k>=EraseLines) then
- begin
-   TopoForm.ClearChart();
-   k:=0;
- end;
- end;
+k:=0;
+while (not StopAction) do
+begin
+  k:=k+1;
+  TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
+  MakeEmptyLine(nil, False);
+  Application.ProcessMessages;
+  if (k>=EraseLines) then
+  begin
+  TopoForm.ClearChart();
+  k:=0;
+  end;
+end;
 
 // Para devolver la punta a su sitio, hace falta el último valor en el que está el DAC. Se lleva a makeline
 //Fin:=Round(int(32767*P_Scan_Size)); //Vale tanto para el test en X como en Y
 //if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, Fin, 0, P_Scan_Jump, nil) // Scan en X Hay que llevar el DAC a cero
 //else MoveDac(nil, YDAC, Fin, 0, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+
+//devolvemos el DAC de escaneo del valor en el que se encuentre a cero (da igual si acaba o hemos pulsado stop)
+if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+else MoveDac(nil, YDAC, var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 StopBtn.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
@@ -505,7 +510,7 @@ EraseLines := OldEraseLines;
 TopoForm.SpinEdit1.Text := FloattoStr(EraseLines);
 
 TopoForm.Close;
-if A=True then MakeIVChk.Checked:=True;
+//if restoreIV then MakeIVChk.Checked:=True;
 end;
 
 procedure TScanForm.Makeline(Sender: TObject; Saveit: Boolean; LineNr: Integer);
@@ -520,6 +525,8 @@ Data:HImg;
 C2,F:Int64;
 adcRead: TVectorDouble;
 ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
+Zdigital: SmallInt;
+Zvalue: Double;
 
 begin
 zeroSingle := 0; // Para completar con ceros el fichero
@@ -665,12 +672,16 @@ begin
     begin
       Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
       Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
+      //Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
     end
     else
     begin
+      //Record the current value of the Z DAC
+      Zdigital := var_gbl.dacValues[5];
+      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
       adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
 
-      if ReadTopo=True then
+      if ReadTopo then  //the equality is totally redundant
       begin
         //if (DigitalPID) then
         //  Dat_Image_Forth[1,LineNr,i]:=Action_PID/32768
@@ -678,8 +689,12 @@ begin
           Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCTopo];
       end;
 
-      if ReadCurrent=True then
+      if ReadCurrent then
         Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
+
+      if DigitalTopo then
+        Dat_Image_Forth[3,P_Scan_Lines-1-LineNr,i]:=Zvalue;
+
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
@@ -731,18 +746,23 @@ begin
     begin
       Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=0;
       Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=0;
+      //Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=0;
     end
     else
     begin
-        adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-      if ReadTopo=True then
+      //Record the current value of the Z DAC
+      Zdigital := var_gbl.dacValues[5];
+      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      if ReadTopo then
       begin
         //if (DigitalPID) then
         //  Dat_Image_Forth[1,i,LineNr]:=Action_PID/32768
         //else
           Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
       end;
-      if ReadCurrent=True then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
+      if ReadCurrent then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
+      if DigitalTopo then Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=Zvalue;
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
@@ -752,7 +772,7 @@ begin
   QueryPerformanceCounter(C2); // Lectura del cronómetro
   TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
   if TopoForm.CheckBox3.Checked then
-    begin
+    begin //should put this into a function
     remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
     hour:= remtm div 3600;
     remtm:= remtm mod 3600;
@@ -838,19 +858,25 @@ begin
     begin
       Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
       Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+      //Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
     end
     else
     begin
+      //Record the current value of the Z DAC
+      Zdigital := var_gbl.dacValues[5];
+      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
       adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-      if ReadTopo=True then
+      if ReadTopo then
       begin
         //if (DigitalPID) then
         //  Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=Action_PID/32768
+        //   it seems like the digital thing has been tried before...  
         //else
           Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
       end;
 
-      if ReadCurrent=True then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
+      if ReadCurrent then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
+      if DigitalTopo then Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=Zvalue;
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
@@ -904,18 +930,23 @@ begin
     begin
       Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=0;
       Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=0;
+      //Dat_Image_Back[3,P_Scan_Lines-i-1,LineNr]:=0;
     end
     else
     begin
+      //Record the current value of the Z DAC
+      Zdigital := var_gbl.dacValues[5];
+      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
       adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-      if ReadTopo=True then
+      if ReadTopo then
       begin
         //if (DigitalPID) then
         //  Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=Action_PID/32768
         //else
           Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
       end;
-      if ReadCurrent=True then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
+      if ReadCurrent then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
+      if DigitalTopo then Dat_Image_Back[3,i,LineNr]:=Zvalue;
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
@@ -1472,7 +1503,7 @@ repeat
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
         MoveDac(nil, XDAC, DacValX_Local, 0, P_Pos_Jump, nil);
-        if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Pos_Jump, nil);
+        if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Pos_Jump, nil); // que ocurre exactamente a este DAC si no acaba??
       end;
 
       StopBtn.Enabled:=False;
@@ -1792,7 +1823,7 @@ i,j:Integer;
 factorZ: double; // Factor para convertir los datos de la matriz a sus unidades de fichero (nm, nA o V).
 
 begin
-if ReadTopo=True then
+if ReadTopo then
 begin
   factorZ := 10.0*ScanForm.AmpTopo*ScanForm.CalTopo;
   for i:=0 to h.yn-1 do
@@ -1818,7 +1849,7 @@ begin
   SaveSTP(nil,OneImg,'_vh', factorZ);
 end;
 
-if ReadCurrent=True then
+if ReadCurrent then
 begin
   factorZ := ScanForm.AmpI*1e9*ScanForm.MultI;
   for i:=0 to h.yn-1 do
@@ -1847,6 +1878,32 @@ begin
 if (MakeIVChk.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
   for i := 0 to 3 do
     SaveCits(i);
+end;
+
+if DigitalTopo then
+begin
+  factorZ := 10.0*ScanForm.AmpTopo*ScanForm.CalTopo;
+  for i:=0 to h.yn-1 do
+  begin
+   for j:=0 to h.yn-1 do
+   begin
+     OneImg[i,j]:=Dat_Image_Forth[3,i,j];
+   end;
+  end;
+  Form8.RadioGroup1.ItemIndex:=0;
+  Form8.RadioGroup2.ItemIndex:=0;
+  SaveSTP(nil,OneImg,'_ihd', factorZ);
+
+  for i:=0 to h.yn-1 do
+  begin
+   for j:=0 to h.yn-1 do
+   begin
+     OneImg[i,j]:=Dat_Image_Back[3,i,j];
+   end;
+  end;
+  Form8.RadioGroup1.ItemIndex:=1;
+  Form8.RadioGroup2.ItemIndex:=0;
+  SaveSTP(nil,OneImg,'_vhd', factorZ);
 end;
 
 ImgNumberSpin.Value:=ImgNumberSpin.Value+1;
