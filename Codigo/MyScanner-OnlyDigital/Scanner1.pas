@@ -497,8 +497,8 @@ end;
 //else MoveDac(nil, YDAC, Fin, 0, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 //devolvemos el DAC de escaneo del valor en el que se encuentre a cero (da igual si acaba o hemos pulsado stop)
-if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
-else MoveDac(nil, YDAC, var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, -var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+else MoveDac(nil, YDAC, -var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 StopBtn.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
@@ -677,7 +677,7 @@ begin
     else
     begin
       //Record the current value of the Z DAC
-      Zdigital := var_gbl.dacValues[5];
+      Zdigital := var_gbl.dacValues[5]; //the data is inverted as is for rev D and E as is
       Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
       adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
 
@@ -969,11 +969,11 @@ begin
     i:=i+1;
 end;
 
-if StopAction then
+if StopAction then // what if we stop right between lines? the dac would remain in the beginning of the line
 begin
   // Si salimos, hay que llevar la punta a su sitio
-  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
-  else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
+  //if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
+  //else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
 end;
 
 // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
@@ -1186,8 +1186,8 @@ end;
 if StopAction then
 begin
   // Si salimos, hay que llevar la punta a su sitio
-  if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
-  else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
+  //if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
+  //else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
 end;
 
 
@@ -1457,8 +1457,10 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        if (not StopAction) then MoveDac(nil, XDAC, PrincX, 0, P_Pos_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
-        MoveDac(nil, YDAC, DacvalY_Local, 0, P_Pos_Jump, nil); //porque en la X se vuelve con makeline
+        //if (not StopAction) then MoveDac(nil, XDAC, PrincX, 0, P_Pos_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
+        //MoveDac(nil, YDAC, DacvalY_Local, 0, P_Pos_Jump, nil); //porque en la X se vuelve con makeline
+
+        
       end
   else //Now scan in Y
       begin
@@ -1502,8 +1504,8 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        MoveDac(nil, XDAC, DacValX_Local, 0, P_Pos_Jump, nil);
-        if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Pos_Jump, nil); // que ocurre exactamente a este DAC si no acaba??
+        //MoveDac(nil, XDAC, DacValX_Local, 0, P_Pos_Jump, nil);
+        //if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Pos_Jump, nil); // que ocurre exactamente a este DAC si no acaba??
       end;
 
       StopBtn.Enabled:=False;
@@ -1532,7 +1534,10 @@ repeat
        end;
        UpdateCanvas(self);
      end;
-
+  //Return the tip from whatever the current position is to the center of the scanning area
+  //By using the last tip position we don't have to worry if the image was prematurely stopped or not
+  MoveDac(nil, XDAC, -var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
+  MoveDac(nil, YDAC, -var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
 
   TopoForm.Close;
 
@@ -1821,7 +1826,7 @@ var
 OneImg: HImg;
 i,j:Integer;
 factorZ: double; // Factor para convertir los datos de la matriz a sus unidades de fichero (nm, nA o V).
-
+invertZ: double; // Signo para invertir o no la salida del Z
 begin
 if ReadTopo then
 begin
@@ -1880,15 +1885,22 @@ if (MakeIVChk.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.
     SaveCits(i);
 end;
 
+case ScanForm.LHARev of
+  //LHA rev D. Añade tambien atenuadores a los canales 5 y 6
+  revB..revC: invertZ := 1.0;
+  //LHA rev D y E. Añade tambien atenuadores a los canales 5 y 6. Z esta invertido
+  revD..revE: invertZ := -1.0;
+end;
+
 if DigitalTopo then
 begin
-  factorZ := 10.0*ScanForm.AmpTopo*ScanForm.CalTopo;
+  factorZ := 10.0*ScanForm.AmpTopo*ScanForm.CalTopo*invertZ;
   for i:=0 to h.yn-1 do
   begin
-   for j:=0 to h.yn-1 do
-   begin
-     OneImg[i,j]:=Dat_Image_Forth[3,i,j];
-   end;
+    for j:=0 to h.yn-1 do
+    begin
+      OneImg[i,j]:=Dat_Image_Forth[3,i,j];
+    end;
   end;
   Form8.RadioGroup1.ItemIndex:=0;
   Form8.RadioGroup2.ItemIndex:=0;
@@ -1896,10 +1908,10 @@ begin
 
   for i:=0 to h.yn-1 do
   begin
-   for j:=0 to h.yn-1 do
-   begin
-     OneImg[i,j]:=Dat_Image_Back[3,i,j];
-   end;
+    for j:=0 to h.yn-1 do
+    begin
+      OneImg[i,j]:=Dat_Image_Back[3,i,j];
+    end;
   end;
   Form8.RadioGroup1.ItemIndex:=1;
   Form8.RadioGroup2.ItemIndex:=0;
