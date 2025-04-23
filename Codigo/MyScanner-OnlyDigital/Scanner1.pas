@@ -969,15 +969,14 @@ begin
     i:=i+1;
 end;
 
-if StopAction then // what if we stop right between lines? the dac would remain in the beginning of the line
-begin
+//if StopAction then // what if we stop right between lines? the dac would remain in the beginning of the line
+//begin
   // Si salimos, hay que llevar la punta a su sitio
   //if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
   //else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
-end;
+//end;
 
 // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
-// TopoForm.xyyGraph1.Update;
 
 contadorIV:=1;
 
@@ -1182,14 +1181,6 @@ begin
   Application.ProcessMessages;
   i:=i+1;
 end;
-
-if StopAction then
-begin
-  // Si salimos, hay que llevar la punta a su sitio
-  //if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
-  //else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
-end;
-
 
 end;
 
