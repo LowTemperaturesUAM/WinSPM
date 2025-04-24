@@ -147,7 +147,7 @@ type
   SleepDo: Integer;
   BiasDAC: Integer;
   MultBias: Single;
-  ReadTopo, ReadCurrent, ReadOther, DigitalTopo: Boolean;
+  ReadTopo, ReadCurrent, ReadOther: Boolean;
   PosXSTM,PosYSTM,DacValX,DacvalY: Integer;
   StopAction,PauseAction: Boolean;
   P_Scan_Mean, P_Scan_Jump, P_Scan_Lines, IV_Scan_Lines: Integer;
@@ -186,6 +186,9 @@ type
 
 var
   ScanForm: TScanForm;
+
+const
+  DigitalTopo = true; //Enable for digital topography recording (experimental)
 
 implementation
 
@@ -230,7 +233,6 @@ CalTopo:=StrtoFloat(FormConfig.TopoCalEdit.Text);
 MultI:=StrtoInt(FormConfig.CurrentMultEdit.Text);
 ReadTopo:=FormConfig.TopoCheck.checked;
 ReadCurrent:=FormConfig.CurrentCheck.checked;
-DigitalTOpo:=True; // enabled for comparison purposes
 
 
 //FormConfig.Hide;
@@ -968,13 +970,6 @@ begin
     Application.ProcessMessages;
     i:=i+1;
 end;
-
-//if StopAction then // what if we stop right between lines? the dac would remain in the beginning of the line
-//begin
-  // Si salimos, hay que llevar la punta a su sitio
-  //if MakeX then MoveDac(nil, XDAC, LastX, 0, P_Pos_Jump, nil)
-  //else MoveDac(nil, YDAC, LastY, 0, P_Pos_Jump, nil);
-//end;
 
 // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
 
