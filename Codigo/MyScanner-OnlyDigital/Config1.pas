@@ -176,6 +176,8 @@ finally
 end;
 
 
+
+
 ScanForm.XDAC:=SpinEdit1.Value;
 ScanForm.YDAC:=SpinEdit2.Value;
 ScanForm.AmpX:=StrtoFloat(Combobox1.Text);
@@ -197,6 +199,8 @@ ScanForm.ADCOther:=OtherChanEdit.Value;
 ScanForm.AmpOther:=power(10,-1*(StrtoFloat(OtherAmpBox.Text)-1));
 ScanForm.MultOther:=StrtoInt(OtherMultEdit.Text);
 
+ScanForm.P_Pos_Jump:=PosSpeedBar.Position;
+PosSpeedBarChange(nil);
 // Inicializamos los atenuadores al abrir el programa
 // Los atenuadores fucionan correctamente cuando cerramos el config, pero no al inicial el programa
 //if ScanForm.Versiondivider=False then DataForm.set_attenuator(0,1)

@@ -163,7 +163,7 @@ object FormConfig: TFormConfig
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = '100'
+      Caption = '10'
     end
     object SpinEdit1: TSpinEdit
       Left = 56
@@ -287,7 +287,7 @@ object FormConfig: TFormConfig
       Min = 1
       ParentCtl3D = False
       Frequency = 10
-      Position = 100
+      Position = 10
       TabOrder = 11
       TickMarks = tmTopLeft
       OnChange = PosSpeedBarChange
