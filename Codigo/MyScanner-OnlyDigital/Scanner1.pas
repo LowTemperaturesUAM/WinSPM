@@ -189,6 +189,7 @@ var
 
 const
   DigitalTopo = true; //Enable for digital topography recording (experimental)
+  OSRatio = 4;
 
 implementation
 
@@ -681,7 +682,8 @@ begin
       //Record the current value of the Z DAC
       Zdigital := var_gbl.dacValues[5]; //the data is inverted as is for rev D and E as is
       Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
 
       if ReadTopo then  //the equality is totally redundant
       begin
@@ -755,7 +757,9 @@ begin
       //Record the current value of the Z DAC
       Zdigital := var_gbl.dacValues[5];
       Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+
       if ReadTopo then
       begin
         //if (DigitalPID) then
@@ -867,7 +871,9 @@ begin
       //Record the current value of the Z DAC
       Zdigital := var_gbl.dacValues[5];
       Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+      
       if ReadTopo then
       begin
         //if (DigitalPID) then
@@ -939,7 +945,9 @@ begin
       //Record the current value of the Z DAC
       Zdigital := var_gbl.dacValues[5];
       Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+      
       if ReadTopo then
       begin
         //if (DigitalPID) then
@@ -1090,7 +1098,8 @@ begin
     end
     else
     begin
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
       if ReadTopo=True then xVal[1]:= adcRead[ADCTopo];
       if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
     end;
@@ -1111,7 +1120,8 @@ begin
     end
     else
     begin
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
       if ReadTopo=True then yVal[1]:= adcRead[ADCTopo];
       if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
     end;
@@ -1146,7 +1156,8 @@ begin
     end
     else
     begin
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
       if ReadTopo=True then xVal[1]:= adcRead[ADCTopo];
       if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
     end;
@@ -1167,7 +1178,8 @@ begin
     end
     else
     begin
-      adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
       if ReadTopo=True then yVal[1]:= adcRead[ADCTopo];
       if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
     end;
