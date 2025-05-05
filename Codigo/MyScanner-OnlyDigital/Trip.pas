@@ -125,31 +125,24 @@ end;
 
 procedure TTripForm.AutoApproachBtnClick(Sender: TObject);
 var
-//Strom_jetzt: Single;
 punto_salida: boolean;
 adcRead : TVectorDouble;
 
 begin
-//Esta para probar hay que asignarle un valor minimo de corriente a aprtir de la cual pare de moverse
-//Strom_jetzt:=9;//adc_take(0,ADCI,ScanForm.P_Scan_Mean))
-//StopTrip:=False;
   SetMoving(true);
   StopTrip:=False;
   punto_salida:=false;
-  while (punto_salida=false) do
+  while (not punto_salida) do
   begin
     //Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,TripMean);
     adcRead:=DataForm.adc_take_all_os(TripMean, AdcWriteRead, nil,OSRatio);
-    //Label7.caption:=Floattostr(Strom_jetzt);
-    //times:=1000;
-    while (abs(adcRead[TripConfig.InADCEdit.Value]/2)<(TripConfig.spinCurrentLimit.Value/100)) and (StopTrip=False) do
+    while (abs(adcRead[TripConfig.InADCEdit.Value]/2)<(TripConfig.spinCurrentLimit.Value/100)) and (not StopTrip) do
     begin
       MakeStepsBuf(times, 1);
       //Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,TripMean);
       adcRead :=DataForm.adc_take_all_os(TripMean, AdcWriteRead, nil,OSRatio);
     end;
     punto_salida:=True;
-    //times:=StepsEdit.Value;
   end;
   SetMoving(false);
 end;
