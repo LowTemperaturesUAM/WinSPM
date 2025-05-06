@@ -14,20 +14,24 @@ uses
   MPSSE_CmdWriteDO = $10;         // Clock Data Bytes Out on +ve Clock Edge MSB First (no Read)
   MPSSE_CmdWriteDO2 = $11;        // Clock Data Bytes Out on -ve Clock Edge MSB First (no Read)
   MPSSE_CmdSendInmediate = $87;   // This will make the chip flush its buffer back to the PC.
-  MPSSE_CmdSetPortL = $80;        // Set Data Bits Low Byte
-  MPSSE_CmdSetPortH = $82;        // Set Data Bits High Byte
+  MPSSE_CmdSetPortL = $80;        // Set Data Bits Low Byte (D0-D7 pins)
+  MPSSE_CmdSetPortH = $82;        // Set Data Bits High Byte (C0-C7 pins)
   MPSSE_CmdReadPortH = $83;       // Read Data Bits High Byte
   MPSSE_CmdReadDI = $20;          // Clock Data Bytes In on +ve Clock Edge MSB First (no Write) Lengh=0->1byte
   NUM_ADCs = 6;                   // Número de ADCs que podemos leer de la electrónica
   NUM_DACs = 8;                   // Número de DACs que dispone la electronica
+  //PortL_DefaultState = $FF;       // State of D0-7 pins when no serial transfer is happenning
+  //PortL_Direction = $FB;          // Direction of D0-7 pins when no serial transfer is happenning
+  //PortH_DefaultState = $00;       // Configuration of C0-7 pins when no serial transfer is happenning
+  //PortH_Direction = $0F;          // Direction of C0-7 pins when no serial transfer is happenning
   simulating = false;             // Flag por si no tenemos conectado el FTDI
 
 type
 
   TLHApins = (
-   pSK = $01,        // Serial clock
-   pDO = $02,        // SPI MOSI (Master Output, Slave(ADC/DAC) Input)
-   pDI = $04,        // SPI MISO (Master Input, Slave(ADC/DAC) Output)
+   pSK = $01,        // Serial clock, Salida
+   pDO = $02,        // SPI MOSI (Master Output, Slave(ADC/DAC) Input), Salida
+   pDI = $04,        // SPI MISO (Master Input, Slave(ADC/DAC) Output), Entrada
    pDACcs = $08,     // CS_DAC   (Chip Select DAC0-3), Salida
    pADCcs = $10,     // CS_ADC   (Chip Select ADC), Salida
    pDAC2cs = $20,    // CS_DAC2  (Chip Select DAC4-7), Salida
@@ -83,9 +87,12 @@ type
     SetDACCorrLbl: TLabel;
     OffsetVoltLbl: TLabel;
     GainVoltLbl: TLabel;
-    DIOButton: TButton;
+    DIOButtonOn: TButton;
     OSReadBtn: TButton;
     OSspin: TSpinEdit;
+    DIOButtonOff: TButton;
+    DIODirection: TButton;
+    DIOSeqOp: TButton;
 
     procedure Button1Click(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
@@ -106,6 +113,9 @@ type
     procedure dac_gain(ndac, offset: ShortInt; BufferOut: PAnsiChar);
     procedure dac_zero_offset(ndac: ShortInt; offset: Int9; BufferOut: PAnsiChar);
     procedure set_dio_port_new(value: Word);
+    procedure set_dio_pins(value: Word);
+    procedure set_dio_direction(value: Word);
+    procedure set_dio_disable_seqop;
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure OSReadClick(Sender: TObject);
@@ -119,8 +129,11 @@ type
     procedure SetDACCorrectionChange(Sender: TObject);
     procedure OffsetValueChange(Sender: TObject);
     procedure GainValueChange(Sender: TObject);
-    procedure DIOButtonClick(Sender: TObject);
+    procedure DIOButtonOnClick(Sender: TObject);
     function clampToDAC16(value: Integer): SmallInt;
+    procedure DIOButtonOffClick(Sender: TObject);
+    procedure DIODirectionClick(Sender: TObject);
+    procedure DIOSeqOpClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -143,6 +156,11 @@ var
   //Buffer: array[0..1024] of AnsiChar; no es compatible con HexToString
   CalDir: String;
   CalFile: TMemIniFile;
+
+  PortL_DefState: Byte = Ord(pSK)+ Ord(pDO)+ Ord(pDI)+ Ord(pDACcs)+ Ord(pDAC2cs)+ Ord(pADCcs)+ Ord(pAttcs)+ Ord(pADCsoc); //all pins set high
+  PortL_Direction: Byte= Ord(pSK)+ Ord(pDO)+ Ord(pDACcs)+ Ord(pDAC2cs)+ Ord(pADCcs)+ Ord(pAttcs)+ Ord(pADCsoc); //all but pDI set as outputs
+  PortH_DefState: Byte = Ord(pDIOcs); // DIOcs set high, and OS pins and the rest set low by default
+  PortH_Direction: Byte = Ord(pADCos0)+ Ord(pADCos1)+ Ord(pADCos2)+ Ord(pDIOcs); //all set as outputs
 
 implementation
 
@@ -1871,6 +1889,107 @@ begin
      if not simulating then MessageDlg('error al escribir el puerto digital', mtError, [mbOk], 0);
 end;
 
+procedure TDataForm.set_dio_pins(value: Word);
+var
+  //BufferDest: PAnsiChar;
+  i: Integer;
+  SPI_Ret, BytesWritten: Integer;
+  BufferOut: array [0..20] of AnsiChar;
+begin
+  //BufferDest := Addr(BufferOut[0]);
+
+  // Construyo la cadena que se enviará
+  i := 0;
+  BufferOut[i]:= Char(MPSSE_CmdSetPortH); Inc(i);
+  BufferOut[i]:= Char(PortH_DefState - Ord(pDIOcs)); Inc(i); //set DIOcs low to start sending
+  BufferOut[i]:= Char(PortH_Direction); Inc(i); //Set as outputs
+  BufferOut[i]:= Char(MPSSE_CmdWriteDO2); Inc(i); //Send data , might be DO or DO2
+  BufferOut[i]:= Char(2); Inc(i); //Bytes to send lower byte
+  BufferOut[i]:= Char(0); Inc(i); //Bytes to send higher byte
+  BufferOut[i]:= Char($40); Inc(i); // Opcode for MCP23S08
+  BufferOut[i]:= Char($09); Inc(i); // GPIO state Register of MCP23S08
+  //BufferOut[i]:= Char(Hi(value)); Inc(i); //State for GPIO4-7
+  BufferOut[i]:= Char(Lo(value)); Inc(i); //State for GPIO0-3
+  BufferOut[i]:= Char(MPSSE_CmdSetPortH); Inc(i);
+  BufferOut[i]:= Char(PortH_DefState); Inc(i); //Return to default state
+  BufferOut[i]:= Char(PortH_Direction); Inc(i);
+  (*(BufferDest+i)^ := Char(MPSSE_CmdWriteDO2); Inc(i);
+  (BufferDest+i)^ := Char(3); Inc(i); // Número de bytes a transmitir menos 1
+  (BufferDest+i)^ := Char(0); Inc(i);
+  (BufferDest+i)^ := Char($40); Inc(i); // Direccion del chip y bits de control
+  (BufferDest+i)^ := Char(9); Inc(i); // Registro de datos
+  (BufferDest+i)^ := Char(Hi(value)); Inc(i); // Valores de cada bit
+  (BufferDest+i)^ := Char(Lo(value)); Inc(i); // Valores de cada bit
+  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  (BufferDest+i)^ := Char(MPSSE_CmdSetPortH); Inc(i);
+  (BufferDest+i)^ := Char($FF-Integer(pDIOcs)); Inc(i);
+  (BufferDest+i)^ := Char($00); Inc(i);*)
+
+  SPI_Ret :=  FT_Write(SupraSPI_Hdl, Addr(BufferOut[0]), i, @BytesWritten);
+  If (SPI_Ret <> 0) or (i <> BytesWritten) then
+     if not simulating then MessageDlg('error al escribir el puerto digital', mtError, [mbOk], 0);
+end;
+
+procedure TDataForm.set_dio_direction(value: Word);
+var
+  //BufferDest: PAnsiChar;
+  i: Integer;
+  SPI_Ret, BytesWritten: Integer;
+  BufferOut: array [0..20] of AnsiChar;
+begin
+  //BufferDest := Addr(BufferOut[0]);
+
+  // Construyo la cadena que se enviará
+  i := 0;
+  BufferOut[i]:= Char(MPSSE_CmdSetPortH); Inc(i);
+  BufferOut[i]:= Char(PortH_DefState - Ord(pDIOcs)); Inc(i); //set DIOcs low to start sending
+  BufferOut[i]:= Char(PortH_Direction); Inc(i); //Set as outputs
+  BufferOut[i]:= Char(MPSSE_CmdWriteDO2); Inc(i); //Send data , might be DO or DO2
+  BufferOut[i]:= Char(2); Inc(i); //Bytes to send lower byte
+  BufferOut[i]:= Char(0); Inc(i); //Bytes to send higher byte
+  BufferOut[i]:= Char($40); Inc(i); //Device opcode
+  BufferOut[i]:= Char($00); Inc(i); //Direction register on MCP23S08
+  BufferOut[i]:= Char($00); Inc(i); //Set as output GPIO4-7
+  //BufferOut[i]:= Char($00); Inc(i); //Set as output GPIO0-3
+  BufferOut[i]:= Char(MPSSE_CmdSetPortH); Inc(i);
+  BufferOut[i]:= Char(PortH_DefState); Inc(i); //Return to default state
+  BufferOut[i]:= Char(PortH_Direction); Inc(i);
+
+  SPI_Ret :=  FT_Write(SupraSPI_Hdl, Addr(BufferOut[0]), i, @BytesWritten);
+  If (SPI_Ret <> 0) or (i <> BytesWritten) then
+     if not simulating then MessageDlg('error al escribir el puerto digital', mtError, [mbOk], 0);
+end;
+
+procedure TDataForm.set_dio_disable_seqop;
+var
+  //BufferDest: PAnsiChar;
+  i: Integer;
+  SPI_Ret, BytesWritten: Integer;
+  BufferOut: array [0..20] of AnsiChar;
+begin
+  //BufferDest := Addr(BufferOut[0]);
+
+  // Construyo la cadena que se enviará
+  i := 0;
+  BufferOut[i]:= Char(MPSSE_CmdSetPortH); Inc(i);
+  BufferOut[i]:= Char(PortH_DefState - Ord(pDIOcs)); Inc(i); //set DIOcs low to start sending
+  BufferOut[i]:= Char(PortH_Direction); Inc(i); //Set as outputs
+  BufferOut[i]:= Char(MPSSE_CmdWriteDO2); Inc(i); //Send data , might be DO or DO2
+  BufferOut[i]:= Char(2); Inc(i); //Bytes to send lower byte
+  BufferOut[i]:= Char(0); Inc(i); //Bytes to send higher byte
+  BufferOut[i]:= Char($40); Inc(i); //Device opcode
+  BufferOut[i]:= Char($05); Inc(i); //Direction register on MCP23S08
+  BufferOut[i]:= Char($20); Inc(i); //Set as output GPIO4-7
+  //BufferOut[i]:= Char($00); Inc(i); //Set as output GPIO0-3
+  BufferOut[i]:= Char(MPSSE_CmdSetPortH); Inc(i);
+  BufferOut[i]:= Char(PortH_DefState); Inc(i); //Return to default state
+  BufferOut[i]:= Char(PortH_Direction); Inc(i);
+
+  SPI_Ret :=  FT_Write(SupraSPI_Hdl, Addr(BufferOut[0]), i, @BytesWritten);
+  If (SPI_Ret <> 0) or (i <> BytesWritten) then
+     if not simulating then MessageDlg('error al escribir el puerto digital', mtError, [mbOk], 0);
+end;
+
 procedure TDataForm.set_attenuator(DACAttNr: Integer; value: double);
 var
   BufferDest: PAnsiChar;
@@ -2342,15 +2461,34 @@ begin
 GainVoltLbl.Caption:=Format('%.3f mV', [GainValue.Value*305e-3]);
 end;
 
-procedure TDataForm.DIOButtonClick(Sender: TObject);
+procedure TDataForm.DIOButtonOnClick(Sender: TObject);
 var
   values: Word;
 begin
-values := 65535;
+values := $FF;
 //Label3.Caption:=FloattoStr(adc_take(mux,mux,n));;
-set_dio_port_new(values);
+set_dio_pins(values);
 end;
 
+
+procedure TDataForm.DIOButtonOffClick(Sender: TObject);
+var
+  values: Word;
+begin
+values := $FF;
+//Label3.Caption:=FloattoStr(adc_take(mux,mux,n));;
+set_dio_port(values);
+end;
+
+procedure TDataForm.DIODirectionClick(Sender: TObject);
+begin
+set_dio_direction($00);  //None of it is working
+end;
+
+procedure TDataForm.DIOSeqOpClick(Sender: TObject);
+begin
+set_dio_disable_seqop;
+end;
 
 end.
 

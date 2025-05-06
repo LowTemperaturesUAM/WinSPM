@@ -268,15 +268,15 @@ object DataForm: TDataForm
     Value = 0
     OnChange = GainValueChange
   end
-  object DIOButton: TButton
-    Left = 480
-    Top = 16
+  object DIOButtonOn: TButton
+    Left = 728
+    Top = 88
     Width = 121
     Height = 25
-    Caption = 'DIOButton'
+    Caption = 'DIO On'
     TabOrder = 15
     Visible = False
-    OnClick = DIOButtonClick
+    OnClick = DIOButtonOnClick
   end
   object OSReadBtn: TButton
     Left = 368
@@ -298,5 +298,35 @@ object DataForm: TDataForm
     TabOrder = 17
     Value = 0
     Visible = False
+  end
+  object DIOButtonOff: TButton
+    Left = 848
+    Top = 88
+    Width = 121
+    Height = 25
+    Caption = 'DIO Off'
+    TabOrder = 18
+    Visible = False
+    OnClick = DIOButtonOffClick
+  end
+  object DIODirection: TButton
+    Left = 992
+    Top = 88
+    Width = 121
+    Height = 25
+    Caption = 'Set DIO as OUT'
+    TabOrder = 19
+    Visible = False
+    OnClick = DIODirectionClick
+  end
+  object DIOSeqOp: TButton
+    Left = 1120
+    Top = 88
+    Width = 121
+    Height = 25
+    Caption = 'Disable DIO SeqOp'
+    TabOrder = 20
+    Visible = False
+    OnClick = DIOSeqOpClick
   end
 end
