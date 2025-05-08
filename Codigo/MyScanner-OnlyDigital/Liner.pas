@@ -20,54 +20,52 @@ type
   TDataCurve = Array [0..1,0..2048] of single;
 
   TLinerForm = class(TForm)
-//    xyyGraph1: TxyyGraph;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
-    Button4: TButton;
+    DoBtn: TButton;
+    DoRepeatBtn: TButton;
+    AbortButton: TButton;
+    SaveCurveBtn: TButton;
     chkSaveAllCurves: TCheckBox;
-    ComboBox1: TComboBox;
-    Edit1: TEdit;
-    SpinEdit1: TSpinEdit;
-    Button5: TButton;
+    ptnNumberSelect: TComboBox;
+    curveNameEdit: TEdit;
+    FileNumberSpin: TSpinEdit;
+    ConfigBtn: TButton;
     Panel1: TPanel;
-    SpinEdit2: TSpinEdit;
-    Button6: TButton;
-    Label1: TLabel;
-    RadioGroup1: TRadioGroup;
-    Button7: TButton;
-    CheckBox2: TCheckBox;
-    Mean: TLabel;
-    Jump: TLabel;
-    Label4: TLabel;
-    RadioGroup2: TRadioGroup;
-    SpinEdit3: TSpinEdit;
-    SpinEdit4: TSpinEdit;
-    SpinEdit5: TSpinEdit;
+    AccumEdit: TSpinEdit;
+    FinishIVBtn: TButton;
+    AccumLbl: TLabel;
+    DerivRadioG: TRadioGroup;
+    HoldBtn: TButton;
+    ReEnablePIDchk: TCheckBox;
+    MeanLbl: TLabel;
+    JumpLbl: TLabel;
+    DerivPtsLbl: TLabel;
+    CurveTypeRadioG: TRadioGroup;
+    MeanEdit: TSpinEdit;
+    JumpEdit: TSpinEdit;
+    DerivPtsSpin: TSpinEdit;
     DeleteBtn: TButton;
     SaveDialog1: TSaveDialog;
-    Button9: TButton;
+    setNameBtn: TButton;
     OpenDialog1: TOpenDialog;
     lblCurveCount: TLabel;
-    Label13: TLabel;
+    TempLbl: TLabel;
     TemperatureEdit: TEdit;
-    Label14: TLabel;
-    Label15: TLabel;
+    KelvinLbl: TLabel;
+    MagFieldLbl: TLabel;
     MagFieldEdit: TEdit;
-    Label16: TLabel;
+    TeslaLbl: TLabel;
     scrollSizeBias: TScrollBar;
     lblColorPID: TLabel;
-    Label11: TLabel;
-    Label5: TLabel;
-    Label17: TLabel;
+    ptsNumberLbl: TLabel;
+    SizeLbl: TLabel;
     xAxisRange: TLabel;
     ChartLine: TChart;
     ChartLineSerie0: TFastLineSeries;
     ChartLineSerie1: TFastLineSeries;
     chkAcquireBlock: TCheckBox;
-    lblAccumulate: TLabel;
-    SpinEdit6: TSpinEdit;
-    Label2: TLabel;
+    progressIVLbl: TLabel;
+    CtrlTimeEdit: TSpinEdit;
+    CtrlTimeLbl: TLabel;
     chkPainYesNo: TCheckBox;
     BottomPanel: TPanel;
     RightPanel: TPanel;
@@ -75,36 +73,34 @@ type
     GraphPanel: TPanel;
     ZAttText: TLabel;
     BiasAttText: TLabel;
-    Label3: TLabel;
-    Label6: TLabel;
     ZAttDispValue: TLabel;
     BiasAttDispValue: TLabel;
     DoOSbtn: TButton;
     OSRatioEdit: TSpinEdit;
     OSRatioLbl: TLabel;
-    procedure Button5Click(Sender: TObject);
+    procedure OpenConfig(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
-    procedure ComboBox1Change(Sender: TObject);
-    PROCEDURE DerivaRectas (vin:vcurva; out vout:vcurva);
-    procedure SpinEdit3Change(Sender: TObject);
-    procedure SpinEdit4Change(Sender: TObject);
-    procedure RadioGroup2Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure doIV(Sender: TObject);
+    procedure AbortRepeat(Sender: TObject);
+    procedure ptnNumberSelectChange(Sender: TObject);
+    procedure DerivaRectas (vin:vcurva; out vout:vcurva);
+    procedure MeanEditChange(Sender: TObject);
+    procedure JumpEditChange(Sender: TObject);
+    procedure ChangePlotType(Sender: TObject);
+    procedure doOnRepeat(Sender: TObject);
     procedure DeleteBtnClick(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button9Click(Sender: TObject);
+    procedure saveBLQ(Sender: TObject);
+    procedure setFileName(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure TemperatureEditEnter(Sender: TObject);
     procedure MagFieldEditEnter(Sender: TObject);
-    procedure SpinEdit1Change(Sender: TObject);
-    procedure RadioGroup1Click(Sender: TObject);
+    procedure FileNumberSpinChange(Sender: TObject);
+    procedure DerivRadioGClick(Sender: TObject);
     procedure scrollSizeBiasChange(Sender: TObject);
-    procedure SpinEdit5Change(Sender: TObject);
-    procedure Button7Click(Sender: TObject);
+    procedure DerivPtsSpinChange(Sender: TObject);
+    procedure HoldFeedback(Sender: TObject);
     procedure SaveIV(fileName: string; dataSet: Integer; comments: String);
-    procedure Button6Click(Sender: TObject);
+    procedure FinishIVBtnClick(Sender: TObject);
     procedure ClearChart();
     procedure chkAcquireBlockClick(Sender: TObject);
     procedure chkPainYesNoClick(Sender: TObject);
@@ -162,7 +158,7 @@ uses Config_Liner, Scanner1, DataAdcquisition, PID, Config1, FileNames, Math;
 {$R *.DFM}
 
 //Open Config
-procedure TLinerForm.Button5Click(Sender: TObject);
+procedure TLinerForm.OpenConfig(Sender: TObject);
 begin
 LinerConfig.Show;
 end;
@@ -186,11 +182,11 @@ ReadZ:=LinerConfig.Checkbox1.checked;
 ReadCurrent:=LinerConfig.Checkbox2.checked;
 ReadOther:=LinerConfig.Checkbox3.checked;
 
-PointNumber:=StrtoInt(ComboBox1.Text);  // Número de puntos de cada IV
+PointNumber:=StrtoInt(ptnNumberSelect.Text);  // Número de puntos de cada IV
 ScanForm.RedimCits(ScanForm.IV_Scan_Lines, PointNumber);
 
-LinerMean:=SpinEdit3.Value;
-Jump_xAxis:=SpinEdit4.Value;
+LinerMean:=MeanEdit.Value;
+Jump_xAxis:=JumpEdit.Value;
 Size_xAxis:=scrollSizeBias.Position/100;
 
 Temperature:=StrtoFloat(TemperatureEdit.Text);
@@ -202,7 +198,7 @@ OversamplingRatio:=0;
 end;
 
 //Do
-procedure TLinerForm.Button1Click(Sender: TObject);
+procedure TLinerForm.doIV(Sender: TObject);
 {Salvo y lo meto en:
   ida                 vuelta
   DataX[0,i]          DataX[1,i]
@@ -221,9 +217,9 @@ NumberControl: Integer;
 begin
 // Le decimos a la aplicación que procese los mensajes por si aún queda algún evento del temporizador, que no interfiera con la adquisición de la rampa
 Application.ProcessMessages();
-NumberControl:=SpinEdit6.Value;
+NumberControl:=CtrlTimeEdit.Value;
 
-if CheckBox2.Checked then
+if ReEnablePIDchk.Checked then
    begin
     FormPID.Button9Click(nil);  // desactiva el feedback
     //FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
@@ -241,7 +237,7 @@ here_previous_ctrl:=0;
   //y vamos haciendo la media con las anteriores y actualizando el gráfico
   while (Abort_Measure=False) do
   begin
-  for j:=0 to SpinEdit2.Value -1 do
+  for j:=0 to AccumEdit.Value -1 do
   begin
 
     // Be careful with the following things, because the voltage will be suddenly modified
@@ -262,7 +258,7 @@ here_previous_ctrl:=0;
 
     Fin:=-Princ;
     // Indicamos por qué iteracion vamos
-    lblAccumulate.Caption := format ('%d of', [j+1]);
+    progressIVLbl.Caption := format ('%d of', [j+1]);
 
     // Forth (Rampa de ida)
     // Lectura de UNA rampa de ida
@@ -287,7 +283,7 @@ here_previous_ctrl:=0;
       DataCurrentOld[1,h]:=  DataCurrent[1,h];
       end;
 
-    if (PaintYesNo) then RadioGroup2Click(nil); //Pintamos
+    if (PaintYesNo) then ChangePlotType(nil); //Pintamos
 
     // Esto es peligroso, pero lo hacemos, a ver si no da problemas ...
     // volvemos a poner Princ al valor máximo antes de hacer funcionar el control otra vez
@@ -319,13 +315,13 @@ here_previous_ctrl:=0;
 
     Application.ProcessMessages();
   end;
-  if chkSaveAllCurves.checked then Button4Click(nil); //Guardar automáticamente si está chequeado
+  if chkSaveAllCurves.checked then saveBLQ(nil); //Guardar automáticamente si está chequeado
   Abort_Measure:=True;
   end;
 
  if (Abort_Measure=True) then Abort_Measure:=False;
 
- if CheckBox2.Checked then
+ if ReEnablePIDchk.Checked then
    begin
     FormPID.Button8Click(nil);
     //FormPID.thrdtmr1.Enabled:=True; //encendemos el timer
@@ -336,18 +332,18 @@ here_previous_ctrl:=0;
 end;
 
 //Abort
-procedure TLinerForm.Button3Click(Sender: TObject);
+procedure TLinerForm.AbortRepeat(Sender: TObject);
 begin
 if Abort_Measure=False then Abort_Measure:=True;
-if (Button2.Caption='STOP') then
- Button2.Caption:='DODO';
+if (DoRepeatBtn.Caption='STOP') then
+ DoRepeatBtn.Caption:='DODO';
  Application.ProcessMessages;
 end;
 
 //Número de puntos
-procedure TLinerForm.ComboBox1Change(Sender: TObject);
+procedure TLinerForm.ptnNumberSelectChange(Sender: TObject);
 begin
-PointNumber:=StrtoInt(Combobox1.Text);
+PointNumber:=StrtoInt(ptnNumberSelect.Text);
 ScanForm.RedimCits(ScanForm.IV_Scan_Lines, PointNumber);
 end;
 
@@ -359,7 +355,7 @@ procedure TLinerForm.DerivaRectas (vin:vcurva;out vout:vcurva);
 var       i,o,np,m,tot0,pderi                 : integer;
           sx,sy,sx2,sxy,b,bb,cc,nps,sx_2,sy_2,sx2_2,sxy_2,b_2,bb_2,cc_2           : double;{single;}
 begin
- m:=StrToInt(ComboBox1.text); //Número de puntos
+ m:=StrToInt(ptnNumberSelect.text); //Número de puntos
 
     //Valores iniciales
     FOR i:=0 TO  m-1 do begin
@@ -368,7 +364,7 @@ begin
     end;
     vout.n := m;
 
-pderi:=SpinEdit5.Value;//Puntos de derivada
+pderi:=DerivPtsSpin.Value;//Puntos de derivada
 pderi:= pderi - 1;
 
 if pderi=0 then begin //Si un punto de derivada
@@ -431,19 +427,19 @@ end;
 end;
 
 //Cambio en Mean
-procedure TLinerForm.SpinEdit3Change(Sender: TObject);
+procedure TLinerForm.MeanEditChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit3.Text, LinerMean);
+  TryStrToInt(MeanEdit.Text, LinerMean);
 end;
 
 //Cambio en Jump
-procedure TLinerForm.SpinEdit4Change(Sender: TObject);
+procedure TLinerForm.JumpEditChange(Sender: TObject);
 begin
-  TryStrToInt(SpinEdit4.Text, Jump_xAxis);
+  TryStrToInt(JumpEdit.Text, Jump_xAxis);
 end;
 
 //Pintar las curvas
-procedure TLinerForm.RadioGroup2Click(Sender: TObject);
+procedure TLinerForm.ChangePlotType(Sender: TObject);
 var
 i: Integer;
 DatatoPlot_X: Array[0..1,0..2048] of single;
@@ -459,7 +455,7 @@ begin
     DataCurrentVcurva.y[i]:=DataCurrent[1,i];
     DataCurrentVcurva.n:=PointNumber;
     end;
-if RadioGroup1.ItemIndex=0 then      //if "Direct" (sin derivar)
+if DerivRadioG.ItemIndex=0 then      //if "Direct" (sin derivar)
 begin
  for i:=0 to PointNumber-1 do
     begin
@@ -484,7 +480,7 @@ end;
   DatatoPlot_X[1,i]:=DataX[1,i];
   end;
 
-  if RadioGroup2.ItemIndex=0 then
+  if CurveTypeRadioG.ItemIndex=0 then
   begin
   for i:=0 to PointNumber-1 do
     begin
@@ -493,7 +489,7 @@ end;
     end;
   end
   else
-  if RadioGroup2.ItemIndex=1 then
+  if CurveTypeRadioG.ItemIndex=1 then
   begin
   for i:=0 to PointNumber-1 do
     begin
@@ -502,7 +498,7 @@ end;
     end;
   end
   else
-  if RadioGroup2.ItemIndex=2 then
+  if CurveTypeRadioG.ItemIndex=2 then
   begin
   for i:=0 to PointNumber-1 do
     begin
@@ -522,21 +518,21 @@ end;
 end;
 
 //DoDo
-procedure TLinerForm.Button2Click(Sender: TObject);
+procedure TLinerForm.doOnRepeat(Sender: TObject);
 begin
 Application.ProcessMessages;
-if (Button2.Caption='STOP') then
+if (DoRepeatBtn.Caption='STOP') then
  begin
- Button2.Caption:='DODO';
+ DoRepeatBtn.Caption:='DODO';
  exit;
  end
  else
  begin
  while (Abort_Measure=False) do
   begin
-  Button2.Caption:='STOP';
-  Button1Click(nil);
-  if (Button2.Caption='DODO') then exit;
+  DoRepeatBtn.Caption:='STOP';
+  doIV(nil);
+  if (DoRepeatBtn.Caption='DODO') then exit;
   end;
  Abort_Measure:=False;
  end;
@@ -551,14 +547,14 @@ begin
 end;
 
 //Guardar
-procedure TLinerForm.Button4Click(Sender: TObject);
+procedure TLinerForm.saveBLQ(Sender: TObject);
 var
 i,j,k,cols,BlockOffset: Integer;
 Fi_Name,BlockFileName,BlockFile,TakeComment:string;
 number: Double;
 
 begin
-BlockFileName:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
+BlockFileName:=SaveDialog1.Filename+InttoStr(fileNumberSpin.Value)+'.blq';
 TakeComment:=DateTimeToStr(Now)+#13+#10+
     'T(K)='+FloattoStrF(Temperature,ffGeneral,5,2)+#13+#10+
     'B(T)='+FloattoStrF(MagField,ffGeneral,5,2)+#13+#10+
@@ -567,8 +563,8 @@ TakeComment:=DateTimeToStr(Now)+#13+#10+
   for k:=0 to 1 do
   begin
   BlockOffset:=k;
-  number:=SpinEdit1.Value+Presentblknumber/10000+BlockOffset/10000;
-  BlockFile:=Edit1.Text+FloattoStrF(number,ffFixed,5,4);
+  number:=fileNumberSpin.Value+Presentblknumber/10000+BlockOffset/10000;
+  BlockFile:=curveNameEdit.Text+FloattoStrF(number,ffFixed,5,4);
   DS:=TblqDataSet.Create(NumCol,PointNumber) ;
   DS._Name:=BlockFile; // Aquí se pone el fichero con .xxxx al final
   DS._BlockFile:=BlockFileName ; // Es el fichero de verdad, como en dd
@@ -578,15 +574,15 @@ TakeComment:=DateTimeToStr(Now)+#13+#10+
 
  for i:=0 to NumCol-1 do
   begin
-  BlockFile:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value);
+  BlockFile:=SaveDialog1.Filename+InttoStr(fileNumberSpin.Value);
   if (k=0) then DS._Comment:=TakeComment+'Forth';
   if (k=1) then DS._Comment:=TakeComment+'Back';
   // COL HEADER
-  DS[i]._DataFormat:=4 ;      // This is single
-  DS[i]._AxisType:=300 ;       // Units Current
-  DS[i]._Prom:=1 ;
+  DS[i]._DataFormat:=4 ;                    // This is single
+  DS[i]._AxisType:=blqdataset.units_current;// Units Current
+  DS[i]._Prom:=1 ;                          
   DS[i]._Offset:=0 ;
-  DS[i]._Factor:=1.0 ;  // No prefactor
+  DS[i]._Factor:=1.0 ;                      // No prefactor
   DS[i]._Start:=0 ;
   DS[i]._Size:=1 ;
   DS[i]._CTime:=0 ;
@@ -626,13 +622,13 @@ lblCurveCount.Caption:=InttoStr(Presentblknumber);
 if (Presentblknumber < 3) and (not chkSaveAllCurves.Checked) then    //
 begin
   if ReadZ then
-    SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.zv.cur', 0, TakeComment);
+    SaveIV(SaveDialog1.Filename+InttoStr(fileNumberSpin.Value)+'.zv.cur', 0, TakeComment);
 
   if ReadCurrent then
-    SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.iv.cur', 1, TakeComment);
+    SaveIV(SaveDialog1.Filename+InttoStr(fileNumberSpin.Value)+'.iv.cur', 1, TakeComment);
 
   if ReadOther then
-    SaveIV(SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.other.cur', 2, TakeComment);
+    SaveIV(SaveDialog1.Filename+InttoStr(fileNumberSpin.Value)+'.other.cur', 2, TakeComment);
 end;
 
 
@@ -728,9 +724,9 @@ end;
 
 
 //Set File Name
-procedure TLinerForm.Button9Click(Sender: TObject);
+procedure TLinerForm.setFileName(Sender: TObject);
 begin
-SaveDialog1.FileName:=Edit1.Text;
+SaveDialog1.FileName:=curveNameEdit.Text;
 
 if SaveDialog1.Execute then
   begin
@@ -740,7 +736,7 @@ if SaveDialog1.Execute then
   Form9.Label6.Caption:=ExtractFileDir(SaveDialog1.FileName);
   end;
 
-Edit1.Text:=ExtractFileName(SaveDialog1.FileName);
+curveNameEdit.Text:=ExtractFileName(SaveDialog1.FileName);
 end;
 
 //En principio no hace nada, button10 no existe
@@ -750,11 +746,11 @@ BlockFile:string;
 b_offset: Integer;
 
 begin
-BlockFile:=SaveDialog1.Filename+InttoStr(SpinEdit1.Value)+'.blq';
+BlockFile:=SaveDialog1.Filename+InttoStr(fileNumberSpin.Value)+'.blq';
 
 LoadDataSetFromBlock(BlockFile,0,DS);
 
-Label11.Caption:=InttoStr(DS.NRows);
+//Label11.Caption:=InttoStr(DS.NRows);
 
 Application.ProcessMessages;
 end;
@@ -785,16 +781,16 @@ else exit;
 end;
 
 //blq Number para guardar
-procedure TLinerForm.SpinEdit1Change(Sender: TObject);
+procedure TLinerForm.FileNumberSpinChange(Sender: TObject);
 begin
   Presentblknumber:=0;
   lblCurveCount.Caption:=InttoStr(Presentblknumber);
 end;
 
 //Pintar cada vez que pulsamos "Direct" o "Derivative"
-procedure TLinerForm.RadioGroup1Click(Sender: TObject);
+procedure TLinerForm.DerivRadioGClick(Sender: TObject);
 begin
-RadioGroup2Click(nil);
+ChangePlotType(nil);
 end;
 
 //Cambiar bias
@@ -821,42 +817,40 @@ else xAxisRange.Caption:=IntToStr(scrollSizeBias.Position);
 end;
 
 //Pintar cuando cambias los puntos de derivada
-procedure TLinerForm.SpinEdit5Change(Sender: TObject);
+procedure TLinerForm.DerivPtsSpinChange(Sender: TObject);
 begin
-if RadioGroup1.ItemIndex=0 then
+if DerivRadioG.ItemIndex=0 then
   begin
-  RadioGroup1.ItemIndex:=1;
-  RadioGroup2Click(nil);
+  DerivRadioG.ItemIndex:=1;
+  ChangePlotType(nil);
   end
 else
-  RadioGroup2Click(nil);
+  ChangePlotType(nil);
 end;
 
 //Hold PID
-procedure TLinerForm.Button7Click(Sender: TObject);
+procedure TLinerForm.HoldFeedback(Sender: TObject);
 begin
   if FormPID.Flag_PIDisworking then
     begin
     StopIt:=False;
-    //Button7.Font.Color :=  clGreen;
     FormPID.Button9Click(nil);
     lblColorPID.Color := clGreen;
     end
   else
     begin
     StopIt:=True;
-    //Button7.Font.Color :=  clRed;
     lblColorPID.Color := clRed;
     FormPID.Button8Click(nil);
     end;
 end;
 
 //Hold cuando toma las IV
-procedure TLinerForm.Button6Click(Sender: TObject);
+procedure TLinerForm.FinishIVBtnClick(Sender: TObject);
 begin
 if Abort_Measure=False then Abort_Measure:=True;
-if (Button2.Caption='STOP') then
- Button2.Caption:='DODO';
+if (DoRepeatBtn.Caption='STOP') then
+ DoRepeatBtn.Caption:='DODO';
  Application.ProcessMessages;
 end;
 
@@ -870,12 +864,12 @@ procedure TLinerForm.chkAcquireBlockClick(Sender: TObject);
 begin
   if chkAcquireBlock.Checked then
     begin
-      SpinEdit3.MaxValue := 42; // any value higher breaks for 2048pts curves
-      if SpinEdit3.Value > SpinEdit3.MaxValue then
-        SpinEdit3.Value := SpinEdit3.MaxValue;
+      MeanEdit.MaxValue := 42; // any value higher breaks for 2048pts curves
+      if MeanEdit.Value > MeanEdit.MaxValue then
+        MeanEdit.Value := MeanEdit.MaxValue;
     end
   else
-    SpinEdit3.MaxValue := 999999
+    MeanEdit.MaxValue := 999999
 end;
 
 procedure TLinerForm.chkPainYesNoClick(Sender: TObject);
@@ -917,9 +911,9 @@ OSRatio: Byte;
 begin
 // Le decimos a la aplicación que procese los mensajes por si aún queda algún evento del temporizador, que no interfiera con la adquisición de la rampa
 Application.ProcessMessages();
-NumberControl:=SpinEdit6.Value;
+NumberControl:=CtrlTimeEdit.Value;
 
-if CheckBox2.Checked then
+if ReEnablePIDchk.Checked then
    begin
     FormPID.Button9Click(nil);  // desactiva el feedback
     //FormPID.thrdtmr1.Enabled:=False; //apagamos el timer
@@ -937,7 +931,7 @@ here_previous_ctrl:=0;
   //y vamos haciendo la media con las anteriores y actualizando el gráfico
   while (Abort_Measure=False) do
   begin
-  for j:=0 to SpinEdit2.Value -1 do
+  for j:=0 to AccumEdit.Value -1 do
   begin
 
     // Be careful with the following things, because the voltage will be suddenly modified
@@ -958,7 +952,7 @@ here_previous_ctrl:=0;
 
     Fin:=-Princ;
     // Indicamos por qué iteracion vamos
-    lblAccumulate.Caption := format ('%d of', [j+1]);
+    progressIVLbl.Caption := format ('%d of', [j+1]);
 
     OSRatio := OversamplingRatio;
     // Forth (Rampa de ida)
@@ -984,7 +978,7 @@ here_previous_ctrl:=0;
       DataCurrentOld[1,h]:=  DataCurrent[1,h];
       end;
 
-    if (PaintYesNo) then RadioGroup2Click(nil); //Pintamos
+    if (PaintYesNo) then ChangePlotType(nil); //Pintamos
 
     // Esto es peligroso, pero lo hacemos, a ver si no da problemas ...
     // volvemos a poner Princ al valor máximo antes de hacer funcionar el control otra vez
@@ -1016,13 +1010,13 @@ here_previous_ctrl:=0;
 
     Application.ProcessMessages();
   end;
-  if chkSaveAllCurves.checked then Button4Click(nil); //Guardar automáticamente si está chequeado
+  if chkSaveAllCurves.checked then saveBLQ(nil); //Guardar automáticamente si está chequeado
   Abort_Measure:=True;
   end;
 
  if (Abort_Measure=True) then Abort_Measure:=False;
 
- if CheckBox2.Checked then
+ if ReEnablePIDchk.Checked then
    begin
     FormPID.Button8Click(nil);
     //FormPID.thrdtmr1.Enabled:=True; //encendemos el timer
@@ -1050,6 +1044,7 @@ end;
 
 OSRatioEdit.Value := OversamplingRatio;
 end;
+
 
 end.
 

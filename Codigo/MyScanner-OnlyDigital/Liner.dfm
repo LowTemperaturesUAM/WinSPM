@@ -21,20 +21,6 @@ object LinerForm: TLinerForm
     610)
   PixelsPerInch = 96
   TextHeight = 13
-  object Label3: TLabel
-    Left = 512
-    Top = 48
-    Width = 41
-    Height = 13
-    Caption = 'ZAttText'
-  end
-  object Label6: TLabel
-    Left = 512
-    Top = 64
-    Width = 41
-    Height = 13
-    Caption = 'ZAttText'
-  end
   object BottomPanel: TPanel
     Left = 16
     Top = 516
@@ -46,41 +32,35 @@ object LinerForm: TLinerForm
     DesignSize = (
       682
       85)
-    object Label13: TLabel
+    object TempLbl: TLabel
       Left = 16
       Top = 52
       Width = 91
       Height = 13
       Caption = 'TEMPERATURE ='
     end
-    object Label14: TLabel
+    object KelvinLbl: TLabel
       Left = 176
       Top = 52
       Width = 7
       Height = 13
       Caption = 'K'
     end
-    object Label15: TLabel
+    object MagFieldLbl: TLabel
       Left = 224
       Top = 52
       Width = 98
       Height = 13
       Caption = 'MAGNETIC FIELD ='
     end
-    object Label16: TLabel
+    object TeslaLbl: TLabel
       Left = 392
       Top = 52
       Width = 7
       Height = 13
       Caption = 'T'
     end
-    object Label11: TLabel
-      Left = 419
-      Top = 76
-      Width = 3
-      Height = 13
-    end
-    object Label17: TLabel
+    object SizeLbl: TLabel
       Left = 608
       Top = 14
       Width = 20
@@ -187,26 +167,26 @@ object LinerForm: TLinerForm
     Anchors = [akTop, akRight]
     BevelOuter = bvNone
     TabOrder = 1
-    object Label5: TLabel
+    object ptsNumberLbl: TLabel
       Left = 16
       Top = 56
       Width = 81
       Height = 13
       Caption = 'Number of Points'
     end
-    object Label4: TLabel
+    object DerivPtsLbl: TLabel
       Left = 61
       Top = 296
       Width = 52
       Height = 13
       Caption = 'Der. Points'
     end
-    object Mean: TLabel
+    object MeanLbl: TLabel
       Left = 14
       Top = 408
-      Width = 27
+      Width = 41
       Height = 13
-      Caption = 'Mean'
+      Caption = 'MeanLbl'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -214,12 +194,12 @@ object LinerForm: TLinerForm
       Font.Style = []
       ParentFont = False
     end
-    object Jump: TLabel
+    object JumpLbl: TLabel
       Left = 16
       Top = 434
-      Width = 25
+      Width = 39
       Height = 13
-      Caption = 'Jump'
+      Caption = 'JumpLbl'
     end
     object lblColorPID: TLabel
       Left = 10
@@ -235,7 +215,7 @@ object LinerForm: TLinerForm
       Caption = 'Oversampling'
       Visible = False
     end
-    object CheckBox2: TCheckBox
+    object ReEnablePIDchk: TCheckBox
       Left = 64
       Top = 28
       Width = 65
@@ -245,16 +225,16 @@ object LinerForm: TLinerForm
       State = cbChecked
       TabOrder = 0
     end
-    object Button7: TButton
+    object HoldBtn: TButton
       Left = 16
       Top = 28
       Width = 41
       Height = 17
       Caption = 'Hold'
       TabOrder = 1
-      OnClick = Button7Click
+      OnClick = HoldFeedback
     end
-    object ComboBox1: TComboBox
+    object ptnNumberSelect: TComboBox
       Left = 16
       Top = 72
       Width = 105
@@ -266,7 +246,7 @@ object LinerForm: TLinerForm
       ShowHint = True
       TabOrder = 2
       Text = '2048'
-      OnChange = ComboBox1Change
+      OnChange = ptnNumberSelectChange
       Items.Strings = (
         '4'
         '8'
@@ -285,14 +265,14 @@ object LinerForm: TLinerForm
       Width = 105
       Height = 121
       TabOrder = 3
-      object Label1: TLabel
+      object AccumLbl: TLabel
         Left = 24
         Top = 0
         Width = 56
         Height = 13
         Caption = 'Accumulate'
       end
-      object lblAccumulate: TLabel
+      object progressIVLbl: TLabel
         Left = 24
         Top = 20
         Width = 18
@@ -300,7 +280,7 @@ object LinerForm: TLinerForm
         Alignment = taRightJustify
         Caption = '1 of'
       end
-      object Label2: TLabel
+      object CtrlTimeLbl: TLabel
         Left = 25
         Top = 76
         Width = 56
@@ -308,7 +288,7 @@ object LinerForm: TLinerForm
         Alignment = taRightJustify
         Caption = 'Time for Ctrl'
       end
-      object SpinEdit2: TSpinEdit
+      object AccumEdit: TSpinEdit
         Left = 48
         Top = 16
         Width = 41
@@ -318,16 +298,16 @@ object LinerForm: TLinerForm
         TabOrder = 0
         Value = 1
       end
-      object Button6: TButton
+      object FinishIVBtn: TButton
         Left = 16
         Top = 40
         Width = 73
         Height = 25
         Caption = 'Finish'
         TabOrder = 1
-        OnClick = Button6Click
+        OnClick = FinishIVBtnClick
       end
-      object SpinEdit6: TSpinEdit
+      object CtrlTimeEdit: TSpinEdit
         Left = 32
         Top = 88
         Width = 41
@@ -338,7 +318,7 @@ object LinerForm: TLinerForm
         Value = 0
       end
     end
-    object RadioGroup1: TRadioGroup
+    object DerivRadioG: TRadioGroup
       Left = 16
       Top = 232
       Width = 105
@@ -349,9 +329,9 @@ object LinerForm: TLinerForm
         'Direct'
         'Derivative')
       TabOrder = 4
-      OnClick = RadioGroup1Click
+      OnClick = DerivRadioGClick
     end
-    object SpinEdit5: TSpinEdit
+    object DerivPtsSpin: TSpinEdit
       Left = 16
       Top = 292
       Width = 41
@@ -360,9 +340,9 @@ object LinerForm: TLinerForm
       MinValue = 1
       TabOrder = 5
       Value = 1
-      OnChange = SpinEdit5Change
+      OnChange = DerivPtsSpinChange
     end
-    object RadioGroup2: TRadioGroup
+    object CurveTypeRadioG: TRadioGroup
       Left = 16
       Top = 320
       Width = 105
@@ -383,9 +363,9 @@ object LinerForm: TLinerForm
       ParentShowHint = False
       ShowHint = True
       TabOrder = 6
-      OnClick = RadioGroup2Click
+      OnClick = ChangePlotType
     end
-    object SpinEdit3: TSpinEdit
+    object MeanEdit: TSpinEdit
       Left = 56
       Top = 404
       Width = 49
@@ -400,9 +380,9 @@ object LinerForm: TLinerForm
       ParentFont = False
       TabOrder = 7
       Value = 1
-      OnChange = SpinEdit3Change
+      OnChange = MeanEditChange
     end
-    object SpinEdit4: TSpinEdit
+    object JumpEdit: TSpinEdit
       Left = 56
       Top = 430
       Width = 49
@@ -411,7 +391,7 @@ object LinerForm: TLinerForm
       MinValue = 1
       TabOrder = 8
       Value = 1
-      OnChange = SpinEdit4Change
+      OnChange = JumpEditChange
     end
     object chkAcquireBlock: TCheckBox
       Left = 16
@@ -463,7 +443,7 @@ object LinerForm: TLinerForm
       Alignment = taRightJustify
       Caption = '0'
     end
-    object Button1: TButton
+    object DoBtn: TButton
       Left = 8
       Top = 8
       Width = 75
@@ -476,9 +456,9 @@ object LinerForm: TLinerForm
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
-      OnClick = Button1Click
+      OnClick = doIV
     end
-    object Button2: TButton
+    object DoRepeatBtn: TButton
       Left = 85
       Top = 8
       Width = 83
@@ -491,9 +471,9 @@ object LinerForm: TLinerForm
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 1
-      OnClick = Button2Click
+      OnClick = doOnRepeat
     end
-    object Button3: TButton
+    object AbortButton: TButton
       Left = 170
       Top = 8
       Width = 83
@@ -506,9 +486,8 @@ object LinerForm: TLinerForm
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 2
-      OnClick = Button3Click
     end
-    object Button5: TButton
+    object ConfigBtn: TButton
       Left = 280
       Top = 8
       Width = 81
@@ -521,9 +500,9 @@ object LinerForm: TLinerForm
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 3
-      OnClick = Button5Click
+      OnClick = OpenConfig
     end
-    object Edit1: TEdit
+    object curveNameEdit: TEdit
       Left = 392
       Top = 8
       Width = 137
@@ -532,16 +511,16 @@ object LinerForm: TLinerForm
       TabOrder = 4
       Text = 'FileName'
     end
-    object Button9: TButton
+    object setNameBtn: TButton
       Left = 392
       Top = 32
       Width = 137
       Height = 17
       Caption = 'Set File Name'
       TabOrder = 5
-      OnClick = Button9Click
+      OnClick = setFileName
     end
-    object SpinEdit1: TSpinEdit
+    object FileNumberSpin: TSpinEdit
       Left = 536
       Top = 8
       Width = 57
@@ -550,16 +529,16 @@ object LinerForm: TLinerForm
       MinValue = 1
       TabOrder = 6
       Value = 1
-      OnChange = SpinEdit1Change
+      OnChange = FileNumberSpinChange
     end
-    object Button4: TButton
+    object SaveCurveBtn: TButton
       Left = 600
       Top = 8
       Width = 75
       Height = 22
       Caption = 'Save present'
       TabOrder = 7
-      OnClick = Button4Click
+      OnClick = saveBLQ
     end
     object chkSaveAllCurves: TCheckBox
       Left = 608

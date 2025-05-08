@@ -652,7 +652,7 @@ begin
           end
         else // Hay que continuar con la adquisición
         begin
-          LinerForm.Button1Click(nil); //Make IV con espectro
+          LinerForm.doIV(nil); //Make IV con espectro
           // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
           for k := 0 to LinerForm.PointNumber-1 do
@@ -726,7 +726,7 @@ begin
         end
         else
         begin
-          LinerForm.Button1Click(nil); //Make IV con espectro
+          LinerForm.doIV(nil); //Make IV con espectro
           // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
           for k := 0 to LinerForm.PointNumber-1 do
@@ -836,7 +836,7 @@ begin
         end
         else
         begin
-          LinerForm.Button1Click(nil); //Make IV con espectro
+          LinerForm.doIV(nil); //Make IV con espectro
           // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
           for k := 0 to LinerForm.PointNumber-1 do
@@ -914,7 +914,7 @@ begin
         end
         else
         begin
-          LinerForm.Button1Click(nil); //Make IV con espectro
+          LinerForm.doIV(nil); //Make IV con espectro
           // Los datos adquiridos están en LinerForm.DataCurrent. Los guardamos donde toque
           // en el orden que toque
           for k := 0 to LinerForm.PointNumber-1 do
@@ -1542,7 +1542,7 @@ repeat
   if (SaveAllImg.Checked) then
   begin
     SaveImgButtonClick(nil);
-    if (MakeIVChk.Checked) then LinerForm.SpinEdit1.Value:=LinerForm.SpinEdit1.Value + 1;
+    if (MakeIVChk.Checked) then LinerForm.fileNumberSpin.Value:=LinerForm.fileNumberSpin.Value + 1;
   end;
 until not TopoForm.ScanLoop.Checked;
 //if (TopoForm.ScanLoop.Checked) then Button1Click(nil); // Ojo!!. Llamada recursiva sin condición de parada!! (bucle infinito). Cambiado por repeat ... until
@@ -1937,7 +1937,7 @@ Form9.Label5.Caption:=ExtractFileDir(SaveDialog1.FileName);
 //Cambiamos el directorio y normbre de las IV solo si es una espectro
   if MakeIVChk.Checked then
   begin
-    LinerForm.Edit1.Text:=FileNameEdit.Text;
+    LinerForm.curveNameEdit.Text:=FileNameEdit.Text;
     LinerForm.SaveDialog1.FileName := ChangeFileExt(SaveDialog1.FileName, '');
     //CreateDir(Form9.Label5.Caption+'\IV');
     Form9.Label6.Caption:=Form9.Label5.Caption;
