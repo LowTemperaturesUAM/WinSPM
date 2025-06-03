@@ -81,7 +81,7 @@ object DataForm: TDataForm
     Caption = '1'
   end
   object SetDACCorrLbl: TLabel
-    Left = 128
+    Left = 8
     Top = 94
     Width = 71
     Height = 13
@@ -89,7 +89,7 @@ object DataForm: TDataForm
     Caption = 'DAC Number'
   end
   object OffsetVoltLbl: TLabel
-    Left = 328
+    Left = 208
     Top = 94
     Width = 50
     Height = 13
@@ -98,7 +98,7 @@ object DataForm: TDataForm
     Caption = '0 mV'
   end
   object GainVoltLbl: TLabel
-    Left = 544
+    Left = 424
     Top = 94
     Width = 55
     Height = 13
@@ -216,7 +216,7 @@ object DataForm: TDataForm
     OnChange = Edit1Change
   end
   object OffsetBtn: TButton
-    Left = 392
+    Left = 272
     Top = 88
     Width = 80
     Height = 25
@@ -225,7 +225,7 @@ object DataForm: TDataForm
     OnClick = OffsetBtnClick
   end
   object GainBtn: TButton
-    Left = 608
+    Left = 488
     Top = 88
     Width = 80
     Height = 25
@@ -234,7 +234,7 @@ object DataForm: TDataForm
     OnClick = GainBtnClick
   end
   object SetDACCorrection: TSpinEdit
-    Left = 200
+    Left = 80
     Top = 90
     Width = 57
     Height = 22
@@ -245,7 +245,7 @@ object DataForm: TDataForm
     OnChange = SetDACCorrectionChange
   end
   object OffsetValue: TSpinEdit
-    Left = 264
+    Left = 144
     Top = 90
     Width = 60
     Height = 22
@@ -257,7 +257,7 @@ object DataForm: TDataForm
     OnChange = OffsetValueChange
   end
   object GainValue: TSpinEdit
-    Left = 480
+    Left = 360
     Top = 90
     Width = 60
     Height = 22
@@ -328,5 +328,19 @@ object DataForm: TDataForm
     TabOrder = 20
     Visible = False
     OnClick = DIOSeqOpClick
+  end
+  object DACValSpin: TSpinEdit
+    Left = 576
+    Top = 90
+    Width = 60
+    Height = 22
+    AutoSize = False
+    EditorEnabled = False
+    Increment = 1024
+    MaxValue = 32767
+    MinValue = -32768
+    TabOrder = 21
+    Value = 0
+    OnChange = DACValSpinChange
   end
 end

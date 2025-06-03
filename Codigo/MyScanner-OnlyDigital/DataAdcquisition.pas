@@ -93,6 +93,7 @@ type
     DIOButtonOff: TButton;
     DIODirection: TButton;
     DIOSeqOp: TButton;
+    DACValSpin: TSpinEdit;
 
     procedure Button1Click(Sender: TObject);
     procedure ScrollBar1Change(Sender: TObject);
@@ -100,6 +101,7 @@ type
     function dac_set(ndac,valor:integer; BufferOut: PAnsiChar) : integer;
     function dac_set_buff(ndac: Integer; valor:SmallInt; BufferOut: PAnsiChar) : integer;
     function dac_set_buff2(ndac,valor:integer; BufferOut: array of AnsiChar) : integer;
+    function dac_set_multi(ndac: array of Integer; valor: array of SmallInt) : Integer ;
     function adc_take(chn,mux,n:integer) : double;
     function adc_take_all(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar) : TVectorDouble ;
     function adc_take_all_os(n:Integer; action: AdcTakeAction; BufferOut: PAnsiChar; OSRatio:Byte) : TVectorDouble ;
@@ -134,6 +136,7 @@ type
     procedure DIOButtonOffClick(Sender: TObject);
     procedure DIODirectionClick(Sender: TObject);
     procedure DIOSeqOpClick(Sender: TObject);
+    procedure DACValSpinChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -2407,6 +2410,77 @@ begin
 
 end;
 
+function TDataForm.dac_set_multi(ndac: array of Integer; valor: array of SmallInt) : Integer ;
+Var sTexto:String;
+Var sTexto2:String;
+var prevCS:integer;
+var currentCS:integer;
+var sele_dac:integer;
+//var BytesToWrite: Integer;
+//var BytesWritten:Integer;
+//var SPI_Ret:Integer;
+//var total:integer;
+var i: Integer;
+//var BufferDest: PAnsiChar;
+var BufferOut: array of AnsiChar;
+var dacnum : Integer;
+var valnum : Integer;
+var n: Integer;
+
+begin
+  dacnum := Length(ndac);
+  valnum := Length(valor);
+  if dacnum<>valnum then Exit;
+  SetLength(BufferOut,9*dacnum+3);
+  i := 0;
+  prevCS:=$FF;
+  for n := 0 to dacnum-1 do
+  begin
+    var_gbl.dacValues[ndac[n]] := valor[n];
+    currentCS:=$FF-dac_cs[ndac[n]];
+    // If two consecutive DACs come from the same chip, we have to raise the CS line
+    // in between commands, or it will be interpreted as a single command and the first
+    // part would be completely ignored
+    if prevCS = currentCS then
+    begin
+      BufferOut[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      BufferOut[i] := Char($FF); Inc(i); // reset back to idle state
+      BufferOut[i] := Char($FB); Inc(i);
+      SetLength(BufferOut,Length(BufferOut)+3) //extend the array to fit the extra data
+    end;
+    sele_dac:=dac_adr[ndac[n]];
+    // Construyo la cadena que se enviará
+    BufferOut[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+    BufferOut[i] := Char(currentCS); Inc(i);
+    BufferOut[i] := Char($FB); Inc(i);
+    BufferOut[i] := Char(MPSSE_CmdWriteDO); Inc(i);
+    BufferOut[i] := Char($02); Inc(i); // Numero de bytes a transmitir menos 1
+    BufferOut[i] := Char($00); Inc(i);
+    BufferOut[i] := Char(sele_dac); Inc(i); //Registro?
+    BufferOut[i] := Char(Hi(valor[n])); Inc(i); // Byte más significativo del valor
+    BufferOut[i] := Char(Lo(valor[n])); Inc(i); // Byte menos significativo del valor
+    prevCS := currentCS;
+  end;
+
+  BufferOut[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+  BufferOut[i] := Char($FF); Inc(i); // reset back to idle state
+  BufferOut[i] := Char($FB); Inc(i);
+
+  Assert(Length(BufferOut)=i);
+  send_buffer(@BufferOut[0],Length(BufferOut));
+
+ //if simulating then simulatedDac[ndac] := valor;
+if TRAZAS then // debug
+begin
+  Str( ndac[0], sTexto );
+  Str( valor[0], sTexto2 );
+  MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtError, [mbOk], 0);
+end;
+
+Result:=i;
+
+end;
+
 procedure TDataForm.OffsetBtnClick(Sender: TObject);
 begin
 // probablemente deberiamos de comprobar que los valores introducidos en el spinedit son validos antes de pasarlos
@@ -2488,6 +2562,21 @@ end;
 procedure TDataForm.DIOSeqOpClick(Sender: TObject);
 begin
 set_dio_disable_seqop;
+end;
+
+procedure TDataForm.DACValSpinChange(Sender: TObject);
+var
+  dacs: array of Integer;
+  valor: array of SmallInt;
+begin
+  SetLength(dacs,2);
+  SetLength(valor,2);
+  dacs[0] := SetDACCorrection.Value;
+  valor[0] := DACValSpin.Value;
+  dacs[1] := SetDACCorrection.Value+1;
+  valor[1] := DACValSpin.Value;
+  dac_set_multi(dacs,valor);
+  //dac_set(dacs[0],valor[0],nil)
 end;
 
 end.
