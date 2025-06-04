@@ -274,6 +274,7 @@ object DataForm: TDataForm
     Width = 121
     Height = 25
     Caption = 'DIO On'
+    Enabled = False
     TabOrder = 15
     Visible = False
     OnClick = DIOButtonOnClick
@@ -305,6 +306,7 @@ object DataForm: TDataForm
     Width = 121
     Height = 25
     Caption = 'DIO Off'
+    Enabled = False
     TabOrder = 18
     Visible = False
     OnClick = DIOButtonOffClick
@@ -315,6 +317,7 @@ object DataForm: TDataForm
     Width = 121
     Height = 25
     Caption = 'Set DIO as OUT'
+    Enabled = False
     TabOrder = 19
     Visible = False
     OnClick = DIODirectionClick
@@ -325,6 +328,7 @@ object DataForm: TDataForm
     Width = 121
     Height = 25
     Caption = 'Disable DIO SeqOp'
+    Enabled = False
     TabOrder = 20
     Visible = False
     OnClick = DIOSeqOpClick
@@ -336,11 +340,13 @@ object DataForm: TDataForm
     Height = 22
     AutoSize = False
     EditorEnabled = False
+    Enabled = False
     Increment = 1024
     MaxValue = 32767
     MinValue = -32768
     TabOrder = 21
     Value = 0
+    Visible = False
     OnChange = DACValSpinChange
   end
 end

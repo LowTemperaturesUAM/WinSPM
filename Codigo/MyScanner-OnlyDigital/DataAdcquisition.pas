@@ -2447,6 +2447,8 @@ begin
       BufferOut[i] := Char($FF); Inc(i); // reset back to idle state
       BufferOut[i] := Char($FB); Inc(i);
       SetLength(BufferOut,Length(BufferOut)+3) //extend the array to fit the extra data
+      // it would be more desirable to go through the dac list beforehand and
+      // only allocating the array once, cause it always be faster
     end;
     sele_dac:=dac_adr[ndac[n]];
     // Construyo la cadena que se enviará
@@ -2571,9 +2573,9 @@ var
 begin
   SetLength(dacs,2);
   SetLength(valor,2);
-  dacs[0] := SetDACCorrection.Value;
+  dacs[0] := 6;//SetDACCorrection.Value;
   valor[0] := DACValSpin.Value;
-  dacs[1] := SetDACCorrection.Value+1;
+  dacs[1] := 7;//SetDACCorrection.Value-4;
   valor[1] := DACValSpin.Value;
   dac_set_multi(dacs,valor);
   //dac_set(dacs[0],valor[0],nil)
