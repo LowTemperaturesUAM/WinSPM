@@ -583,7 +583,8 @@ end;
 
 total:=Round(abs(Princ-Fin));
 
-if Fin>Princ then Step:=Round(total/P_Scan_Lines);
+//Obtain the size of steps. NOTE for N points there are N-1 steps
+if Fin>Princ then Step:=Round(total/(P_Scan_Lines-1));
 if (Step=0) then Step:=100;
 
 //esta comprobación deberiamos hacerla al hacer un DO o un Test, no en cada linea
@@ -1052,7 +1053,8 @@ end;
 
 total:=Round(abs(Princ-Fin));
 
-if Fin>Princ then Step:=Round(total/P_Scan_Lines);
+//Obtain the size of steps. NOTE for N points there are N-1 steps
+if Fin>Princ then Step:=Round(total/(P_Scan_Lines-1));
 if (Step=0) then Step:=100;
 
 if (IV_Scan_Lines>P_Scan_Lines) and (MakeIVChk.Checked) then
@@ -1062,7 +1064,7 @@ begin
   RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
 end;
 
-TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX);
+TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX*1.05, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX*1.05);
 
 if (TopoForm.RadioGroup1.ItemIndex = 0) then // Topo
 begin
@@ -1416,7 +1418,7 @@ repeat
         if (P_Scan_Size=0) then P_Scan_Size:=1;
         FinY:=Round(int(32767*P_Scan_Size));   //Punto final en Y
         total:=Round(abs(PrincY-FinY));
-        if FinY>PrincY then Step:=Round(total/P_Scan_Lines);
+        if FinY>PrincY then Step:=Round(total/(P_Scan_Lines-1));
         if (Step=0) then Step:=100;
         // Hago varias lineas antes de iniciar la imagen
         //p:=0;
@@ -1466,7 +1468,7 @@ repeat
         if (P_Scan_Size=0) then P_Scan_Size:=1;
         FinX:=Round(int(32767*P_Scan_Size));   //Punto final en X
         total:=Round(abs(PrincX-FinX));
-        if FinX>PrincX then Step:=Round(total/P_Scan_Lines);
+        if FinX>PrincX then Step:=Round(total/(P_Scan_Lines-1));
         if (Step=0) then Step:=100;
         // Hago varias lineas antes de iniciar la imagen
         //p:=0;
