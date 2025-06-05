@@ -1536,8 +1536,8 @@ repeat
      end;
   //Return the tip from whatever the current position is to the center of the scanning area
   //By using the last tip position we don't have to worry if the image was prematurely stopped or not
-  MoveDac(nil, XDAC, -var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
-  MoveDac(nil, YDAC, -var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
+  MoveDac(nil, XDAC, var_gbl.dacFlip[XDAC]* var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
+  MoveDac(nil, YDAC, var_gbl.dacFlip[YDAC]* var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
 
   TopoForm.Close;
 
@@ -1579,7 +1579,7 @@ begin
   j:=0;
 
   StepNumr:=abs(Round((fin-init)/jump));
-  if (abs(fin-init)>0) then StepSign:=Round((fin-init)/abs(fin-init))
+  if (abs(fin-init)>0) then StepSign:=Sign(fin-init)//Round((fin-init)/abs(fin-init))
   else StepSign:=1;
 
   while (j<StepNumr+1) do

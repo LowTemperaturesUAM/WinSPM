@@ -356,8 +356,11 @@ signo_lect : array [0..2] of integer;
 
   type
     dacStates = array [0..7] of SmallInt;
+    dacSigns = array [0..7] of SmallInt;
   var
     dacValues : dacStates = (0,0,0,0,0,0,0,0);
+  const
+    dacFlip : dacSigns = (-1,-1,-1,-1,1,1,1,1);
 
 const dac_adr : array[0..7] of Integer = (4,5,6,7,4,5,6,7);
      //pDACcs = $08,     // CS_ADC   (Chip Select ADC), Salida
