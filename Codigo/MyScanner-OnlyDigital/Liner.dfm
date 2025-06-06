@@ -182,11 +182,13 @@ object LinerForm: TLinerForm
       Caption = 'Der. Points'
     end
     object MeanLbl: TLabel
-      Left = 14
+      Left = 16
       Top = 408
       Width = 41
       Height = 13
-      Caption = 'MeanLbl'
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Mean'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -9
@@ -197,9 +199,11 @@ object LinerForm: TLinerForm
     object JumpLbl: TLabel
       Left = 16
       Top = 434
-      Width = 39
+      Width = 41
       Height = 13
-      Caption = 'JumpLbl'
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Jump'
     end
     object lblColorPID: TLabel
       Left = 10
