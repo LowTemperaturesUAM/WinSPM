@@ -188,7 +188,7 @@ var
   ScanForm: TScanForm;
 
 const
-  DigitalTopo = true; //Enable for digital topography recording (experimental)
+  DigitalTopo = false; //Enable for digital topography recording (experimental)
   OSRatio = 4;
 
 implementation
