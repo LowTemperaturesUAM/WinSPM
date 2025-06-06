@@ -354,6 +354,7 @@ procedure TLinerForm.DerivaRectas (vin:vcurva;out vout:vcurva);
 //Para derivar, los datos "Y" están guardados en la vcurva, y los datos "X" están guardados en DataX
 var       i,o,np,m,tot0,pderi                 : integer;
           sx,sy,sx2,sxy,b,bb,cc,nps,sx_2,sy_2,sx2_2,sxy_2,b_2,bb_2,cc_2           : double;{single;}
+          tempForth, tempBack: Single;
 begin
  m:=StrToInt(ptnNumberSelect.text); //Número de puntos
 
@@ -364,32 +365,35 @@ begin
     end;
     vout.n := m;
 
-pderi:=DerivPtsSpin.Value;//Puntos de derivada
-pderi:= pderi - 1;
+pderi:=DerivPtsSpin.Value-1;//Puntos de derivada
+//pderi:= pderi - 1;
 
 if pderi=0 then begin //Si un punto de derivada
-     for I:=0 to m-1 do begin
+    // El ultimo punto de cada curva se desvía. Hay algo que no esta del todo bien aqui
+     for i:=0 to m-1 do
+     begin
+        //DataX[0,i]:=0.5*(DataX[0,i]+DataX[0,i+1]);// estamos shifteando los datos!!!
+        //DataX[1,i]:=0.5*(DataX[1,i]+DataX[1,i+1]);
+        tempForth:=0.5*(DataX[0,i]+DataX[0,i+1]);
+        tempBack:=0.5*(DataX[1,i]+DataX[1,i+1]);
 
-        DataX[0,i]:=0.5*(DataX[0,i]+DataX[0,i+1]);
-        DataX[1,i]:=0.5*(DataX[1,i]+DataX[1,i+1]);
-
-        if (DataX[0,i]-DataX[0,i+1])<>0 then vout.x[i]:=(vin.x[i]-vin.x[i+1])/(DataX[0,i]-DataX[0,i+1]);
+        if (tempForth-DataX[0,i+1])<>0 then vout.x[i]:=(vin.x[i]-vin.x[i+1])/(tempForth-DataX[0,i+1]);
 
 
-        if (DataX[1,i]-DataX[1,i+1])<>0 then vout.y[i]:=(vin.y[i]-vin.y[i+1])/(DataX[1,i]-DataX[1,i+1]);
+        if (tempBack-DataX[1,i+1])<>0 then vout.y[i]:=(vin.y[i]-vin.y[i+1])/(tempBack-DataX[1,i+1]);
 
 
-        DataX[0,m]:=DataX[0,m-1];
-        DataX[1,m]:=DataX[1,m-1];
-        vout.y[m]:=vout.y[m-1];
-        vout.x[m]:=vout.x[m-1];
-          end;
 
+     end;
+     //DataX[0,m]:=DataX[0,m-1];
+     //DataX[1,m]:=DataX[1,m-1];
+     vout.y[m]:=vout.y[m-1];
+     vout.x[m]:=vout.x[m-1];
     end
 
 
  else begin   //Si más de un punto de derivada
-     FOR I:=0 TO m-1 do begin
+     for i:=0 to m-1 do begin
           (* minimos cuadrados*)
           SX:=0;SY:=0;SXY:=0;SX2:=0;np:=0;
           SX_2:=0;SY_2:=0;SXY_2:=0;SX2_2:=0;

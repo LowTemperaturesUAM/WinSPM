@@ -343,7 +343,7 @@ object LinerForm: TLinerForm
       MaxValue = 100
       MinValue = 1
       TabOrder = 5
-      Value = 1
+      Value = 2
       OnChange = DerivPtsSpinChange
     end
     object CurveTypeRadioG: TRadioGroup
