@@ -149,7 +149,8 @@ var
   b_offset: Integer;
   CurvaADerivar: vcurva;
   CurvaDerivada: vcurva;
-
+const
+  OSRatio = 4;
 
 implementation
 
@@ -262,11 +263,13 @@ here_previous_ctrl:=0;
 
     // Forth (Rampa de ida)
     // Lectura de UNA rampa de ida
-    DataForm.ramp_take(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
+    //DataForm.ramp_take(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
+    DataForm.ramp_take_os(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked,OSRatio);
 
     // Back (rampa de vuelta)
     //Lectura de UNA rampa de vuelta
-    DataForm.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
+    //DataForm.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
+    DataForm.ramp_take_os(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked,OSRatio);
 
     {FormPID.Button8Click(nil);
     sleep(20);

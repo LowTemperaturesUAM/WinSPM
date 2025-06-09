@@ -417,6 +417,7 @@ begin
   // Si vamos a invertir el valor, lo hacemos antes de saturar para evitar desbordamientos con -(-32768)
   //if (ndac> 4) then valor:=-valor;    // No están invertidos, así que se puede hacer por SW para coherencia con las otras salidas del DAC
   if (ndac < 5) then valor:=-valor;    // Es mejor que un nº positivo ofrezca una salida positiva, de modo que se hace de este modo en vez de como estaba inicialmente previsto en la línea anterior
+  //valor = var_gbl.dacFlip[ndac]* valor; // This is a better way to handle it, probably
   // No estoy seguro de si esto corresponde con la configuracion actual, y no nos sirve para las nuevas versiones con 4 atenuadores
 // Se saturan los valores según indicaciones de Isabel
   if valor>32767 then valor:=32767 ;
@@ -1492,7 +1493,7 @@ begin
   if (not blockAcq) then
     safeBufferSize := 0; // Si la adquisición es punto a punto no usamos el buffer y enviamos siempre los datos
   DacVal:=value1;
-  Step:=(value2-value1)/(npoints*jump-1);
+  Step:=(value2-value1)/((npoints-1)*jump);
 
   //Cogemos variables de la config del scanner
   Loc_CalTopo:=ScanForm.CalTopo;
@@ -1509,21 +1510,61 @@ begin
 
   // Lectura de UNA rampa de ida o vuelta
   BufferPtr := Addr(BufferMem[0]);
-  i:=0;
-  while (LinerForm.Abort_Measure=False) and (i<npoints) do
+  //Initial dac Value
+  BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  //Save first x axis value
+  if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,0]:=DacVal*LinerForm.x_axisMult/32768;
+  if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+  begin
+    adcRead := adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+    BufferPtr := BufferPtr + Round(adcRead[0]);
+  end;
+  // Si estamos adquiriendo punto a punto, adquirimos el punto que toque ahora
+  // que hemos enviado el anterior. No lo meto en el mismo envío para no
+  // tener problemas de latencias. Si se usa la adquisición punto a punto es de
+  // suponer que no hay prisa, podemos tardar un poco más en cada punto.
+  if (not blockAcq) then
+  begin
+  adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcWriteRead, nil,OSRatio);
+  if LinerForm.ReadXFromADC then
+  LinerForm.DataX[dataSet,0]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+  if LinerForm.ReadZ then
+  begin
+  //if (Form1.DigitalPID) then
+  //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+  //else
+  LinerForm.DataZ[dataSet,0]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+  end;
+
+  //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+  //Se vuelve a poner Loc_ADCI
+  if LinerForm.ReadCurrent then
+  LinerForm.DataCurrent[dataSet,0]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+  //Hermann, 19/11/2021. se añade una lectura de un ADC adicional
+  if LinerForm.ReadOther then
+  LinerForm.DataOther[dataSet,0]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+  end;
+
+  i:=1;
+  while (LinerForm.Abort_Measure=False) and (i<(npoints)) do
   begin
     j := 0;
-    if not LinerForm.ReadXFromADC then
-      LinerForm.DataX[dataSet,i]:=DacVal*LinerForm.x_axisMult/32768;
 
+    // Go to the next point with the given intermediate values
     while (j < jump) do
     begin
-      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
       DacVal := DacVal+Step;
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+
       Inc(j);
       //if blockAcq then
         //Application.ProcessMessages; // Para que pueda hacer el feedback digital //Hermann
     end;
+
+    if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,i]:=DacVal*LinerForm.x_axisMult/32768;
 
     if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
     begin
@@ -1579,8 +1620,9 @@ begin
 
   // Tenemos un ciclo de latencia, por lo que envío un dato más, para luego
   // despreciar el primero.
-  adcRead := adc_take_all_os(1, AdcWriteCommand, BufferPtr,OSRatio);
-  BufferPtr := BufferPtr + Round(adcRead[0]);
+  // Creo que faltaba el dato del principio, ahora ya no nos have falta
+  //adcRead := adc_take_all_os(1, AdcWriteCommand, BufferPtr,OSRatio);
+  //BufferPtr := BufferPtr + Round(adcRead[0]);
 
   // Envía todos los datos del buffer
   send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
@@ -1592,9 +1634,9 @@ begin
   // sacamos de los buffers todo lo que hemos pedido.
 
   // Sacamos el dato extra que hemos metido para compensar la latencia.
-  adc_take_all_os(1, AdcReadData, nil,OSRatio);
+  //adc_take_all_os(1, AdcReadData, nil,OSRatio);
 
-  j := i;
+  j := i; // Total number of points to read in the curve
   i:=0;
   while (i < j) do
   begin
@@ -2153,7 +2195,7 @@ finally
   CalFile.Free;
 end;
 InitDataAcq;
-SetDACCorrectionChange(nil);
+SetDACCorrectionChange(nil); // update the UI with the loaded calibration data
 //Apply the calibrations  to all dacs
 for i:=0 to NUM_DACs-1 do
 with DACCal[i] do
