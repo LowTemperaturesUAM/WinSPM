@@ -216,7 +216,9 @@ object LinerForm: TLinerForm
       Top = 510
       Width = 64
       Height = 13
+      AutoSize = False
       Caption = 'Oversampling'
+      Enabled = False
       Visible = False
     end
     object ReEnablePIDchk: TCheckBox
@@ -422,6 +424,7 @@ object LinerForm: TLinerForm
       Top = 506
       Width = 36
       Height = 22
+      AutoSize = False
       EditorEnabled = False
       Enabled = False
       MaxValue = 64

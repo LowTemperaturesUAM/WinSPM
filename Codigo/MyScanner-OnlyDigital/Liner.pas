@@ -897,7 +897,9 @@ begin
   scrollSizeBias.Width := scrollSizeBias.Width  + BottomPanel.Width - oldWidth;
 end;
 
-
+// Then problem remains with the new ramp_take_os implementation.
+//Every time we change the ADC oversampling on the fly, we get wrong values
+// on the first reads
 procedure TLinerForm.DoIV_oversample(Sender: TObject);
 
 {Salvo y lo meto en:
