@@ -673,10 +673,10 @@ begin
     xVolt:=OldX/32768*AmpX*10;
     Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]:=xVolt*CalX;
     if StopAction then
-    begin
+    begin    // we already zeroed the image a the begining. This is redundant
       Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
       Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
-      //Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
+      //Dat_Image_Forth[3,P_Scan_Lines-1-LineNr,i]:=0; // Set rest of the line as 0
     end
     else
     begin
@@ -761,13 +761,7 @@ begin
       //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
 
-      if ReadTopo then
-      begin
-        //if (DigitalPID) then
-        //  Dat_Image_Forth[1,i,LineNr]:=Action_PID/32768
-        //else
-          Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
-      end;
+      if ReadTopo then Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
       if ReadCurrent then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
       if DigitalTopo then Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=Zvalue;
     end;
@@ -1389,7 +1383,7 @@ repeat
   PaintLines:=Checkbox6.checked;
 
   // Borramos las imágenes antes de adquirir líneas nuevas
-  for i := 1 to 2 do
+  for i := 1 to 3 do
     for j := 0 to P_Scan_Lines-1 do
       for k := 0 to P_Scan_Lines-1 do
       begin
