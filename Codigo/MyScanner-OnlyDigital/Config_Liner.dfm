@@ -115,7 +115,7 @@ object LinerConfig: TLinerConfig
     TabOrder = 1
     object Label5: TLabel
       Left = 120
-      Top = 32
+      Top = 64
       Width = 191
       Height = 16
       Caption = 'Uses Settings of Config Scanner'
@@ -127,6 +127,42 @@ object LinerConfig: TLinerConfig
       Font.Style = []
       ParentColor = False
       ParentFont = False
+    end
+    object PosSizeLbl: TLabel
+      Left = 104
+      Top = 8
+      Width = 60
+      Height = 13
+      Caption = 'Positive Size'
+      Visible = False
+    end
+    object NegSizeLbl: TLabel
+      Left = 104
+      Top = 32
+      Width = 66
+      Height = 13
+      Caption = 'Negative Size'
+      Visible = False
+    end
+    object CurveStartValue: TLabel
+      Left = 184
+      Top = 8
+      Width = 25
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = '100'
+      Visible = False
+    end
+    object CurveEndValue: TLabel
+      Left = 184
+      Top = 32
+      Width = 25
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = '100'
+      Visible = False
     end
     object CheckBox1: TCheckBox
       Left = 8
@@ -156,6 +192,30 @@ object LinerConfig: TLinerConfig
       Caption = 'Measure Other'
       TabOrder = 2
       OnClick = CheckBox3Click
+    end
+    object CurveEndBar: TScrollBar
+      Left = 224
+      Top = 32
+      Width = 121
+      Height = 17
+      Ctl3D = False
+      PageSize = 0
+      ParentCtl3D = False
+      Position = 100
+      TabOrder = 3
+      Visible = False
+    end
+    object CurveStartBar: TScrollBar
+      Left = 224
+      Top = 8
+      Width = 121
+      Height = 17
+      Ctl3D = False
+      PageSize = 0
+      ParentCtl3D = False
+      Position = 100
+      TabOrder = 4
+      Visible = False
     end
   end
   object Pane3: TPanel
@@ -189,9 +249,17 @@ object LinerConfig: TLinerConfig
     Height = 57
     TabOrder = 3
     OnExit = DAC5AttEditCheck
+    object StepsLabel: TLabel
+      Left = 24
+      Top = 32
+      Width = 89
+      Height = 13
+      AutoSize = False
+      Caption = 'Number of steps'
+    end
     object seReduceRampFactor: TSpinEdit
       Left = 184
-      Top = 18
+      Top = 2
       Width = 49
       Height = 22
       MaxValue = 20
@@ -201,7 +269,7 @@ object LinerConfig: TLinerConfig
     end
     object chkReduceRamp: TCheckBox
       Left = 16
-      Top = 20
+      Top = 4
       Width = 161
       Height = 17
       Caption = 'Reduce Ramp by a factor of'
@@ -242,6 +310,17 @@ object LinerConfig: TLinerConfig
       TabOrder = 5
       Text = '1'
       OnExit = DAC6AttEditCheck
+    end
+    object PrejumpSpin: TSpinEdit
+      Left = 184
+      Top = 26
+      Width = 49
+      Height = 22
+      MaxValue = 32767
+      MinValue = 1
+      TabOrder = 6
+      Value = 1
+      OnChange = PrejumpSpinChange
     end
   end
 end

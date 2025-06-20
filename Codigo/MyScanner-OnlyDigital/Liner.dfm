@@ -463,7 +463,7 @@ object LinerForm: TLinerForm
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
-      OnClick = doIV
+      OnClick = doIV_reduce
     end
     object DoRepeatBtn: TButton
       Left = 85
@@ -564,7 +564,7 @@ object LinerForm: TLinerForm
       Enabled = False
       TabOrder = 9
       Visible = False
-      OnClick = DoIV_oversample
+      OnClick = doIV_reduce
     end
   end
   object GraphPanel: TPanel

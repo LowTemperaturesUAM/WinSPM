@@ -32,6 +32,14 @@ type
     SetDAC6AttBtn: TButton;
     DAC5AttEdit: TEdit;
     DAC6AttEdit: TEdit;
+    StepsLabel: TLabel;
+    PrejumpSpin: TSpinEdit;
+    CurveStartBar: TScrollBar;
+    CurveEndBar: TScrollBar;
+    PosSizeLbl: TLabel;
+    NegSizeLbl: TLabel;
+    CurveStartValue: TLabel;
+    CurveEndValue: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
@@ -49,7 +57,7 @@ type
     procedure SetDAC5AttBtnClick(Sender: TObject);
     procedure SetDAC6AttBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-
+    procedure PrejumpSpinChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -113,7 +121,7 @@ IsValid := TryStrtoFloat(xDACMultiplier.Text,NewMultiplier);
 if IsValid and (NewMultiplier <> 0) then
 //Ojo!! si hemos cambiado el DAC de salida y no hemos cerrado la ventana,
 // la escala se actualizara acorde al dac que tuvieramos antes
-case LinerForm.x_axisDac of
+case LinerForm.x_axisDac of  // What if is revB?
   0: LinerForm.x_axisMult := NewMultiplier*DataForm.scan_attenuator;
   2: LinerForm.x_axisMult := NewMultiplier*DataForm.scan_attenuator;
   5: LinerForm.x_axisMult := NewMultiplier*DataForm.z_attenuator;
@@ -230,42 +238,42 @@ end;
 procedure TLinerConfig.FormShow(Sender: TObject);
 begin
 case ScanForm.LHARev of
-    revB..revC: begin
-      //Dejamos los botones de los atenuadores 5 y 6 invisibles
-      DAC5AttEdit.Visible := False;
-      DAC6AttEdit.Visible := False;
-      SetDAC5AttBtn.Visible := False;
-      SetDAC6AttBtn.Visible := False;
-      LinerForm.ZAttText.Visible := False;
-      LinerForm.ZAttDispValue.Visible := False;
-      LinerForm.BiasAttText.Visible := False;
-      LinerForm.BiasAttDispValue.Visible := False;
-    end;
-    revD..revE: begin
-      //En las versiones nuevas mostramos esta opcion
-      DAC5AttEdit.Visible := True;
-      DAC6AttEdit.Visible := True;
-      SetDAC5AttBtn.Visible := True;
-      SetDAC6AttBtn.Visible := True;
-      LinerForm.ZAttText.Visible := True;
-      LinerForm.ZAttDispValue.Visible := True;
-      LinerForm.BiasAttText.Visible := True;
-      LinerForm.BiasAttDispValue.Visible := True;
-    end;
+  revB..revC: begin
+    //Dejamos los botones de los atenuadores 5 y 6 invisibles
+    DAC5AttEdit.Visible := False;
+    DAC6AttEdit.Visible := False;
+    SetDAC5AttBtn.Visible := False;
+    SetDAC6AttBtn.Visible := False;
+    LinerForm.ZAttText.Visible := False;
+    LinerForm.ZAttDispValue.Visible := False;
+    LinerForm.BiasAttText.Visible := False;
+    LinerForm.BiasAttDispValue.Visible := False;
+  end;
+  revD..revE: begin
+    //En las versiones nuevas mostramos esta opcion
+    DAC5AttEdit.Visible := True;
+    DAC6AttEdit.Visible := True;
+    SetDAC5AttBtn.Visible := True;
+    SetDAC6AttBtn.Visible := True;
+    LinerForm.ZAttText.Visible := True;
+    LinerForm.ZAttDispValue.Visible := True;
+    LinerForm.BiasAttText.Visible := True;
+    LinerForm.BiasAttDispValue.Visible := True;
+  end;
 end;
 end;
 
 procedure TLinerConfig.SetDAC5AttBtnClick(Sender: TObject);
 begin
 case ScanForm.LHARev of
-    revD: begin
-      //Dejamos los botones de los atenuadores 5 y 6 invisibles
-      DataForm.set_attenuator(3,StrToFloat(DAC5AttEdit.Text));
-    end;
-    revE: begin
-      //En las versiones nuevas mostramos esta opcion
-      DataForm.set_attenuator_14b(3,StrToFloat(DAC5AttEdit.Text));
-    end;
+  revD: begin
+    //Dejamos los botones de los atenuadores 5 y 6 invisibles
+    DataForm.set_attenuator(3,StrToFloat(DAC5AttEdit.Text));
+  end;
+  revE: begin
+    //En las versiones nuevas mostramos esta opcion
+    DataForm.set_attenuator_14b(3,StrToFloat(DAC5AttEdit.Text));
+  end;
 end;
 LinerForm.ZAttDispValue.Caption := DAC5AttEdit.Text;
 //Refresh de multiplier
@@ -275,14 +283,14 @@ end;
 procedure TLinerConfig.SetDAC6AttBtnClick(Sender: TObject);
 begin
 case ScanForm.LHARev of
-    revD: begin
-      //Dejamos los botones de los atenuadores 5 y 6 invisibles
-      DataForm.set_attenuator(4,StrToFloat(DAC6AttEdit.Text));
-    end;
-    revE: begin
-      //En las versiones nuevas mostramos esta opcion
-      DataForm.set_attenuator_14b(4,StrToFloat(DAC6AttEdit.Text));
-    end;
+  revD: begin
+    //Dejamos los botones de los atenuadores 5 y 6 invisibles
+    DataForm.set_attenuator(4,StrToFloat(DAC6AttEdit.Text));
+  end;
+  revE: begin
+    //En las versiones nuevas mostramos esta opcion
+    DataForm.set_attenuator_14b(4,StrToFloat(DAC6AttEdit.Text));
+  end;
 end;
 LinerForm.BiasAttDispValue.Caption := DAC6AttEdit.Text;
 //Refresh de multiplier
@@ -296,6 +304,37 @@ begin
 NewMultiplier := StrtoFloat(xDACMultiplier.Text);
 if NewMultiplier<>0 then LinerForm.x_axisMult := NewMultiplier
 else LinerForm.x_axisMult := 10;
+LinerForm.Prejump := PrejumpSpin.Value;
+case ScanForm.LHARev of
+  revB..revC: begin
+    //Dejamos los botones de los atenuadores 5 y 6 invisibles
+    DAC5AttEdit.Visible := False;
+    DAC6AttEdit.Visible := False;
+    SetDAC5AttBtn.Visible := False;
+    SetDAC6AttBtn.Visible := False;
+    LinerForm.ZAttText.Visible := False;
+    LinerForm.ZAttDispValue.Visible := False;
+    LinerForm.BiasAttText.Visible := False;
+    LinerForm.BiasAttDispValue.Visible := False;
+  end;
+  revD..revE: begin
+    //En las versiones nuevas mostramos esta opcion
+    DAC5AttEdit.Visible := True;
+    DAC6AttEdit.Visible := True;
+    SetDAC5AttBtn.Visible := True;
+    SetDAC6AttBtn.Visible := True;
+    LinerForm.ZAttText.Visible := True;
+    LinerForm.ZAttDispValue.Visible := True;
+    LinerForm.BiasAttText.Visible := True;
+    LinerForm.BiasAttDispValue.Visible := True;
+  end;
+end;
+end;
+
+
+procedure TLinerConfig.PrejumpSpinChange(Sender: TObject);
+begin
+LinerForm.Prejump := PrejumpSpin.Value;
 end;
 
 end.
