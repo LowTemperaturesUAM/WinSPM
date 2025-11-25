@@ -246,8 +246,12 @@ object LinerForm: TLinerForm
       Width = 105
       Height = 21
       Hint = 'Point Number'
+      AutoComplete = False
+      Ctl3D = False
+      DropDownCount = 10
       ItemHeight = 13
       ItemIndex = 9
+      ParentCtl3D = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
@@ -597,6 +601,7 @@ object LinerForm: TLinerForm
       DepthAxis.AutomaticMinimum = False
       DepthAxis.Maximum = 0.500000000000000000
       DepthAxis.Minimum = -0.500000000000000000
+      LeftAxis.AxisValuesFormat = '0.####E+0'
       LeftAxis.ExactDateTime = False
       Legend.Visible = False
       RightAxis.Automatic = False

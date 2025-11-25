@@ -336,5 +336,4 @@ procedure TLinerConfig.PrejumpSpinChange(Sender: TObject);
 begin
 LinerForm.Prejump := PrejumpSpin.Value;
 end;
-
 end.

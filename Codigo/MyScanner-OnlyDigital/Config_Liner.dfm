@@ -316,7 +316,7 @@ object LinerConfig: TLinerConfig
       Top = 26
       Width = 49
       Height = 22
-      MaxValue = 32767
+      MaxValue = 512
       MinValue = 1
       TabOrder = 6
       Value = 1
