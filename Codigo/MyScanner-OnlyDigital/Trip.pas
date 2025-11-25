@@ -99,7 +99,8 @@ end;
 procedure TTripForm.ApproachBtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  MakeStepsBuf(times, 1);
+  //MakeStepsBuf(times, 1);
+  MakeSteps(times, 1);
   SetMoving(false);
 end;
 
@@ -112,14 +113,16 @@ end;
 procedure TTripForm.SeparateBtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  MakeStepsBuf(times, -1);
+  //MakeStepsBuf(times, -1);
+  MakeSteps(times, -1);
   SetMoving(false);
 end;
 
 procedure TTripForm.Separate100BtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  MakeStepsBuf(100, -1);
+  //MakeStepsBuf(100, -1);
+  MakeSteps(100, -1);
   SetMoving(false);
 end;
 
@@ -138,7 +141,8 @@ begin
     adcRead:=DataForm.adc_take_all_os(TripMean, AdcWriteRead, nil,OSRatio);
     while (abs(adcRead[TripConfig.InADCEdit.Value]/2)<(TripConfig.spinCurrentLimit.Value/100)) and (not StopTrip) do
     begin
-      MakeStepsBuf(times, 1);
+      //MakeStepsBuf(times, 1);
+      MakeSteps(times, 1);
       //Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,TripMean);
       adcRead :=DataForm.adc_take_all_os(TripMean, AdcWriteRead, nil,OSRatio);
     end;
