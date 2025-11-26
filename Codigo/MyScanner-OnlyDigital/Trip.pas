@@ -24,6 +24,9 @@ type
     StepsLbl: TLabel;
     StepsDiv10Btn: TButton;
     StepsMul10Btn: TButton;
+    StepLabel: TLabel;
+    StepsCount: TLabel;
+    ResetCountBtn: TButton;
     procedure ConfigBtnClick(Sender: TObject);
     procedure SizeBarChange(Sender: TObject);
     procedure SpeedBarChange(Sender: TObject);
@@ -39,6 +42,7 @@ type
     procedure SetMoving(moving: Boolean);
     procedure MakeSteps(numSteps, direction: Integer);
     procedure MakeStepsBuf(numSteps, direction: Integer);
+    procedure ResetCountBtnClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -53,6 +57,7 @@ type
 var
   TripForm: TTripForm;
   TripBuffer: array [1..6554*12] of AnsiChar; //Maximum size for Speed =10 and 12 bytes per dac value
+  TripSteps: Integer;
   //TripMean: Integer;
 const
   OSRatio = 4;
@@ -83,6 +88,7 @@ end;
 
 procedure TTripForm.FormShow(Sender: TObject);
 begin
+TripForm.DoubleBuffered := True;
 TripConfig.Show;
 Size:=SizeBar.Position;
 Speed:=SpeedBar.Position;
@@ -216,6 +222,8 @@ begin
     Application.ProcessMessages;
     i:=i+1;
   end;
+  TripSteps:= TripSteps -(i*direction*Mult*Size); //Add the number of steps done
+  StepsCount.Caption := IntToStr(TripSteps);
   // I think this one is redundant now, as the generated ramp always ends in 0
   // and due to the process message in betwee, it waits for a long time (over 1ms)
   //DataForm.dac_set(ZPDac,0, nil);
@@ -277,6 +285,13 @@ begin
   // I think this one is redundant now, as the generated ramp always ends in 0
   // and due to the process message in betwee, it waits for a long time (over 1ms)
   //DataForm.send_buffer(@TripBuffer[1], n);
+end;
+
+
+procedure TTripForm.ResetCountBtnClick(Sender: TObject);
+begin
+  TripSteps:= 0; //Reset the number of steps done
+  StepsCount.Caption := IntToStr(TripSteps);
 end;
 
 end.

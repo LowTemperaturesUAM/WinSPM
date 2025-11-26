@@ -58,6 +58,24 @@ object TripForm: TTripForm
     Font.Style = []
     ParentFont = False
   end
+  object StepLabel: TLabel
+    Left = 256
+    Top = 120
+    Width = 53
+    Height = 13
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Step Count'
+  end
+  object StepsCount: TLabel
+    Left = 256
+    Top = 136
+    Width = 49
+    Height = 13
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '0'
+  end
   object ApproachBtn: TButton
     Left = 16
     Top = 16
@@ -202,5 +220,14 @@ object TripForm: TTripForm
     Caption = 'x10'
     TabOrder = 10
     OnClick = StepsMul10BtnClick
+  end
+  object ResetCountBtn: TButton
+    Left = 248
+    Top = 152
+    Width = 75
+    Height = 17
+    Caption = 'Reset Count'
+    TabOrder = 11
+    OnClick = ResetCountBtnClick
   end
 end

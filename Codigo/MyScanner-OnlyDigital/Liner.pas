@@ -505,9 +505,25 @@ end;
 
 //Número de puntos
 procedure TLinerForm.ptnNumberSelectChange(Sender: TObject);
+var
+  isvalid: Boolean;
+  input: Integer;
 begin
-PointNumber:=StrtoInt(ptnNumberSelect.Text);
-ScanForm.RedimCits(ScanForm.IV_Scan_Lines, PointNumber);
+// should check if it is a number and smaller or equal to 2048
+isvalid := TryStrtoInt(ptnNumberSelect.Text,input);
+if isvalid then
+begin
+  if (input <= 2048) then
+  begin
+  PointNumber:=StrtoInt(ptnNumberSelect.Text);
+  ScanForm.RedimCits(ScanForm.IV_Scan_Lines, PointNumber);
+  end
+  else
+  begin
+  ptnNumberSelect.Text := InttoStr(PointNumber);
+  end;
+
+end;
 end;
 
 //Función para derivar
