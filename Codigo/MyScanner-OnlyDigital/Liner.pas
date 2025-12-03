@@ -424,17 +424,17 @@ here_previous_ctrl:=0;
     //DataForm.ramp_take(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
     //DataForm.ramp_take_os(x_axisDac, Princ, Fin, 0, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked,OSRatio);
     DataForm.ramp_take_reduce2(x_axisDac, value1,value2,Princ, Fin, 0, PointNumber, Jump_xaxis,Prejump, chkAcquireBlock.Checked,OSRatio);
+    //DataForm.ramp_take_simple(x_axisDac, value1,value2,Princ, Fin, 0, PointNumber, Jump_xaxis,Prejump, chkAcquireBlock.Checked,OSRatio);
+    //DataForm.ramp_take_reducesimple(x_axisDac, value1,value2,Princ, Fin, 0, PointNumber, Jump_xaxis,Prejump, chkAcquireBlock.Checked,OSRatio);
+
     //ramp_take_reduce2(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
     // Back (rampa de vuelta)
     //Lectura de UNA rampa de vuelta
     //DataForm.ramp_take(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked);
     //DataForm.ramp_take_os(x_axisDac, Fin, Princ, 1, PointNumber, Jump_xaxis, 0, chkAcquireBlock.Checked,OSRatio);
     DataForm.ramp_take_reduce2(x_axisDac, value2,value1,Fin, Princ, 1, PointNumber, Jump_xaxis,Prejump, chkAcquireBlock.Checked,OSRatio);
-
-    {FormPID.Button8Click(nil);
-    sleep(20);
-    FormPID.Button9Click(nil);
-    }
+    //DataForm.ramp_take_simple(x_axisDac, value2,value1,Fin, Princ, 1, PointNumber, Jump_xaxis,Prejump, chkAcquireBlock.Checked,OSRatio);
+    //DataForm.ramp_take_reducesimple(x_axisDac, value2,value1,Fin, Princ, 1, PointNumber, Jump_xaxis,Prejump, chkAcquireBlock.Checked,OSRatio);
 
     for h:=0 To PointNumber - 1 do
       begin
@@ -454,7 +454,7 @@ here_previous_ctrl:=0;
       if LinerConfig.ReverseCheck.Checked then Princ:=Round(-32768*Size_xAxis)
       else Princ:=Round(32768*Size_xAxis);
 
-    DataForm.dac_set(x_axisDAC,Princ, nil);
+    //DataForm.dac_set(x_axisDAC,Princ, nil);
 
     // Vamos a dejar funcionar el control durante 2 s
     //j es siempre 0 o positivo. Para que lo comprobamos?

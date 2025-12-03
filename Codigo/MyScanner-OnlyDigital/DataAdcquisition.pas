@@ -109,7 +109,14 @@ type
     function ramp_take_os(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean; OSRatio: Byte): boolean;
     function ramp_take_reduce(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
     function ramp_take_reduce2(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
+    function ramp_take_reduce3(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
     function send_buffer(bufferToSend: PAnsiChar; bytesToSend: Integer): FTC_STATUS;
+    function adc_take_all_writeread(n:Integer; BufferOut: PAnsiChar;OSRatio: Byte) : TVectorDouble ;
+    function adc_take_all_read(n:Integer; BufferOut: PAnsiChar;OSRatio: Byte) : TVectorDouble ;
+    function adc_take_all_write(n:Integer; BufferOut: PAnsiChar;OSRatio: Byte) : TVectorDouble ;
+    function ramp_take_simple(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
+    function ramp_take_reducesimple(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
+    function adc_take_all_read2(n:Integer;ExitFlag: Boolean) : TVectorDouble ;
     procedure set_dio_port(value: Word);
     procedure set_attenuator(DACAttNr: Integer; value: double);
     procedure set_attenuator_14b(DACAttNr: Integer; value: double);
@@ -138,6 +145,8 @@ type
     procedure DIODirectionClick(Sender: TObject);
     procedure DIOSeqOpClick(Sender: TObject);
     procedure DACValSpinChange(Sender: TObject);
+
+
 
   private
     { Private declarations }
@@ -499,7 +508,7 @@ var CadenaCS:integer;
 var sele_dac:integer;
 var BytesToWrite: Integer;
 var BytesWritten:Integer;
-//var SPI_Ret:Integer;
+var SPI_Ret:Integer;
 //var total:integer;
 var i: Integer;
 var BufferDest: PAnsiChar;
@@ -535,7 +544,15 @@ begin
   end;}
 
   //Expect that a proper buffer has been provided
-  BufferDest := BufferOut;
+  //BufferDest := BufferOut;
+  if (BufferOut = nil) then
+   begin
+     BufferDest := Addr(Buffer[1]);
+   end
+   else
+  begin
+    BufferDest := BufferOut;
+  end;
   // Construyo la cadena que se enviará
   i := 0; // El primer caracter está reservado para la longitud, se use o no.
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
@@ -553,8 +570,14 @@ begin
   (BufferDest+i)^ := Char($FB); Inc(i);
   //Assert(i = 12); //Confirmamos que es el numero correcto
   //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
-
-
+  if (BufferOut = nil) then
+  begin
+  BytesToWrite:= i;
+  SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
+  //Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque //Hermann
+  If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
+      if not simulating then MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
+  end;
 if simulating then simulatedDac[ndac] := valor;
 
 
@@ -975,9 +998,11 @@ var BytesToWrite: Integer;
 var BytesWritten:Integer;
 var BytesToReceive:Integer;
 //var numADCChannels:Integer;
-var ReceivesBytes:Integer;
+//var ReceivesBytes:Integer;
+var ReceivesBytes: Cardinal;
 var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
-var BytesReturned:Integer;
+//var BytesReturned:Integer;
+var BytesReturned: Cardinal;
 var numres:longint;
 var resultadoooo:extended;
 var i:integer;
@@ -1008,35 +1033,35 @@ begin
     2:
     begin
     tconv:=8; //~8.75us //19;
-    setLength(LongBuffer,11+6*(tconv+1));
+    setLength(LongBuffer,10+6*(tconv+1));
     end;
     4:
     begin
     tconv:=17; //~19.2us //38;
-    setLength(LongBuffer,11+6*(tconv+1));
+    setLength(LongBuffer,10+6*(tconv+1));
     end;
     8:
     begin
     tconv:=35; //~40.35us //78;
-    setLength(LongBuffer,11+6*(tconv+1));
+    setLength(LongBuffer,10+6*(tconv+1));
     end;
     16:
     begin
     tconv:=68;//~78.6us //156;
-    setLength(LongBuffer,11+6*(tconv+1));
+    setLength(LongBuffer,10+6*(tconv+1));
     end;
     32:
     begin
     tconv:=136;//~158us //316;
-    setLength(LongBuffer,11+6*(tconv+1));
+    setLength(LongBuffer,10+6*(tconv+1));
     end;
     64:
     begin
     tconv:=272;//~317.4us //630;
-    setLength(LongBuffer,11+6*(tconv+1));
+    setLength(LongBuffer,10+6*(tconv+1));
     end;
    else
-    setLength(LongBuffer,11+3*(old_tconv+1));
+    setLength(LongBuffer,10+3*(old_tconv+1));
    end;
    //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
    // Construyo la cadena que se enviará. Será la misma en todas las iteraciones
@@ -1196,11 +1221,13 @@ begin
    Assert(Hi(MessageLength) = 0);
    LongBuffer[i] := Char(Lo(MessageLength)); Inc(i);
    LongBuffer[i] := Char(Hi(MessageLength)); Inc(i);
-   LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
+   //LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
    LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
    LongBuffer[i] := Char($FF); Inc(i);
    LongBuffer[i] := Char($FB); Inc(i);
-   LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i); // is this flush necessary?
+   // don't remove this line, its very important
+   // it tanks the PID performance otherwise
+   LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
    //LongBuffer[0] := Char(i-1); // Longitud de la cadena
    //RealBuffLength.Caption := IntToStr(i-1);
    Assert(Length(LongBuffer) = i-1);
@@ -1242,9 +1269,17 @@ begin
       intentos := 0;
       Repeat
         SPI_Ret:= FT_GetQueueStatus(SupraSPI_Hdl, @ReceivesBytes);
+         //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+         //OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
         intentos := intentos+1;
       Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK) or (intentos > 10000);
+      //if (ReceivesBytes >= BytesToReceive) then OutputDebugString(PChar( 'Exit reason: Reached Requested bytes' ))
+      //else if (SPI_Ret <> FT_OK) then OutputDebugString(PChar( 'Exit reason: FT_Status Error' ))
+      //else if (intentos > 10000) then OutputDebugString(PChar( 'Exit reason: Number of tries exceeded' ));
+      //OutputDebugString(PChar('Tries: ' + IntToStr(intentos) ));
 
+               //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+         //OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
       If SPI_Ret <> FT_OK then
         if not simulating then MessageDlg(Format('TDataForm.adc_take_all. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
 
@@ -1268,15 +1303,18 @@ begin
         if (ReceivesBytes <> BytesToReceive) then
         begin
           Str( ReceivesBytes, sTexto );
-          OutputDebugString(PChar('Recibidos: ' + sTexto));
+          OutputDebugString(PChar('Recibidos: ' + sTexto + ' de ' + IntToStr(BytesToReceive) ));
         end;
         SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, ReceivesBytes, @BytesReturned);
+        //OutputDebugString(PChar( 'Read: ' + IntToStr(BytesReturned) + ' out of ' +  IntToStr(BytesToReceive) + ' requested in single action'));
       end
       else
+      begin
         SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, BytesToReceive, @BytesReturned);
-
+        //OutputDebugString(PChar( 'Read: ' + IntToStr(BytesReturned) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+      end;
       If SPI_Ret <> 0 then
-        if not simulating then MessageDlg('error al leer los datos ADC ', mtError, [mbOk], 0);
+        if not simulating then MessageDlg(Format('error al leer los datos ADC: %d',[SPI_Ret]), mtError, [mbOk], 0);
 
       for j := 0 to NUM_ADCs-1 do
       begin
@@ -1284,7 +1322,7 @@ begin
         if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
         resultadoooo:=numres/32768;
         if simulating then resultadoooo := simulatedDac[ScanForm.XDAC]/$8000+Random/100;
-        datosum[j] := datosum[j] + resultadoooo ;
+        datosum[j] := datosum[j] + resultadoooo ; // we could usea an Int here with no loss of precision
       end;
     end;
 
@@ -1300,9 +1338,12 @@ begin
     for j := 0 to NUM_ADCs-1 do
     begin
       f:=datosum[j]/n ;
+      if TRAZAS then
+      begin
       Str( j, sTexto );
       Str( f, sTexto2 );
-      if TRAZAS then MessageDlg('El valor medio del canal '+Stexto+' es :'+Stexto2, mtError, [mbOk], 0);
+      MessageDlg('El valor medio del canal '+Stexto+' es :'+Stexto2, mtError, [mbOk], 0);
+      end;
       Result[j]:=f;
     end;
   end
@@ -1823,7 +1864,7 @@ begin
 
   Result := True;
 end;
-  //(ndac, value1, value2, dataSet, npoints, jump, delay: Integer; blockAcq: Boolean): boolean;
+
 // values for recording the curve go between value1 and value2. The voltage will start in startval
 // step through values until it reaches value1 without taking ADC reads.
 // once value2 is reached, the DAC would again step up to finalval without ADC reads again.
@@ -1875,6 +1916,13 @@ begin
     DacVal := DacVal+PreStep;
     BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
     Inc(s);
+  end;
+
+  //Mandamos la rampa previa a la curva
+  if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+  begin
+    send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+    BufferPtr := Addr(BufferMem[0]);
   end;
   end;
 
@@ -2297,23 +2345,23 @@ begin
   //  end
   //else
   //  begin
-      case DACAttNr of
-        // Version con solo 2 atenuadores:
-        0: begin (BufferDest+i)^ := Char(03); scan_attenuator:=value; end; // Registro: Ambos DACs (Canales 0 y 2)
-        // Version con 4 atenuadores:
-        // La variable que guarda el factor de atenuacion de escaneo solo se cambia
-        // una vez al llamar la funcion para el DAC A, pero afecta tambien al DAC B
-        // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
-        1: begin (BufferDest+i)^ := Char(00); scan_attenuator:=value; end; // Registro: DAC A (Canal 0)
-        2: (BufferDest+i)^ := Char(01); // Registro: DAC B (Canal 2)
-        3: begin (BufferDest+i)^ := Char(02); z_attenuator:=value; end;// Registro: DAC C (Canal 5)
-        4: begin (BufferDest+i)^ := Char(03); bias_attenuator:=value; end// Registro: DAC D (Canal 6)
-      end;
-      Inc(i);
+  case DACAttNr of
+  // Version con solo 2 atenuadores:
+  0: begin (BufferDest+i)^ := Char(03); scan_attenuator:=value; end; // Registro: Ambos DACs (Canales 0 y 2)
+  // Version con 4 atenuadores:
+  // La variable que guarda el factor de atenuacion de escaneo solo se cambia
+  // una vez al llamar la funcion para el DAC A, pero afecta tambien al DAC B
+  // Hay que tener cuidado de cambiar la atenuacion de ambos siempre a la vez
+  1: begin (BufferDest+i)^ := Char(00); scan_attenuator:=value; end; // Registro: DAC A (Canal 0)
+  2: (BufferDest+i)^ := Char(01); // Registro: DAC B (Canal 2)
+  3: begin (BufferDest+i)^ := Char(02); z_attenuator:=value; end;// Registro: DAC C (Canal 5)
+  4: begin (BufferDest+i)^ := Char(03); bias_attenuator:=value; end// Registro: DAC D (Canal 6)
+  end;
+  Inc(i);
   //  end;
   (BufferDest+i)^ := Char(Hi(valueDAC)); Inc(i);  // Parte alta del valor del DAC
   (BufferDest+i)^ := Char(Lo(valueDAC)); Inc(i); // Parte baja del valor del DAC
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
   (BufferDest+i)^ := Char($FE); Inc(i);
   (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
@@ -2366,7 +2414,7 @@ begin
   (BufferDest+i)^ := Char(0); Inc(i);
   (BufferDest+i)^ := Char(Hi(shortValueDAC)); Inc(i);  // Parte alta del valor del DAC
   (BufferDest+i)^ := Char(Lo(shortValueDAC)); Inc(i); // Parte baja del valor del DAC
-  (BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
+  //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
   (BufferDest+i)^ := Char($FE); Inc(i);
   (BufferDest+i)^ := Char($FF-Integer(pDI)); Inc(i);
@@ -2847,6 +2895,1563 @@ begin
   valor[1] := DACValSpin.Value;
   dac_set_multi(dacs,valor);
   //dac_set(dacs[0],valor[0],nil)
+end;
+
+// values for recording the curve go between value1 and value2. The voltage will start in startval
+// step through values until it reaches value1 without taking ADC reads.
+// once value2 is reached, the DAC would again step up to finalval without ADC reads again.
+function TDataForm.ramp_take_reduce3(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
+var
+i,j,Loc_ADCTopo,Loc_ADCI, Loc_ADCOther: Integer;
+Loc_CalTopo,Loc_AmpTopo,Loc_AmpI,Loc_MultI,Loc_AmpOther,Loc_MultOther,Step,DacVal: Double;
+ReceivesBytes, BytesToReceive: Integer;
+adcRead: TVectorDouble;
+BufferMem: Array[0..FT_Out_Buffer_Size] of Byte;
+safeBufferSize: Integer; // Cuando el buffer se llene hasta esta cantidad de datos, los enviaremos. Debe ser sensiblemente menor que el tamaño del buffer para evitar que se desborde
+BufferPtr: PAnsiChar;
+SPI_Ret: FTC_STATUS;
+PreStep, PosStep: Double;
+s: Integer;
+Fill: integer;
+n,m: Integer;
+begin
+
+  safeBufferSize := Round(Length(BufferMem)*0.8);
+
+  Step:=(value2-value1)/((npoints-1)*jump);
+  PreStep:=(value1-startval)/prejump; // go from the startval to the first curve value in prejump steps
+  PosStep:=(finalval-value2)/prejump;
+  //Cogemos variables de la config del scanner
+  Loc_CalTopo:=ScanForm.CalTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_ADCTopo:=ScanForm.ADCTopo;
+
+  Loc_AmpI:=ScanForm.AmpI;
+  Loc_MultI:=ScanForm.MultI;
+  Loc_ADCI:=ScanForm.ADCI;
+
+  Loc_AmpOther:=ScanForm.AmpOther;
+  Loc_MultOther:=ScanForm.MultOther;
+  Loc_ADCOther:=ScanForm.ADCOther;
+
+  // Lectura de UNA rampa de ida o vuelta
+  BufferPtr := Addr(BufferMem[0]);
+
+  //Initial dac Value
+  DacVal:=startval;
+  s := 0;
+  if PreStep <> 0 then
+  begin
+    BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+    while s < (prejump-1) do
+    begin
+      DacVal := DacVal+PreStep;
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+      Fill := integer(BufferPtr - Addr(BufferMem[0]));
+      if Fill > SafeBufferSize then
+      begin
+        send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+        BufferPtr := Addr(BufferMem[0]);
+      end;
+      Inc(s);
+    end;
+  end;
+  DacVal:=value1; //Set initial DAC value for the ramp
+  BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  //Mandamos la rampa previa a la curva
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  BufferPtr := Addr(BufferMem[0]);
+
+  //Save first x axis value
+  if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,0]:=DacVal*LinerForm.x_axisMult/32768;
+  //if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+  //begin
+  adcRead := adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+  BufferPtr := BufferPtr + Round(adcRead[0]);
+  //BufferPtr := BufferPtr + adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+  //send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  //BufferPtr := Addr(BufferMem[0]);
+  //end;
+
+
+
+  i:=1;
+  while (LinerForm.Abort_Measure=False) and (i<npoints) do
+  begin
+    j := 0;
+    //Move the dac to the next step and send it together with the last ADC read
+    // Go to the next point with the given intermediate values
+    while (j < jump) do
+    begin
+      DacVal := DacVal+Step;
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+      Inc(j);
+      if ((BufferPtr-Addr(BufferMem[0])) > safeBufferSize) then
+      begin
+        //If we surpass the actual buffer size by accident, we put a warning to the user
+        if ((BufferPtr-Addr(BufferMem[0])) >= 65536) then
+        begin
+        MessageDlg('The instructions sent surpass the buffer size.', mtError, [mbOk], 0);
+        end;
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+      end;
+    end;
+    if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,i]:=DacVal*LinerForm.x_axisMult/32768;
+
+    //Read the previous point ADC values
+    adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcReadData, nil,OSRatio);
+    if LinerForm.ReadXFromADC then
+      LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+    if LinerForm.ReadZ then
+    begin
+      //if (Form1.DigitalPID) then
+      //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+      //else
+        LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+    end;
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadCurrent then
+      LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadOther then
+      LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+
+
+    //Now request the ADC reads from the current value, and set up the next one
+
+    adcRead := adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+    BufferPtr := BufferPtr + Round(adcRead[0]);
+    //BufferPtr := BufferPtr + adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+    if ((BufferPtr-Addr(BufferMem[0])) > safeBufferSize) then
+    begin
+      //If we surpass the actual buffer size by accident, we put a warning to the user
+      if ((BufferPtr-Addr(BufferMem[0])) >= 65536) then
+      begin
+      MessageDlg('The instructions sent surpass the buffer size.', mtError, [mbOk], 0);
+      end;
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+    end;
+
+
+
+
+    Inc(i);
+  end;
+  //send the remaining commands
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  BufferPtr := Addr(BufferMem[0]);
+
+  //Read the last ADC values remaining
+  adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcReadData, nil,OSRatio);
+  if LinerForm.ReadXFromADC then
+    LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+  if LinerForm.ReadZ then
+  begin
+  //if (Form1.DigitalPID) then
+  //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+  //else
+  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+  end;
+
+  //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+  // Volver a poner Loc_ADCI
+  if LinerForm.ReadCurrent then
+    LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+  // cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+  // Volver a poner Loc_ADCI
+  if LinerForm.ReadOther then
+    LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+  //DacVal:=value2; // we should be on value2 at this point
+  s := 0;
+  if PosStep <>0 then
+  begin
+  while s < (prejump-1) do
+  begin
+    DacVal := DacVal+PosStep;
+    BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+    Fill := integer(BufferPtr - Addr(BufferMem[0]));
+    if Fill > SafeBufferSize then
+    begin
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+    end;
+    Inc(s);
+  end;
+  //Final dac Value
+  DacVal:=finalval;
+  BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  end;
+
+  //BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  BufferPtr := Addr(BufferMem[0]);
+
+  Result := True;
+end;
+
+
+
+////////////  FUNCIÓN ADC_take_all_os ///////////
+//Mantenemos solo la parte que lee y escribe en un solo comando
+function TDataForm.adc_take_all_writeread(n:Integer;BufferOut: PAnsiChar;OSRatio: Byte) : TVectorDouble ;
+
+Var sTexto:String;
+Var sTexto2:String;
+Var sTexto3:String;
+
+var SPI_Ret:Integer;
+var BytesToWrite: Integer;
+var BytesWritten:Integer;
+var BytesToReceive:Integer;
+//var numADCChannels:Integer;
+//var ReceivesBytes:Integer;
+var ReceivesBytes: Cardinal;
+var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
+//var BytesReturned:Integer;
+var BytesReturned: Cardinal;
+var numres:longint;
+var resultadoooo:extended;
+var i:integer;
+var j:integer;
+
+var datosum: TVectorDouble ;
+var   f : double ;
+//La longitud del mensaje solo depende del numero de dacs que es conocido, asi que lo fijamos como constante
+const MessageLength : Word = 2 * NUM_ADCs -1;
+var wait:Word;
+const old_tconv: Word = 8; //number of cycles to wait between CONVST pulling up and CS pins pulling down
+// This time is necesary to allow for the ADC to finish the read
+var tconv: Word; //variable number of cicles to wait depending on oversampling ratio
+var intentos: Integer; // Para pruebas de cuando faltan datos
+var LongBuffer: AnsiString;
+
+begin
+  //tconv:=5; //number of cycles to wait between CONVST pulling up and CS pins pulling down
+
+  //The value was set to 5, but it should be 7 in order to meet
+  //the 4.2us (4.0us avg) interval that the ADC specification requires
+  // if the clock is actually 2MHz, it should be at least 8, if not 9
+  if (n<1) then Exit ;
+
+  //if ((action = AdcWriteCommand) or (action = AdcWriteRead)) then
+  //begin
+   case OSRatio of
+    2:
+    begin
+    tconv:=8; //~8.75us //19;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    4:
+    begin
+    tconv:=17; //~19.2us //38;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    8:
+    begin
+    tconv:=35; //~40.35us //78;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    16:
+    begin
+    tconv:=68;//~78.6us //156;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    32:
+    begin
+    tconv:=136;//~158us //316;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    64:
+    begin
+    tconv:=272;//~317.4us //630;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+   else
+    setLength(LongBuffer,10+3*(old_tconv+1));
+   end;
+   //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
+   // Construyo la cadena que se enviará. Será la misma en todas las iteraciones
+   // Si es sólo ponerla en el buffer, hay que copiarla para cada iteración.
+   i := 1; // El primer caracter está reservado para la longitud, se use o no.
+   // Activamos la señal de conversión del ADC
+
+   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := Char($FF-Integer(pADCsoc)); Inc(i);
+   LongBuffer[i] := Char($FB); Inc(i);
+   // Esperamos un poco hasta que termine la conversión
+   // We set the aproppiate OS pins for each oversampling ratio
+   case OSRatio of
+    2:
+    begin
+      //tconv := 19;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i)
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    4:
+    begin
+      //tconv := 38;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos1)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i)
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    8:
+    begin
+      //tconv := 78;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos1)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    16:
+    begin
+      //tconv := 156;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    32:
+    begin
+      //tconv := 316;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    64:
+    begin
+      //tconv := 630;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos1)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+   else // No oversampling, or wrong input value
+   begin
+   for wait:= 0 to old_tconv-1 do
+   begin
+    LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+    LongBuffer[i] := Char($FF); Inc(i);
+    LongBuffer[i] := Char($FB); Inc(i);
+   end;
+   // Rrestore CONVST and set CS to start reading
+   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+   LongBuffer[i] := Char($FB); Inc(i);
+   end;
+   end;
+   // Leemos los datos del ADC
+   LongBuffer[i] := Char(MPSSE_CmdReadDI); Inc(i);
+   Assert(Lo(MessageLength) = 11);
+   Assert(Hi(MessageLength) = 0);
+   LongBuffer[i] := Char(Lo(MessageLength)); Inc(i);
+   LongBuffer[i] := Char(Hi(MessageLength)); Inc(i);
+   //LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
+   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := Char($FF); Inc(i);
+   LongBuffer[i] := Char($FB); Inc(i);
+   // don't remove this line, its very important
+   // it tanks the PID performance otherwise
+   LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
+   //LongBuffer[0] := Char(i-1); // Longitud de la cadena
+   //RealBuffLength.Caption := IntToStr(i-1);
+   Assert(Length(LongBuffer) = i-1);
+  //end;
+
+  setLength(datosum, NUM_ADCs);
+  for j := 0 to NUM_ADCs-1 do
+    datosum[j]:=0 ;    // Se pone a 0 al principio del bucle
+  //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
+  //RealBuffLength.Caption := IntToStr(i-1);
+  //Assert(Length(LongBuffer) = i-1);
+  BytesToWrite:= Length (LongBuffer);
+  i:=0;
+  while (i < n) do // Si se usa un for el optimizador se pasa de listo
+  begin
+    ReceivesBytes:=0;
+
+    // Si tenemos que pedir los datos, los pedimos
+    //if ((action = AdcWriteCommand) or (action = AdcWriteRead)) then
+    //begin
+       // Nacho Horcas, agosto de 2017
+       // Si sólo se tiene que guardar la instrucción en el buffer, se guarda y no se envía nada
+       if (BufferOut = nil) then
+       begin
+         SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(LongBuffer[1]), BytesToWrite, @BytesWritten);
+         If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
+             if not simulating then MessageDlg('error al pedir los datos de los ADCs', mtError, [mbOk], 0);
+       end
+       else
+         CopyMemory(BufferOut+i*BytesToWrite, Addr(LongBuffer[1]), BytesToWrite);
+    //end;
+
+    // Si tenemos que leer los datos, los leemos
+    //if ((action = AdcReadData) or (action = AdcWriteRead)) then
+    //begin
+      ReceivesBytes:=0;
+      BytesToReceive := 2 * NUM_ADCs ;   //   Por cada canal A/D debo recibir 2 bytes, 6Ch x 2 =12bytes
+
+      intentos := 0;
+      Repeat
+        SPI_Ret:= FT_GetQueueStatus(SupraSPI_Hdl, @ReceivesBytes);
+         //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+         //OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+        intentos := intentos+1;
+      Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK) or (intentos > 10000);
+      if (ReceivesBytes >= BytesToReceive) then OutputDebugString(PChar( 'Exit reason: Reached Requested bytes' ))
+      else if (SPI_Ret <> FT_OK) then OutputDebugString(PChar( 'Exit reason: FT_Status Error' ))
+      else if (intentos > 10000) then OutputDebugString(PChar( 'Exit reason: Number of tries exceeded' ));
+      OutputDebugString(PChar('Tries: ' + IntToStr(intentos) ));
+
+               //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+         OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+      If SPI_Ret <> FT_OK then
+        if not simulating then MessageDlg(Format('TDataForm.adc_take_all. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
+
+      if (ReceivesBytes < BytesToReceive) then // No nos han llegado los datos en un tiempo prudencial. Intentamos salvar los muebles
+      begin
+        for j := 0 to BytesToReceive-1 do
+          FT_In_Buffer[j] := 0;
+        BytesToReceive := ReceivesBytes;
+      end;
+
+
+      BytesReturned:=0;
+
+      // LECTURA DE DATOS ADC RECIBIDOS
+
+      // Nacho, agosto de 2017. Antes se leía todo el buffer, en lugar de sólo lo que interesaba.
+      // Mantengo ese caso por compatibilidad, para que no llegen los datos desfasados
+      // Si se mantiene la condición, a veces se roban datos. (Comprobar si sigue pasando tras cambiar los índices de los buffers)
+      //if (action = AdcWriteRead) then
+      //begin
+        if (ReceivesBytes <> BytesToReceive) then
+        begin
+          Str( ReceivesBytes, sTexto );
+          OutputDebugString(PChar('Recibidos: ' + sTexto + ' de ' + IntToStr(BytesToReceive) ));
+        end;
+        SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, ReceivesBytes, @BytesReturned);
+        OutputDebugString(PChar( 'Read: ' + IntToStr(BytesReturned) + ' out of ' +  IntToStr(BytesToReceive) + ' requested in single action'));
+      //end
+
+      If SPI_Ret <> 0 then
+        if not simulating then MessageDlg(Format('error al leer los datos ADC: %d',[SPI_Ret]), mtError, [mbOk], 0);
+
+      for j := 0 to NUM_ADCs-1 do
+      begin
+        numres := ord(FT_In_Buffer[(j*2)])*256 +  ( ord(FT_In_Buffer[(j*2+1)]));
+        if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
+        resultadoooo:=numres/32768;
+        if simulating then resultadoooo := simulatedDac[ScanForm.XDAC]/$8000+Random/100;
+        datosum[j] := datosum[j] + resultadoooo ; // we could usea an Int here with no loss of precision
+      end;
+    //end;
+
+    Inc(i);
+  end;   // Del while
+
+  SetLength(Result, NUM_ADCs);
+
+  // Si tenemos que leer los datos, escribimos en la variable de retorno los
+  // valores leídos promediados.
+  //if ((action = AdcReadData) or (action = AdcWriteRead)) then
+  //begin
+    for j := 0 to NUM_ADCs-1 do
+    begin
+      f:=datosum[j]/n ;
+      if TRAZAS then
+      begin
+      Str( j, sTexto );
+      Str( f, sTexto2 );
+      MessageDlg('El valor medio del canal '+Stexto+' es :'+Stexto2, mtError, [mbOk], 0);
+      end;
+      Result[j]:=f;
+    end;
+  //end
+
+end;
+
+
+function TDataForm.adc_take_all_read(n:Integer; BufferOut: PAnsiChar;OSRatio: Byte) : TVectorDouble ;
+
+Var sTexto:String;
+Var sTexto2:String;
+Var sTexto3:String;
+
+var SPI_Ret:Integer;
+var BytesToWrite: Integer;
+var BytesWritten:Integer;
+var BytesToReceive:Integer;
+//var numADCChannels:Integer;
+//var ReceivesBytes:Integer;
+var ReceivesBytes: Cardinal;
+var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
+//var BytesReturned:Integer;
+var BytesReturned: Cardinal;
+var numres:longint;
+var resultadoooo:extended;
+var i:integer;
+var j:integer;
+
+var datosum: TVectorDouble ;
+var   f : double ;
+//La longitud del mensaje solo depende del numero de dacs que es conocido, asi que lo fijamos como constante
+const MessageLength : Word = 2 * NUM_ADCs -1;
+var wait:Word;
+const old_tconv: Word = 8; //number of cycles to wait between CONVST pulling up and CS pins pulling down
+// This time is necesary to allow for the ADC to finish the read
+var tconv: Word; //variable number of cicles to wait depending on oversampling ratio
+var intentos: Integer; // Para pruebas de cuando faltan datos
+var LongBuffer: AnsiString;
+
+begin
+  //tconv:=5; //number of cycles to wait between CONVST pulling up and CS pins pulling down
+
+  //The value was set to 5, but it should be 7 in order to meet
+  //the 4.2us (4.0us avg) interval that the ADC specification requires
+  // if the clock is actually 2MHz, it should be at least 8, if not 9
+  if (n<1) then Exit ;
+
+  setLength(datosum, NUM_ADCs);
+  for j := 0 to NUM_ADCs-1 do
+    datosum[j]:=0 ;    // Se pone a 0 al principio del bucle
+  //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
+  //RealBuffLength.Caption := IntToStr(i-1);
+  //Assert(Length(LongBuffer) = i-1);
+  BytesToWrite:= Length (LongBuffer);
+  i:=0;
+  while (i < n) do // Si se usa un for el optimizador se pasa de listo
+  begin
+    ReceivesBytes:=0;
+
+    // Si tenemos que leer los datos, los leemos
+    //if ((action = AdcReadData) or (action = AdcWriteRead)) then
+    //begin
+      ReceivesBytes:=0;
+      BytesToReceive := 2 * NUM_ADCs ;   //   Por cada canal A/D debo recibir 2 bytes, 6Ch x 2 =12bytes
+
+      intentos := 0;
+      Repeat
+        SPI_Ret:= FT_GetQueueStatus(SupraSPI_Hdl, @ReceivesBytes);
+         //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+         //OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+        intentos := intentos+1;
+      Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK) or (intentos > 10000);
+      if (ReceivesBytes >= BytesToReceive) then OutputDebugString(PChar( 'Exit reason: Reached Requested bytes' ))
+      else if (SPI_Ret <> FT_OK) then OutputDebugString(PChar( 'Exit reason: FT_Status Error' ))
+      else if (intentos > 10000) then OutputDebugString(PChar( 'Exit reason: Number of tries exceeded' ));
+      OutputDebugString(PChar('Tries: ' + IntToStr(intentos) ));
+
+               //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+         OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+      If SPI_Ret <> FT_OK then
+        if not simulating then MessageDlg(Format('TDataForm.adc_take_all. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
+
+      if (ReceivesBytes < BytesToReceive) then // No nos han llegado los datos en un tiempo prudencial. Intentamos salvar los muebles
+      begin
+        for j := 0 to BytesToReceive-1 do
+          FT_In_Buffer[j] := 0;
+        BytesToReceive := ReceivesBytes;
+      end;
+
+
+      BytesReturned:=0;
+
+      // LECTURA DE DATOS ADC RECIBIDOS
+
+      // Nacho, agosto de 2017. Antes se leía todo el buffer, en lugar de sólo lo que interesaba.
+      // Mantengo ese caso por compatibilidad, para que no llegen los datos desfasados
+      // Si se mantiene la condición, a veces se roban datos. (Comprobar si sigue pasando tras cambiar los índices de los buffers)
+
+
+
+        SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, BytesToReceive, @BytesReturned);
+        OutputDebugString(PChar( 'Read: ' + IntToStr(BytesReturned) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+
+      If SPI_Ret <> 0 then
+        if not simulating then MessageDlg(Format('error al leer los datos ADC: %d',[SPI_Ret]), mtError, [mbOk], 0);
+
+      for j := 0 to NUM_ADCs-1 do
+      begin
+        numres := ord(FT_In_Buffer[(j*2)])*256 +  ( ord(FT_In_Buffer[(j*2+1)]));
+        if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
+        resultadoooo:=numres/32768;
+        if simulating then resultadoooo := simulatedDac[ScanForm.XDAC]/$8000+Random/100;
+        datosum[j] := datosum[j] + resultadoooo ; // we could usea an Int here with no loss of precision
+      end;
+    //end;
+
+    Inc(i);
+  end;   // Del while
+
+  SetLength(Result, NUM_ADCs);
+
+  // Si tenemos que leer los datos, escribimos en la variable de retorno los
+  // valores leídos promediados.
+  //if ((action = AdcReadData) or (action = AdcWriteRead)) then
+  //begin
+    for j := 0 to NUM_ADCs-1 do
+    begin
+      f:=datosum[j]/n ;
+      if TRAZAS then
+      begin
+      Str( j, sTexto );
+      Str( f, sTexto2 );
+      MessageDlg('El valor medio del canal '+Stexto+' es :'+Stexto2, mtError, [mbOk], 0);
+      end;
+      Result[j]:=f;
+    end;
+  //end
+
+end;
+
+
+function TDataForm.adc_take_all_write(n:Integer; BufferOut: PAnsiChar;OSRatio: Byte) : TVectorDouble ;
+
+Var sTexto:String;
+Var sTexto2:String;
+Var sTexto3:String;
+
+var SPI_Ret:Integer;
+var BytesToWrite: Integer;
+var BytesWritten:Integer;
+var BytesToReceive:Integer;
+//var numADCChannels:Integer;
+//var ReceivesBytes:Integer;
+var ReceivesBytes: Cardinal;
+var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
+//var BytesReturned:Integer;
+var BytesReturned: Cardinal;
+var numres:longint;
+var resultadoooo:extended;
+var i:integer;
+var j:integer;
+
+var datosum: TVectorDouble ;
+var   f : double ;
+//La longitud del mensaje solo depende del numero de dacs que es conocido, asi que lo fijamos como constante
+const MessageLength : Word = 2 * NUM_ADCs -1;
+var wait:Word;
+const old_tconv: Word = 8; //number of cycles to wait between CONVST pulling up and CS pins pulling down
+// This time is necesary to allow for the ADC to finish the read
+var tconv: Word; //variable number of cicles to wait depending on oversampling ratio
+var intentos: Integer; // Para pruebas de cuando faltan datos
+var LongBuffer: AnsiString;
+
+begin
+  //tconv:=5; //number of cycles to wait between CONVST pulling up and CS pins pulling down
+
+  //The value was set to 5, but it should be 7 in order to meet
+  //the 4.2us (4.0us avg) interval that the ADC specification requires
+  // if the clock is actually 2MHz, it should be at least 8, if not 9
+  if (n<1) then Exit ;
+
+  //if ((action = AdcWriteCommand) or (action = AdcWriteRead)) then
+  //begin
+   case OSRatio of
+    2:
+    begin
+    tconv:=8; //~8.75us //19;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    4:
+    begin
+    tconv:=17; //~19.2us //38;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    8:
+    begin
+    tconv:=35; //~40.35us //78;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    16:
+    begin
+    tconv:=68;//~78.6us //156;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    32:
+    begin
+    tconv:=136;//~158us //316;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+    64:
+    begin
+    tconv:=272;//~317.4us //630;
+    setLength(LongBuffer,10+6*(tconv+1));
+    end;
+   else
+    setLength(LongBuffer,10+3*(old_tconv+1));
+   end;
+   //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
+   // Construyo la cadena que se enviará. Será la misma en todas las iteraciones
+   // Si es sólo ponerla en el buffer, hay que copiarla para cada iteración.
+   i := 1; // El primer caracter está reservado para la longitud, se use o no.
+   // Activamos la señal de conversión del ADC
+
+   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := Char($FF-Integer(pADCsoc)); Inc(i);
+   LongBuffer[i] := Char($FB); Inc(i);
+   // Esperamos un poco hasta que termine la conversión
+   // We set the aproppiate OS pins for each oversampling ratio
+   case OSRatio of
+    2:
+    begin
+      //tconv := 19;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i)
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    4:
+    begin
+      //tconv := 38;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos1)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i)
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    8:
+    begin
+      //tconv := 78;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos1)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    16:
+    begin
+      //tconv := 156;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    32:
+    begin
+      //tconv := 316;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos0)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Disable OS pins and restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+    64:
+    begin
+      //tconv := 630;
+      for wait:= 0 to tconv-1 do
+      begin
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)+Integer(pADCos2)+Integer(pADCos1)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      end;
+      // Restore CONVST
+      // Set CS to start reading
+      LongBuffer[i] := Char(MPSSE_CmdSetPortH); Inc(i);
+      LongBuffer[i] := Char(Integer(pDIOcs)); Inc(i);
+      LongBuffer[i] := Char($FF); Inc(i);
+      LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+      LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+      LongBuffer[i] := Char($FB); Inc(i);
+    end;
+   else // No oversampling, or wrong input value
+   begin
+   for wait:= 0 to old_tconv-1 do
+   begin
+    LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+    LongBuffer[i] := Char($FF); Inc(i);
+    LongBuffer[i] := Char($FB); Inc(i);
+   end;
+   // Rrestore CONVST and set CS to start reading
+   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := Char($FF-Integer(pADCcs)); Inc(i);
+   LongBuffer[i] := Char($FB); Inc(i);
+   end;
+   end;
+   // Leemos los datos del ADC
+   LongBuffer[i] := Char(MPSSE_CmdReadDI); Inc(i);
+   Assert(Lo(MessageLength) = 11);
+   Assert(Hi(MessageLength) = 0);
+   LongBuffer[i] := Char(Lo(MessageLength)); Inc(i);
+   LongBuffer[i] := Char(Hi(MessageLength)); Inc(i);
+   //LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
+   LongBuffer[i] := Char(MPSSE_CmdSetPortL); Inc(i);
+   LongBuffer[i] := Char($FF); Inc(i);
+   LongBuffer[i] := Char($FB); Inc(i);
+   // don't remove this line, its very important
+   // it tanks the PID performance otherwise
+   LongBuffer[i] := Char(MPSSE_CmdSendInmediate); Inc(i);
+   //LongBuffer[0] := Char(i-1); // Longitud de la cadena
+   //RealBuffLength.Caption := IntToStr(i-1);
+   Assert(Length(LongBuffer) = i-1);
+  //end;
+
+  setLength(datosum, NUM_ADCs);
+  for j := 0 to NUM_ADCs-1 do
+    datosum[j]:=0 ;    // Se pone a 0 al principio del bucle
+  //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
+  //RealBuffLength.Caption := IntToStr(i-1);
+  //Assert(Length(LongBuffer) = i-1);
+  BytesToWrite:= Length (LongBuffer);
+  i:=0;
+  while (i < n) do // Si se usa un for el optimizador se pasa de listo
+  begin
+    ReceivesBytes:=0;
+
+    // Si tenemos que pedir los datos, los pedimos
+    //if ((action = AdcWriteCommand) or (action = AdcWriteRead)) then
+    //begin
+       // Nacho Horcas, agosto de 2017
+       // Si sólo se tiene que guardar la instrucción en el buffer, se guarda y no se envía nada
+       if (BufferOut = nil) then
+       begin
+         SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(LongBuffer[1]), BytesToWrite, @BytesWritten);
+         If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
+             if not simulating then MessageDlg('error al pedir los datos de los ADCs', mtError, [mbOk], 0);
+       end
+       else
+         CopyMemory(BufferOut+i*BytesToWrite, Addr(LongBuffer[1]), BytesToWrite);
+    //end;
+
+
+    Inc(i);
+  end;   // Del while
+
+  SetLength(Result, NUM_ADCs);
+
+  // Si tenemos que leer los datos, escribimos en la variable de retorno los
+  // valores leídos promediados.
+
+  //else
+  //begin
+    // Devolvemos en la primera posición el número de bytes que hemos escrito en el buffer
+    Result[0] := BytesToWrite*n;
+  //end;
+
+end;
+
+// values for recording the curve go between value1 and value2. The voltage will start in startval
+// step through values until it reaches value1 without taking ADC reads.
+// once value2 is reached, the DAC would again step up to finalval without ADC reads again.
+//Substitute the generic adc_take_all by explicit functions for each action: Write, Read and WriteRead
+function TDataForm.ramp_take_simple(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
+var
+i,j,Loc_ADCTopo,Loc_ADCI, Loc_ADCOther: Integer;
+Loc_CalTopo,Loc_AmpTopo,Loc_AmpI,Loc_MultI,Loc_AmpOther,Loc_MultOther,Step,DacVal: Double;
+ReceivesBytes, BytesToReceive: Integer;
+adcRead: TVectorDouble;
+BufferMem: Array[0..FT_Out_Buffer_Size] of Byte;
+safeBufferSize: Integer; // Cuando el buffer se llene hasta esta cantidad de datos, los enviaremos. Debe ser sensiblemente menor que el tamaño del buffer para evitar que se desborde
+BufferPtr: PAnsiChar;
+SPI_Ret: FTC_STATUS;
+PreStep, PosStep: Double;
+s: Integer;
+begin
+
+  safeBufferSize := Round(Length(BufferMem)*0.8);
+  if (not blockAcq) then
+    safeBufferSize := 0; // Si la adquisición es punto a punto no usamos el buffer y enviamos siempre los datos
+
+  Step:=(value2-value1)/((npoints-1)*jump);
+  PreStep:=(value1-startval)/prejump; // go from the startval to the first curve value in prejump steps
+  PosStep:=(finalval-value2)/prejump;
+  //Cogemos variables de la config del scanner
+  Loc_CalTopo:=ScanForm.CalTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_ADCTopo:=ScanForm.ADCTopo;
+
+  Loc_AmpI:=ScanForm.AmpI;
+  Loc_MultI:=ScanForm.MultI;
+  Loc_ADCI:=ScanForm.ADCI;
+
+  Loc_AmpOther:=ScanForm.AmpOther;
+  Loc_MultOther:=ScanForm.MultOther;
+  Loc_ADCOther:=ScanForm.ADCOther;
+
+  // Lectura de UNA rampa de ida o vuelta
+  BufferPtr := Addr(BufferMem[0]);
+  // first we
+  //Initial dac Value
+  DacVal:=startval;
+  s := 0;
+  if PreStep <> 0 then
+  begin
+    BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  while s < (prejump-1) do
+  begin
+    DacVal := DacVal+PreStep;
+    BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+    Inc(s);
+  end;
+
+  //Mandamos la rampa previa a la curva
+  if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+  begin
+    send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+    BufferPtr := Addr(BufferMem[0]);
+  end;
+  end;
+
+  DacVal:=value1;
+  BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  //Save first x axis value
+  if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,0]:=DacVal*LinerForm.x_axisMult/32768;
+  if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+  begin
+    //adcRead := adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+    adcRead := adc_take_all_write(LinerForm.LinerMean, BufferPtr, OSRatio);
+    BufferPtr := BufferPtr + Round(adcRead[0]);
+  end;
+  // Si estamos adquiriendo punto a punto, adquirimos el punto que toque ahora
+  // que hemos enviado el anterior. No lo meto en el mismo envío para no
+  // tener problemas de latencias. Si se usa la adquisición punto a punto es de
+  // suponer que no hay prisa, podemos tardar un poco más en cada punto.
+  if (not blockAcq) then
+  begin
+  //adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcWriteRead, nil,OSRatio);
+  adcRead:=adc_take_all_writeread(LinerForm.LinerMean, nil,OSRatio);
+  if LinerForm.ReadXFromADC then
+  LinerForm.DataX[dataSet,0]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+  if LinerForm.ReadZ then
+  begin
+  //if (Form1.DigitalPID) then
+  //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+  //else
+  LinerForm.DataZ[dataSet,0]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+  end;
+
+  //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+  //Se vuelve a poner Loc_ADCI
+  if LinerForm.ReadCurrent then
+  LinerForm.DataCurrent[dataSet,0]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+  //Hermann, 19/11/2021. se añade una lectura de un ADC adicional
+  if LinerForm.ReadOther then
+  LinerForm.DataOther[dataSet,0]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+  end;
+
+  i:=1;
+  while (LinerForm.Abort_Measure=False) and (i<(npoints)) do
+  begin
+    j := 0;
+
+    // Go to the next point with the given intermediate values
+    while (j < jump) do
+    begin
+      DacVal := DacVal+Step;
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+
+      Inc(j);
+      //if blockAcq then
+        //Application.ProcessMessages; // Para que pueda hacer el feedback digital //Hermann
+    end;
+
+    if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,i]:=DacVal*LinerForm.x_axisMult/32768;
+
+    if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+    begin
+      //adcRead := adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+      adcRead := adc_take_all_write(LinerForm.LinerMean, BufferPtr, OSRatio);
+      BufferPtr := BufferPtr + Round(adcRead[0]);
+    end;
+
+    // Si se llena el buffer, lo enviamos y empezamos de nuevo desde el principio
+    if ((BufferPtr-Addr(BufferMem[0])) > safeBufferSize) then
+    begin
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+    end;
+
+    // Si estamos adquiriendo punto a punto, adquirimos el punto que toque ahora
+    // que hemos enviado el anterior. No lo meto en el mismo envío para no
+    // tener problemas de latencias. Si se usa la adquisición punto a punto es de
+    // suponer que no hay prisa, podemos tardar un poco más en cada punto.
+    if (not blockAcq) then
+    begin
+      //adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcWriteRead, nil,OSRatio);
+      adcRead:=adc_take_all_writeread(LinerForm.LinerMean, nil,OSRatio);
+      if LinerForm.ReadXFromADC then
+        LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+      if LinerForm.ReadZ then
+      begin
+        //if (Form1.DigitalPID) then
+        //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+        //else
+          LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+      end;
+
+      //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+      //Se vuelve a poner Loc_ADCI
+      if LinerForm.ReadCurrent then
+        LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+      //Hermann, 19/11/2021. se añade una lectura de un ADC adicional
+        if LinerForm.ReadOther then
+        LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+    end;
+
+    Inc(i);
+  end;
+
+  //DacVal:=value2; // we should be on value2 at this point
+  s := 0;
+  if PosStep <>0 then
+  begin
+  while s < (prejump-1) do
+  begin
+    DacVal := DacVal+PosStep;
+    BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+    Inc(s);
+  end;
+  BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  end;
+
+  // Si la adquisición es punto a punto, ya habremos terminado. Salimos
+  if (not blockAcq) then
+  begin
+      Result := True;
+      Exit;
+  end;
+
+  // Tenemos un ciclo de latencia, por lo que envío un dato más, para luego
+  // despreciar el primero.
+  // Creo que faltaba el dato del principio, ahora ya no nos have falta
+  //adcRead := adc_take_all_os(1, AdcWriteCommand, BufferPtr,OSRatio);
+  //BufferPtr := BufferPtr + Round(adcRead[0]);
+
+  // Envía todos los datos del buffer
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+
+  // Recibe los datos de los ADCs
+  // La variable i tendrá el número de puntos que realmente ha pedido. Si se ha
+  // parado la adquisición a medias, será menor que PointNumber. Leemos los datos
+  // que realmente hemos pedido. Aquí no comprobamos si nos han pedido que paremos,
+  // sacamos de los buffers todo lo que hemos pedido.
+
+  // Sacamos el dato extra que hemos metido para compensar la latencia.
+  //adc_take_all_os(1, AdcReadData, nil,OSRatio);
+
+  j := i; // Total number of points to read in the curve
+  i:=0;
+  while (i < j) do
+  begin
+    //adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcReadData, nil,OSRatio);
+    adcRead:=adc_take_all_read(LinerForm.LinerMean, nil,OSRatio);
+    if LinerForm.ReadXFromADC then
+      LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+    if LinerForm.ReadZ then
+    begin
+      //if (Form1.DigitalPID) then
+      //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+      //else
+        LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+    end;
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadCurrent then
+      LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadOther then
+      LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+    i:=i+1;
+  end;
+
+  Result := True;
+end;
+
+// values for recording the curve go between value1 and value2. The voltage will start in startval
+// step through values until it reaches value1 without taking ADC reads.
+// once value2 is reached, the DAC would again step up to finalval without ADC reads again.
+function TDataForm.ramp_take_reducesimple(ndac, value1, value2,startval, finalval, dataSet, npoints, jump,prejump: Integer; blockAcq: Boolean;OSRatio: Byte): boolean;
+var
+i,j,Loc_ADCTopo,Loc_ADCI, Loc_ADCOther: Integer;
+Loc_CalTopo,Loc_AmpTopo,Loc_AmpI,Loc_MultI,Loc_AmpOther,Loc_MultOther,Step,DacVal: Double;
+ReceivesBytes, BytesToReceive: Integer;
+adcRead: TVectorDouble;
+BufferMem: Array[0..FT_Out_Buffer_Size] of Byte;
+safeBufferSize: Integer; // Cuando el buffer se llene hasta esta cantidad de datos, los enviaremos. Debe ser sensiblemente menor que el tamaño del buffer para evitar que se desborde
+BufferPtr: PAnsiChar;
+SPI_Ret: FTC_STATUS;
+PreStep, PosStep: Double;
+s: Integer;
+Fill: integer;
+n,m: Integer;
+FlagRead : Boolean;
+begin
+
+  safeBufferSize := Round(Length(BufferMem)*0.8);
+
+  Step:=(value2-value1)/((npoints-1)*jump);
+  PreStep:=(value1-startval)/prejump; // go from the startval to the first curve value in prejump steps
+  PosStep:=(finalval-value2)/prejump;
+  //Cogemos variables de la config del scanner
+  Loc_CalTopo:=ScanForm.CalTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_ADCTopo:=ScanForm.ADCTopo;
+
+  Loc_AmpI:=ScanForm.AmpI;
+  Loc_MultI:=ScanForm.MultI;
+  Loc_ADCI:=ScanForm.ADCI;
+
+  Loc_AmpOther:=ScanForm.AmpOther;
+  Loc_MultOther:=ScanForm.MultOther;
+  Loc_ADCOther:=ScanForm.ADCOther;
+
+  // Lectura de UNA rampa de ida o vuelta
+  BufferPtr := Addr(BufferMem[0]);
+
+  //Initial dac Value
+  DacVal:=startval;
+  s := 0;
+  if PreStep <> 0 then
+  begin
+    BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+    while s < (prejump-1) do
+    begin
+      DacVal := DacVal+PreStep;
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+      Fill := integer(BufferPtr - Addr(BufferMem[0]));
+      if Fill > SafeBufferSize then
+      begin
+        send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+        BufferPtr := Addr(BufferMem[0]);
+      end;
+      Inc(s);
+    end;
+  end;
+  DacVal:=value1; //Set initial DAC value for the ramp
+  BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  //Mandamos la rampa previa a la curva
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  BufferPtr := Addr(BufferMem[0]);
+
+  //Save first x axis value
+  if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,0]:=DacVal*LinerForm.x_axisMult/32768;
+  //if (blockAcq) then // Si la adquisición es por bloques, metemos también la lectura del ADC. Si es punto a punto mejor esperar a que dé la salida.
+  //begin
+  adcRead := adc_take_all_write(LinerForm.LinerMean, BufferPtr, OSRatio);
+  BufferPtr := BufferPtr + Round(adcRead[0]);
+  //BufferPtr := BufferPtr + adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+  //send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  //BufferPtr := Addr(BufferMem[0]);
+  //end;
+
+
+
+  i:=1;
+  while (LinerForm.Abort_Measure=False) and (i<npoints) do
+  begin
+    j := 0;
+    //Move the dac to the next step and send it together with the last ADC read
+    // Go to the next point with the given intermediate values
+    while (j < jump) do
+    begin
+      DacVal := DacVal+Step;
+      BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+      Inc(j);
+      if ((BufferPtr-Addr(BufferMem[0])) > safeBufferSize) then
+      begin
+        //If we surpass the actual buffer size by accident, we put a warning to the user
+        if ((BufferPtr-Addr(BufferMem[0])) >= 65536) then
+        begin
+        MessageDlg('The instructions sent surpass the buffer size.', mtError, [mbOk], 0);
+        end;
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+      end;
+    end;
+    if not LinerForm.ReadXFromADC then LinerForm.DataX[dataSet,i]:=DacVal*LinerForm.x_axisMult/32768;
+
+    //Read the previous point ADC values
+    adcRead:=adc_take_all_read2(LinerForm.LinerMean,FlagRead);
+    if LinerForm.ReadXFromADC then
+      LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+    if LinerForm.ReadZ then
+    begin
+      //if (Form1.DigitalPID) then
+      //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+      //else
+        LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+    end;
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadCurrent then
+      LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+    //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+    // Volver a poner Loc_ADCI
+    if LinerForm.ReadOther then
+      LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+
+
+    //Now request the ADC reads from the current value, and set up the next one
+
+    adcRead := adc_take_all_write(LinerForm.LinerMean, BufferPtr, OSRatio);
+    BufferPtr := BufferPtr + Round(adcRead[0]);
+    //BufferPtr := BufferPtr + adc_take_all_os(LinerForm.LinerMean, AdcWriteCommand, BufferPtr, OSRatio);
+    if ((BufferPtr-Addr(BufferMem[0])) > safeBufferSize) then
+    begin
+      //If we surpass the actual buffer size by accident, we put a warning to the user
+      if ((BufferPtr-Addr(BufferMem[0])) >= 65536) then
+      begin
+      MessageDlg('The instructions sent surpass the buffer size.', mtError, [mbOk], 0);
+      end;
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+    end;
+
+
+
+
+    Inc(i);
+  end;
+  //send the remaining commands
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  BufferPtr := Addr(BufferMem[0]);
+
+  //Read the last ADC values remaining
+  adcRead:=adc_take_all_read(LinerForm.LinerMean, nil,OSRatio);
+  if LinerForm.ReadXFromADC then
+    LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
+
+  if LinerForm.ReadZ then
+  begin
+  //if (Form1.DigitalPID) then
+  //  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*Action_PID/32768
+  //else
+  LinerForm.DataZ[dataSet,i]:=Loc_CalTopo*Loc_AmpTopo*adcRead[Loc_ADCTopo];
+  end;
+
+  //Hemos cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+  // Volver a poner Loc_ADCI
+  if LinerForm.ReadCurrent then
+    LinerForm.DataCurrent[dataSet,i]:=Loc_AmpI*Loc_MultI*adcRead[Loc_ADCI];
+
+  // cambiado Loc_ADCI por x_axisADC en el primer parámetro de adc_take para que el canal de ADC sea el de config liner
+  // Volver a poner Loc_ADCI
+  if LinerForm.ReadOther then
+    LinerForm.DataOther[dataSet,i]:=Loc_AmpOther*Loc_MultOther*adcRead[Loc_ADCOther];
+
+  //DacVal:=value2; // we should be on value2 at this point
+  s := 0;
+  if PosStep <>0 then
+  begin
+  while s < (prejump-1) do
+  begin
+    DacVal := DacVal+PosStep;
+    BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+    Fill := integer(BufferPtr - Addr(BufferMem[0]));
+    if Fill > SafeBufferSize then
+    begin
+      send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+      BufferPtr := Addr(BufferMem[0]);
+    end;
+    Inc(s);
+  end;
+  //Final dac Value
+  DacVal:=finalval;
+  BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  end;
+
+  //BufferPtr := BufferPtr + dac_set(LinerForm.x_axisDAC, Round(DacVal), BufferPtr);
+  send_buffer(Addr(BufferMem[0]), BufferPtr-Addr(BufferMem[0]));
+  BufferPtr := Addr(BufferMem[0]);
+
+  Result := True;
+end;
+
+
+function TDataForm.adc_take_all_read2(n:Integer; ExitFlag:Boolean) : TVectorDouble ;
+
+Var sTexto:String;
+Var sTexto2:String;
+Var sTexto3:String;
+
+var SPI_Ret:Integer;
+var BytesToReceive:Integer;
+//var numADCChannels:Integer;
+//var ReceivesBytes:Integer;
+var ReceivesBytes: Cardinal;
+var FT_In_Buffer: array [0..14] of Byte; //En ppio. tamaño suficiente para esta versión
+//var BytesReturned:Integer;
+var BytesReturned: Cardinal;
+//var BytesReturned: arrat;
+var numres:longint;
+var resultadoooo:extended;
+var i:integer;
+var j:integer;
+
+var datosum: TVectorDouble ;
+var   f : double ;
+//La longitud del mensaje solo depende del numero de dacs que es conocido, asi que lo fijamos como constante
+var intentos: Integer; // Para pruebas de cuando faltan datos
+
+begin
+
+  if (n<1) then Exit ;
+
+  setLength(datosum, NUM_ADCs);
+  for j := 0 to NUM_ADCs-1 do
+    datosum[j]:=0 ;    // Se pone a 0 al principio del bucle
+  //BuffLengthTxt.Caption := IntToStr(Length(LongBuffer));
+  //RealBuffLength.Caption := IntToStr(i-1);
+  //Assert(Length(LongBuffer) = i-1);
+  i:=0;
+  while (i < n) do // Si se usa un for el optimizador se pasa de listo
+  begin
+    ReceivesBytes:=0;
+
+      BytesToReceive := 2 * NUM_ADCs ;   //   Por cada canal A/D debo recibir 2 bytes, 6Ch x 2 =12bytes
+
+      intentos := 0;
+      Repeat
+        SPI_Ret:= FT_GetQueueStatus(SupraSPI_Hdl, @ReceivesBytes);
+         //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+         //OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+        intentos := intentos+1;
+        sleep(1);
+      Until (ReceivesBytes >= BytesToReceive) Or (SPI_Ret <> FT_OK) or (intentos > 10000);
+      if (ReceivesBytes >= BytesToReceive) then OutputDebugString(PChar( 'Exit reason: Reached Requested bytes' ))
+      else if (SPI_Ret <> FT_OK) then OutputDebugString(PChar( 'Exit reason: FT_Status Error' ))
+      else if (intentos > 10000) then OutputDebugString(PChar( 'Exit reason: Number of tries exceeded' ));
+      OutputDebugString(PChar('Tries: ' + IntToStr(intentos) ));
+
+      //OutputDebugString(PChar( 'Queue Status ' + IntToStr(SPI_Ret) ));
+      OutputDebugString(PChar( 'Recieved: ' + IntToStr(ReceivesBytes) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+      If (SPI_Ret <> FT_OK) and (not simulating) then
+      begin
+         MessageDlg(Format('TDataForm.adc_take_all. Error al leer (%d)', [SPI_Ret]), mtError, [mbOk], 0);
+      end;
+
+      if (ReceivesBytes < BytesToReceive) then // No nos han llegado los datos en un tiempo prudencial. Intentamos salvar los muebles
+      begin
+        for j := 0 to BytesToReceive-1 do
+          FT_In_Buffer[j] := 0;
+        BytesToReceive := ReceivesBytes;
+      end;
+
+
+      BytesReturned:=0;
+
+      // LECTURA DE DATOS ADC RECIBIDOS
+
+      // Nacho, agosto de 2017. Antes se leía todo el buffer, en lugar de sólo lo que interesaba.
+      // Mantengo ese caso por compatibilidad, para que no llegen los datos desfasados
+      // Si se mantiene la condición, a veces se roban datos. (Comprobar si sigue pasando tras cambiar los índices de los buffers)
+
+
+
+        SPI_Ret := FT_Read(SupraSPI_Hdl, @FT_In_Buffer, BytesToReceive, @BytesReturned);
+        OutputDebugString(PChar( 'Read: ' + IntToStr(BytesReturned) + ' out of ' +  IntToStr(BytesToReceive) + ' requested'));
+
+      If (SPI_Ret <> 0)  and (not simulating) then
+      begin
+         MessageDlg(Format('error al leer los datos ADC: %d',[SPI_Ret]), mtError, [mbOk], 0);
+         // return with error instead
+      end;
+
+      for j := 0 to NUM_ADCs-1 do
+      begin
+        numres := ord(FT_In_Buffer[(j*2)])*256 +  ( ord(FT_In_Buffer[(j*2+1)]));
+        if  numres > 32767             then    numres:=numres - 65536;      //Conversión (condicional) a nºs negativos
+        resultadoooo:=numres/32768;
+        if simulating then resultadoooo := simulatedDac[ScanForm.XDAC]/$8000+Random/100;
+        datosum[j] := datosum[j] + resultadoooo ; // we could usea an Int here with no loss of precision
+      end;
+    //end;
+
+    Inc(i);
+  end;   // Del while
+
+  SetLength(Result, NUM_ADCs);
+
+  // Si tenemos que leer los datos, escribimos en la variable de retorno los
+  // valores leídos promediados.
+  //if ((action = AdcReadData) or (action = AdcWriteRead)) then
+  //begin
+    for j := 0 to NUM_ADCs-1 do
+    begin
+      f:=datosum[j]/n ;
+      if TRAZAS then
+      begin
+      Str( j, sTexto );
+      Str( f, sTexto2 );
+      MessageDlg('El valor medio del canal '+Stexto+' es :'+Stexto2, mtError, [mbOk], 0);
+      end;
+      Result[j]:=f;
+    end;
+  //end
+
 end;
 
 end.
