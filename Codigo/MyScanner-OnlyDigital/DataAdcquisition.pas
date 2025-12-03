@@ -66,12 +66,12 @@ type
     Label2: TLabel;
     Button2: TButton;
     SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
+    DacNrSpin: TSpinEdit;
     Label3: TLabel;
-    ScrollBar1: TScrollBar;
+    DacValScroll: TScrollBar;
     Label4: TLabel;
     SpinEdit3: TSpinEdit;
-    Button3: TButton;
+    ZeroBtn: TButton;
     Label5: TLabel;
     Label6: TLabel;
     Button4: TButton;
@@ -96,7 +96,7 @@ type
     DACValSpin: TSpinEdit;
 
     procedure Button1Click(Sender: TObject);
-    procedure ScrollBar1Change(Sender: TObject);
+    procedure DacValScrollChange(Sender: TObject);
     function InitDataAcq : boolean ;
     function dac_set(ndac,valor:integer; BufferOut: PAnsiChar) : integer;
     function dac_set_buff(ndac: Integer; valor:SmallInt; BufferOut: PAnsiChar) : integer;
@@ -129,7 +129,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure OSReadClick(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure ZeroBtnClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
@@ -145,6 +145,7 @@ type
     procedure DIODirectionClick(Sender: TObject);
     procedure DIOSeqOpClick(Sender: TObject);
     procedure DACValSpinChange(Sender: TObject);
+    procedure DacNrSpinChange(Sender: TObject);
 
 
 
@@ -2432,15 +2433,18 @@ begin
 InitDataAcq;
 end;
 //Esta se queda
-procedure TDataForm.ScrollBar1Change(Sender: TObject);
+procedure TDataForm.DacValScrollChange(Sender: TObject);
 var
 numdac:SmallInt;
 Value:SmallInt;
 begin
-numdac:=SpinEdit2.Value;
-Value:=Scrollbar1.Position;
-
-dac_set(numdac,Value, nil);
+numdac:=DacNrSpin.Value;
+Value:=DacValScroll.Position;
+// Update the DAC value if it was changed
+if Value <> var_gbl.dacValues[numdac] then
+begin
+  dac_set(numdac,Value, nil);
+end;
 Label5.Caption:= FloatToStrF(10*Value/32768,ffGeneral,5,5);
 end;
 //Esta se queda
@@ -2507,10 +2511,10 @@ adc_take_all_os(n,AdcWriteCommand,nil,OSvalue)
 
 end;
 
-procedure TDataForm.Button3Click(Sender: TObject);
+procedure TDataForm.ZeroBtnClick(Sender: TObject);
 begin
-ScrollBar1.Position:=0;
-ScrollBar1Change(nil);
+DacValScroll.Position:=0;
+DacValScrollChange(nil);
 end;
 
 procedure TDataForm.Button4Click(Sender: TObject);
@@ -4452,6 +4456,12 @@ begin
     end;
   //end
 
+end;
+
+procedure TDataForm.DacNrSpinChange(Sender: TObject);
+begin
+//   var_gbl.dacValues[DacNrSpin];
+DacValScroll.Position := var_gbl.dacValues[DacNrSpin.Value];
 end;
 
 end.

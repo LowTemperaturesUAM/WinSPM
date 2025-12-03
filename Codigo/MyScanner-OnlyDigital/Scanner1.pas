@@ -61,8 +61,8 @@ type
     CheckBox3: TCheckBox;
     ShowDirBtn: TButton;
     InitDACBtn: TButton;
-    SpinEdit2: TSpinEdit;
-    ScrollBar1: TScrollBar;
+    DacNrSpin: TSpinEdit;
+    DacValueScroll: TScrollBar;
     OpenDataAcqBtn: TButton;
     CheckBox6: TCheckBox;
     OpenPIDBtn: TButton;
@@ -113,7 +113,7 @@ type
     procedure ShowDirBtnClick(Sender: TObject);
     procedure InitDACBtnClick(Sender: TObject);
     procedure OpenPIDBtnClick(Sender: TObject);
-    procedure ScrollBar1Change(Sender: TObject);
+    procedure DacValueScrollChange(Sender: TObject);
     procedure OpenDataAcqBtnClick(Sender: TObject);
     procedure ResizeBitmap(Bitmap: TBitmap; Width, Height: Integer; Background: TColor);
     procedure ClearBtnClick(Sender: TObject);
@@ -584,6 +584,10 @@ end;
 total:=Round(abs(Princ-Fin));
 
 //Obtain the size of steps. NOTE for N points there are N-1 steps
+//we should probably use an integer as we are probably accumulating some rounding error
+// And round afterwards
+//Besides, this value is going to be the same every line, we can calculate it
+//Before starting the image and carry on with that
 if Fin>Princ then Step:=Round(total/(P_Scan_Lines-1));
 if (Step=0) then Step:=100;
 
@@ -1963,13 +1967,13 @@ begin
 FormPID.Show;
 end;
 
-procedure TScanForm.ScrollBar1Change(Sender: TObject);
+procedure TScanForm.DacValueScrollChange(Sender: TObject);
 var
 dac_num, enviaDac:SmallInt;
 
 begin
-dac_num:=SpinEdit2.Value;
-enviaDac:=ScrollBar1.Position;
+dac_num:=DacNrSpin.Value;
+enviaDac:=DacValueScroll.Position;
 DataForm.dac_set(dac_num,enviaDac, nil);
 end;
 
@@ -1984,7 +1988,7 @@ var
   B: TBitmap;
   X, Y: Integer;
 begin
-  if assigned(Bitmap) then begin   
+  if assigned(Bitmap) then begin
     B:= TBitmap.Create;
     try
 //      if Bitmap.Width > Bitmap.Height then begin

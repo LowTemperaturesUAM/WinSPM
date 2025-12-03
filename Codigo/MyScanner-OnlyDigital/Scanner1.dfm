@@ -510,7 +510,7 @@ object ScanForm: TScanForm
     TabOrder = 19
     OnClick = InitDACBtnClick
   end
-  object SpinEdit2: TSpinEdit
+  object DacNrSpin: TSpinEdit
     Left = 104
     Top = 560
     Width = 41
@@ -521,7 +521,7 @@ object ScanForm: TScanForm
     TabOrder = 20
     Value = 0
   end
-  object ScrollBar1: TScrollBar
+  object DacValueScroll: TScrollBar
     Left = 152
     Top = 560
     Width = 121
@@ -531,7 +531,7 @@ object ScanForm: TScanForm
     Min = -32768
     PageSize = 0
     TabOrder = 21
-    OnChange = ScrollBar1Change
+    OnChange = DacValueScrollChange
   end
   object OpenDataAcqBtn: TButton
     Left = 456

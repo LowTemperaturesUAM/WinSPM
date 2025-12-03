@@ -134,7 +134,7 @@ object DataForm: TDataForm
     TabOrder = 2
     Value = 0
   end
-  object SpinEdit2: TSpinEdit
+  object DacNrSpin: TSpinEdit
     Left = 40
     Top = 51
     Width = 33
@@ -143,8 +143,9 @@ object DataForm: TDataForm
     MinValue = 0
     TabOrder = 3
     Value = 6
+    OnChange = DacNrSpinChange
   end
-  object ScrollBar1: TScrollBar
+  object DacValScroll: TScrollBar
     Left = 79
     Top = 51
     Width = 1250
@@ -154,7 +155,7 @@ object DataForm: TDataForm
     Min = -32768
     PageSize = 0
     TabOrder = 4
-    OnChange = ScrollBar1Change
+    OnChange = DacValScrollChange
   end
   object SpinEdit3: TSpinEdit
     Left = 216
@@ -166,14 +167,14 @@ object DataForm: TDataForm
     TabOrder = 5
     Value = 10
   end
-  object Button3: TButton
+  object ZeroBtn: TButton
     Left = 664
     Top = 10
     Width = 81
     Height = 25
     Caption = 'DAC to 0'
     TabOrder = 6
-    OnClick = Button3Click
+    OnClick = ZeroBtnClick
   end
   object Button4: TButton
     Left = 1000
