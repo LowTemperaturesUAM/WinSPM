@@ -684,9 +684,7 @@ begin
     end
     else
     begin
-      //Record the current value of the Z DAC
-      Zdigital := var_gbl.dacValues[5]; //the data is inverted as is for rev D and E as is
-      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+
       //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
 
@@ -702,7 +700,13 @@ begin
         Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
 
       if DigitalTopo then
+      begin
+        //Record the current value of the Z DAC
+        Zdigital := var_gbl.dacValues[5]; //the data is inverted as is for rev D and E as is
+        Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
         Dat_Image_Forth[3,P_Scan_Lines-1-LineNr,i]:=Zvalue;
+      end;
+
 
     end;
 
@@ -759,15 +763,19 @@ begin
     end
     else
     begin
-      //Record the current value of the Z DAC
-      Zdigital := var_gbl.dacValues[5];
-      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+
       //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
 
       if ReadTopo then Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
       if ReadCurrent then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
-      if DigitalTopo then Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=Zvalue;
+      if DigitalTopo then
+      begin
+        //Record the current value of the Z DAC
+        Zdigital := var_gbl.dacValues[5];
+        Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+        Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=Zvalue;
+      end;
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
@@ -867,9 +875,7 @@ begin
     end
     else
     begin
-      //Record the current value of the Z DAC
-      Zdigital := var_gbl.dacValues[5];
-      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+
       //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
       
@@ -883,7 +889,14 @@ begin
       end;
 
       if ReadCurrent then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
-      if DigitalTopo then Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=Zvalue;
+      if DigitalTopo then
+      begin
+      //Record the current value of the Z DAC
+      Zdigital := var_gbl.dacValues[5];
+      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+      Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=Zvalue;
+      end;
+      
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
@@ -941,9 +954,7 @@ begin
     end
     else
     begin
-      //Record the current value of the Z DAC
-      Zdigital := var_gbl.dacValues[5];
-      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+
       //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
       
@@ -955,7 +966,13 @@ begin
           Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
       end;
       if ReadCurrent then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
-      if DigitalTopo then Dat_Image_Back[3,i,LineNr]:=Zvalue;
+      if DigitalTopo then
+      begin
+        //Record the current value of the Z DAC
+        Zdigital := var_gbl.dacValues[5];
+        Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+        Dat_Image_Back[3,i,LineNr]:=Zvalue;
+      end;
     end;
 
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
