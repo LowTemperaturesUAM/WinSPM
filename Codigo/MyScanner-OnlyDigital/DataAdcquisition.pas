@@ -3001,7 +3001,7 @@ begin
 
     //Read the previous point ADC values
     adcRead:=adc_take_all_os(LinerForm.LinerMean, AdcReadData, nil,OSRatio);
-    if LinerForm.ReadXFromADC then
+    if LinerForm.ReadXFromADC then //we are using the same multiplier, this might not work
       LinerForm.DataX[dataSet,i]:=adcRead[LinerForm.x_axisADC]*LinerForm.x_axisMult;
 
     if LinerForm.ReadZ then

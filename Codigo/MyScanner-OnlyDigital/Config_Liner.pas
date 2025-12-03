@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, Spin;
+  StdCtrls, ExtCtrls, Spin, Math;
 
 type
   TLinerConfig = class(TForm)
@@ -74,23 +74,15 @@ uses Liner, DataAdcquisition, Scanner1;
 {$R *.DFM}
 
 procedure TLinerConfig.FormClose(Sender: TObject; var Action: TCloseAction);
-var
-  NewMultiplier: Double;
 begin
 if RadioGroup1.ItemIndex=0 then LinerForm.ReadXfromADC:=True else
 LinerForm.ReadXfromADC:=False;
 
 LinerForm.x_axisDac:=SpinEdit1.Value;
 LinerForm.x_axisADC:=seADCxaxis.Value;
-//LinerForm.x_axisMult:=StrtoFloat(xDACMultiplier.Text);
-NewMultiplier := StrtoFloat(xDACMultiplier.Text);
-case LinerForm.x_axisDac of
-  0: LinerForm.x_axisMult := NewMultiplier*DataForm.scan_attenuator;
-  2: LinerForm.x_axisMult := NewMultiplier*DataForm.scan_attenuator;
-  5: LinerForm.x_axisMult := NewMultiplier*DataForm.z_attenuator;
-  6: LinerForm.x_axisMult := NewMultiplier*DataForm.bias_attenuator;
-else LinerForm.x_axisMult := NewMultiplier;
-end;
+
+xDACMultiplierCheck(nil);
+
 LinerForm.NumCol:=1;
 if Checkbox1.checked then LinerForm.NumCol:=LinerForm.NumCol+1;
 if Checkbox2.checked then LinerForm.NumCol:=LinerForm.NumCol+1;
@@ -119,6 +111,7 @@ var
 begin
 IsValid := TryStrtoFloat(xDACMultiplier.Text,NewMultiplier);
 if IsValid and (NewMultiplier <> 0) then
+begin
 //Ojo!! si hemos cambiado el DAC de salida y no hemos cerrado la ventana,
 // la escala se actualizara acorde al dac que tuvieramos antes
 case LinerForm.x_axisDac of  // What if is revB?
@@ -127,6 +120,7 @@ case LinerForm.x_axisDac of  // What if is revB?
   5: LinerForm.x_axisMult := NewMultiplier*DataForm.z_attenuator;
   6: LinerForm.x_axisMult := NewMultiplier*DataForm.bias_attenuator;
 else LinerForm.x_axisMult := NewMultiplier;
+end;
 end
 else exit;
 end;
@@ -134,12 +128,40 @@ end;
 procedure TLinerConfig.xDACMultiplierCheck(Sender: TObject);
 var
   NewMultiplier: Double;
+  OldMultiplier: Double;
   IsValid: Boolean;
+  IsSame: Boolean;
 begin
 IsValid := TryStrtoFloat(xDACMultiplier.Text,NewMultiplier);
-if (not IsValid) or (NewMultiplier <> LinerForm.x_axisMult) then
+OldMultiplier := LinerForm.x_axisMult;
+case LinerForm.x_axisDac of
+  0: OldMultiplier := OldMultiplier/DataForm.scan_attenuator;
+  2: OldMultiplier := OldMultiplier/DataForm.scan_attenuator;
+  5: OldMultiplier := OldMultiplier/DataForm.z_attenuator;
+  6: OldMultiplier := OldMultiplier/DataForm.bias_attenuator;
+end;
+// if the value is invalid, we use the one we had before
+//if (not IsValid) or (NewMultiplier <> LinerForm.x_axisMult) then
+if (not IsValid) then
 begin
-xDACMultiplier.Text := FloatToStrF(LinerForm.x_axisMult,ffGeneral,4,4);
+xDACMultiplier.Text := FloatToStrF(OldMultiplier,ffGeneral,4,4);
+end
+else //if is valid, we check if the value has actually changed
+begin
+  IsSame := SameValue(NewMultiplier,OldMultiplier,0);
+  if (not IsSame) and (NewMultiplier <> 0) then
+  case LinerForm.x_axisDac of  // What if is revB?
+  0: LinerForm.x_axisMult := NewMultiplier*DataForm.scan_attenuator;
+  2: LinerForm.x_axisMult := NewMultiplier*DataForm.scan_attenuator;
+  5: LinerForm.x_axisMult := NewMultiplier*DataForm.z_attenuator;
+  6: LinerForm.x_axisMult := NewMultiplier*DataForm.bias_attenuator;
+  else LinerForm.x_axisMult := NewMultiplier;
+  end
+  else if  NewMultiplier = 0 then
+  begin
+  xDACMultiplier.Text := FloatToStrF(OldMultiplier,ffGeneral,4,4);
+  end
+  else exit;
 end;
 end;
 
