@@ -786,7 +786,7 @@ begin
     // COL HEADER
     DS[i]._DataFormat:=4 ;                    // This is single
     //DS[i]._AxisType:=blqdataset.units_current;// Units Current
-    DS[i]._Prom:=1 ;
+    DS[i]._Prom:=LinerMean;
     DS[i]._Offset:=0 ;
     DS[i]._Factor:=1.0 ;                      // No prefactor
     DS[i]._Start:=0 ;
