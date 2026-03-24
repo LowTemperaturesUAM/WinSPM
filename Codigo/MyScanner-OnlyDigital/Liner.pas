@@ -733,45 +733,68 @@ end;
 procedure TLinerForm.saveBLQ(Sender: TObject);
 var
 i,j,k,cols,BlockOffset: Integer;
-Fi_Name,BlockFileName,BlockFile,TakeComment:string;
-number: Double;
+fileNr: Integer;
+curInd: UInt64;
+curveName,BlockFileName,BlockFile,TakeComment:string;
 
 begin
-BlockFileName:=SaveDialog1.Filename+InttoStr(fileNumberSpin.Value)+'.blq';
+fileNr := FileNumberSpin.Value;
+curveName := curveNameEdit.Text;
+//The name for each curve in the blq is only 32 characters long
+// We can skip the check, as we made sure that name999.XXXX has shorter input
+BlockFileName:=SaveDialog1.Filename+InttoStr(fileNr)+'.blq';
 TakeComment:=DateTimeToStr(Now)+#13+#10+
     'T(K)='+FloattoStrF(Temperature,ffGeneral,5,2)+#13+#10+
     'B(T)='+FloattoStrF(MagField,ffGeneral,5,2)+#13+#10+
     'X(nm)='+FloattoStrF(ScanForm.XOffset*10*ScanForm.AmpX*ScanForm.CalX, ffGeneral, 5, 4)+#13+#10+
     'Y(nm)='+FloattoStrF(ScanForm.YOffset*10*ScanForm.AmpY*ScanForm.CalY, ffGeneral, 5, 4)+#13+#10;
-  for k:=0 to 1 do
-  begin
+for k:=0 to 1 do
+begin
   BlockOffset:=k;
-  number:=fileNumberSpin.Value+Presentblknumber/10000+BlockOffset/10000;
-  BlockFile:=curveNameEdit.Text+FloattoStrF(number,ffFixed,5,4);
+  //BlockFile:=curveNameEdit.Text+FloattoStrF(number,ffFixed,5,4);
+  curInd := Presentblknumber+BlockOffset;
+  curInd := curInd mod 10000; // if we go beyond 4 digits, we simply wrap around
+  BlockFile:=curveName+IntToStr(fileNr)+'.'+Format('%4.4d',[curInd]);
   DS:=TblqDataSet.Create(NumCol,PointNumber) ;
   DS._Name:=BlockFile; // Aquí se pone el fichero con .xxxx al final
   DS._BlockFile:=BlockFileName ; // Es el fichero de verdad, como en dd
   DS._BlockOffset:=Presentblknumber+BlockOffset ;
-  DS._Moment:=Now;
+  DS._Moment:=Now;  //this value doesn't mean anything
   DS._Time:=Now ;
-
- for i:=0 to NumCol-1 do
-  begin
-  BlockFile:=SaveDialog1.Filename+InttoStr(fileNumberSpin.Value);
+  //BlockFile:=SaveDialog1.Filename+InttoStr(fileNr); // we don't even use this value at all
   if (k=0) then DS._Comment:=TakeComment+'Forth';
   if (k=1) then DS._Comment:=TakeComment+'Back';
+
+
   // COL HEADER
-  DS[i]._DataFormat:=4 ;                    // This is single
-  DS[i]._AxisType:=blqdataset.units_current;// Units Current
-  DS[i]._Prom:=1 ;                          
-  DS[i]._Offset:=0 ;
-  DS[i]._Factor:=1.0 ;                      // No prefactor
-  DS[i]._Start:=0 ;
-  DS[i]._Size:=1 ;
-  DS[i]._CTime:=0 ;
-  for j:=0 to 3 do DS[j]._ParamA[j]:=0 ;
-    for j:=0 to 7 do DS[j]._ParamB[j]:=0 ;
- end;
+  DS[0]._DataFormat:=4 ;                    // This is single
+  DS[0]._AxisType:=blqdataset.units_voltage;// Units Current
+  DS[0]._Prom:=1 ;
+  DS[0]._Offset:=0 ;
+  DS[0]._Factor:=1.0 ;                      // No prefactor
+  DS[0]._Start:=0 ;
+  DS[0]._Size:=1 ;
+  DS[0]._CTime:=0 ;
+  for j:=0 to 3 do DS[0]._ParamA[j]:=0;
+  for j:=0 to 7 do DS[0]._ParamB[j]:=0;
+
+  for i:=1 to NumCol-1 do
+  begin
+    //BlockFile:=SaveDialog1.Filename+InttoStr(fileNr); // we don't even use this value at all
+    //if (k=0) then DS._Comment:=TakeComment+'Forth';
+    //if (k=1) then DS._Comment:=TakeComment+'Back';
+    // COL HEADER
+    DS[i]._DataFormat:=4 ;                    // This is single
+    //DS[i]._AxisType:=blqdataset.units_current;// Units Current
+    DS[i]._Prom:=1 ;
+    DS[i]._Offset:=0 ;
+    DS[i]._Factor:=1.0 ;                      // No prefactor
+    DS[i]._Start:=0 ;
+    DS[i]._Size:=1 ;
+    DS[i]._CTime:=0 ;
+    for j:=0 to 3 do DS[i]._ParamA[j]:=0 ;
+    for j:=0 to 7 do DS[i]._ParamB[j]:=0 ;
+  end;
 
  for i:=0 to PointNumber-1 do DS[0].Value[i]:=DataX[k,i];
 
@@ -779,16 +802,19 @@ TakeComment:=DateTimeToStr(Now)+#13+#10+
  if ReadZ then
      begin
      cols:=cols+1;
-    for i:=0 to PointNumber-1 do DS[cols].Value[i]:=DataZ[k,i];
+     DS[cols]._AxisType:=blqdataset.units_displacement;// Units of displacement
+     for i:=0 to PointNumber-1 do DS[cols].Value[i]:=DataZ[k,i];
      end;
  if ReadCurrent then
      begin
      cols:=cols+1;
+     DS[cols]._AxisType:=blqdataset.units_current;// Units Current
      for i:=0 to PointNumber-1 do DS[cols].Value[i]:=DataCurrent[k,i];
      end;
  if ReadOther then
      begin
      cols:=cols+1;
+     DS[cols]._AxisType:=blqdataset.units_voltage;// Units Voltage
      for i:=0 to PointNumber-1 do DS[cols].Value[i]:=DataOther[k,i];
      end;
 
@@ -908,18 +934,27 @@ end;
 
 //Set File Name
 procedure TLinerForm.setFileName(Sender: TObject);
+var
+  tempName: string;
 begin
 SaveDialog1.FileName:=curveNameEdit.Text;
 
 if SaveDialog1.Execute then
   begin
-  SaveDialog1.FileName:=SaveDialog1.FileName;
-  Presentblknumber:=0;
+  Presentblknumber:=0; //Reset the curve index and the corresponding text
   lblCurveCount.Caption:=InttoStr(Presentblknumber);
+  //Place the new directory in the corresponding window
   Form9.Label6.Caption:=ExtractFileDir(SaveDialog1.FileName);
+  //Get back the filename without extension, and check that it's not too long
+  tempName := ExtractFileName(SaveDialog1.FileName);
+  tempName := ChangeFileExt(tempName,'');
+  //Make sure the name for the curve fits the 32 byte long field in the blq file
+  if Length(tempName) > 25 then
+  begin
+   tempName := Format('%24.24s',[tempName]);
   end;
-
-curveNameEdit.Text:=ExtractFileName(SaveDialog1.FileName);
+  curveNameEdit.Text:=tempName;
+  end;
 end;
 
 //En principio no hace nada, button10 no existe

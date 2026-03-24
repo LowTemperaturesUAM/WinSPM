@@ -519,6 +519,8 @@ object LinerForm: TLinerForm
       Width = 137
       Height = 21
       Cursor = crIBeam
+      AutoSize = False
+      MaxLength = 24
       TabOrder = 4
       Text = 'FileName'
     end
@@ -536,7 +538,7 @@ object LinerForm: TLinerForm
       Top = 8
       Width = 57
       Height = 22
-      MaxValue = 1000
+      MaxValue = 999
       MinValue = 1
       TabOrder = 6
       Value = 1
@@ -648,6 +650,7 @@ object LinerForm: TLinerForm
     end
   end
   object SaveDialog1: TSaveDialog
+    Ctl3D = False
     Filter = 
       'BLQ files|*.blq|WSxM curve files|*.cur|WSxM spectroscopy files|*' +
       '.gsi|All files|*.*'
