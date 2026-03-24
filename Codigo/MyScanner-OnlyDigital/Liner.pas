@@ -868,7 +868,7 @@ begin
   case dataSet of
     0: begin
       WriteLn(myFile, 'ZV curve file');
-      factorY := 1e9; // m a nm
+      factorY := 1; // data is already in nm
       DataCurve := @DataZ;
     end;
     1:  begin

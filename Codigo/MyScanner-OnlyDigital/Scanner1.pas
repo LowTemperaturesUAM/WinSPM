@@ -604,12 +604,13 @@ TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan
 if (TopoForm.RadioGroup1.ItemIndex = 0) then // Topo
 begin
   channelToPlot := 1;
-  yFactor := StrtoFloat(FormConfig.TopoCalEdit.Text)*StrtoFloat(FormConfig.TopoAmpBox.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
+  yFactor := CalTopo * AmpTopo;
+  //StrtoFloat(FormConfig.TopoCalEdit.Text)*StrtoFloat(FormConfig.TopoAmpBox.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
 end
 else // Current
 begin
   channelToPlot := 2;
-  yFactor := ScanForm.MultI*ScanForm.AmpI;
+  yFactor := MultI * AmpI;
 end;
 
 //Forth

@@ -1892,7 +1892,7 @@ begin
   PosStep:=(finalval-value2)/prejump;
   //Cogemos variables de la config del scanner
   Loc_CalTopo:=ScanForm.CalTopo;
-  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo*10;
   Loc_ADCTopo:=ScanForm.ADCTopo;
 
   Loc_AmpI:=ScanForm.AmpI;
@@ -2492,7 +2492,7 @@ mux,n: SmallInt;
 begin
 mux:=SpinEdit1.Value;
 n:=SpinEdit3.Value;
-Label3.Caption:=FloattoStr(adc_take(mux,mux,n));
+Label3.Caption:=FloattoStr(adc_take(mux,mux,n)*2);
 //adc_take_all(n,AdcWriteCommand,nil)
 
 end;
@@ -2927,7 +2927,7 @@ begin
   PosStep:=(finalval-value2)/prejump;
   //Cogemos variables de la config del scanner
   Loc_CalTopo:=ScanForm.CalTopo;
-  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo*10;
   Loc_ADCTopo:=ScanForm.ADCTopo;
 
   Loc_AmpI:=ScanForm.AmpI;
@@ -3919,7 +3919,7 @@ begin
   PosStep:=(finalval-value2)/prejump;
   //Cogemos variables de la config del scanner
   Loc_CalTopo:=ScanForm.CalTopo;
-  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo*10;
   Loc_ADCTopo:=ScanForm.ADCTopo;
 
   Loc_AmpI:=ScanForm.AmpI;
@@ -4157,7 +4157,7 @@ begin
   PosStep:=(finalval-value2)/prejump;
   //Cogemos variables de la config del scanner
   Loc_CalTopo:=ScanForm.CalTopo;
-  Loc_AmpTopo:=ScanForm.AmpTopo;
+  Loc_AmpTopo:=ScanForm.AmpTopo*10;
   Loc_ADCTopo:=ScanForm.ADCTopo;
 
   Loc_AmpI:=ScanForm.AmpI;
