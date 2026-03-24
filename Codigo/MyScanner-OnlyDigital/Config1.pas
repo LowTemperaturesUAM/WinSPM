@@ -116,17 +116,17 @@ try
   //Parametros de barrido
   SpinEdit1.Value := IniFile.ReadInteger(String(iniTitle), 'XScanDac', 0);
   SpinEdit2.Value := IniFile.ReadInteger(String(iniTitle), 'YScanDac', 2);
-  Combobox1.Text := IniFile.ReadString(String(iniTitle), 'XYAmplifier', '13');
+  Combobox1.Text := IniFile.ReadString(String(iniTitle), 'XYAmplifier', '14');
   Combobox2.Text := Combobox1.Text;
   SpinEdit6.Value := IniFile.ReadInteger(String(iniTitle), 'XPosDac', 1);
   SpinEdit7.Value := IniFile.ReadInteger(String(iniTitle), 'YPosDac', 3);
-  Combobox6.Text := IniFile.ReadString(String(iniTitle), 'XYPosAmp', '13');
+  Combobox6.Text := IniFile.ReadString(String(iniTitle), 'XYPosAmp', '14');
   Combobox7.Text := Combobox6.Text;
   Edit1.Text := IniFile.ReadString(String(iniTitle), 'XYCalibration', '5');
   Edit2.Text := Edit1.Text;
   //Parametros de topo y corriente
   TopoChanEdit.Value := IniFile.ReadInteger(String(iniTitle), 'TopoAdc', 2);
-  TopoAmpBox.Text := IniFile.ReadString(String(iniTitle), 'TopoAmp', '13');
+  TopoAmpBox.Text := IniFile.ReadString(String(iniTitle), 'TopoAmp', '14');
   TopoCalEdit.Text := IniFile.ReadString(String(iniTitle), 'TopoCalibration', '1');
   CurrentChanEdit.Value := IniFile.ReadInteger(String(iniTitle), 'CurrentAdc', 0);
   CurrentAmpBox.Text := IniFile.ReadString(String(iniTitle), 'CurrentAmp', '8');
@@ -394,7 +394,7 @@ if (FormPID.spinPID_In.Value  = ScanForm.ADCI) then
   //Conversion a corriente en nA:
   //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
   //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
-  FormPID.lblCurrentSetPoint.Caption :=Format('%2.2f',[FormPID.scrlbrSetPoint.Position/FormPID.scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI*abs(ScanForm.MultI)] );
+  FormPID.lblCurrentSetPoint.Caption :=Format('%2.2f',[FormPID.scrlbrSetPoint.Position/FormPID.scrlbrSetPoint.Max *1e9* ScanForm.AmpI*abs(ScanForm.MultI)] );
   end
 else
   begin
