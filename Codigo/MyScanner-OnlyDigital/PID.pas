@@ -139,7 +139,7 @@ if (InPID_ADC = ScanForm.ADCI) then
   begin
   lblCurrentLabel.Visible := True;
   lblCurrentSetPoint.Visible := True;
-  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI] );
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max *1e9* ScanForm.AmpI] );
   end
 else
   begin
@@ -168,7 +168,7 @@ begin
   begin
   lblCurrentLabel.Visible := True;
   lblCurrentSetPoint.Visible := True;
-  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI]);
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max *1e9* ScanForm.AmpI]);
   end
   else
   begin
@@ -442,7 +442,7 @@ if (InPID_ADC = ScanForm.ADCI) then
   //Conversion a corriente en nA:
   //El valor del ADC va entre +-1 y la amplificacion nos cambia este valor a Amperios.
   //El SetPoint corresponde con una fraccion de los valores del ADC (SetPoint/Max)
-  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max * 2 *1e9* ScanForm.AmpI*abs(ScanForm.MultI)] );
+  lblCurrentSetPoint.Caption :=Format('%2.2f',[scrlbrSetPoint.Position/scrlbrSetPoint.Max *1e9* ScanForm.AmpI*abs(ScanForm.MultI)] );
   end
 else
   begin
