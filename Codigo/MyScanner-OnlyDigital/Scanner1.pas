@@ -638,12 +638,47 @@ begin
   if MakeX then  // Scan in X
   begin
     if (not StopAction) then
-      begin
+    begin
       if (i<>0)then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);     // El primer paso debe de quedarse quieto !
       LastX:=OldX; // hay que acordarse de donde se sale para volver a aparcar la punta. Esto está un poco mal
       // lo del temporizador lo deja todo muy oscuro, no comprendo bien el resto del código. Hermann 22/09/20
+    end;
+
+    //Record topography
+    xVolt:=OldX/32768*AmpX*10;
+    Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]:=xVolt*CalX;
+    if StopAction then
+    begin    // we already zeroed the image a the begining. This is redundant
+      Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
+      Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
+      //Dat_Image_Forth[3,P_Scan_Lines-1-LineNr,i]:=0; // Set rest of the line as 0
+    end
+    else
+    begin
+
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+
+      if ReadTopo then
+      begin
+          Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCTopo];
       end;
 
+      if ReadCurrent then
+        Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
+
+      if DigitalTopo then
+      begin
+        //Record the current value of the Z DAC
+        Zdigital := var_gbl.dacValues[5]; //the data is inverted as is for rev D and E as is
+        Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+        Dat_Image_Forth[3,P_Scan_Lines-1-LineNr,i]:=Zvalue;
+      end;
+
+
+    end;
+
+    // Record spectra
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then  //si no queremos tomar espectros en cada punto, sino cada varios
     begin
       if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
@@ -675,13 +710,27 @@ begin
       ContadorIV:=ContadorIV+1;
     end;
 
-    xVolt:=OldX/32768*AmpX*10;
-    Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]:=xVolt*CalX;
+    //Paint the topographic data
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
+  end
+  else   // Scan in Y
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      LastY:=OldY; // Lo mismo que arriba.
+    end;
+
+    //Record topography
+    yVolt:=OldY/32768*AmpY*10;
+    Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]:=yVolt*CalY;
+
     if StopAction then
-    begin    // we already zeroed the image a the begining. This is redundant
-      Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=0;
-      Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=0;
-      //Dat_Image_Forth[3,P_Scan_Lines-1-LineNr,i]:=0; // Set rest of the line as 0
+    begin
+      Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=0;
+      Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=0;
+      //Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=0;
     end
     else
     begin
@@ -689,40 +738,18 @@ begin
       //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
       adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
 
-      if ReadTopo then  //the equality is totally redundant
-      begin
-        //if (DigitalPID) then
-        //  Dat_Image_Forth[1,LineNr,i]:=Action_PID/32768
-        //else
-          Dat_Image_Forth[1,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCTopo];
-      end;
-
-      if ReadCurrent then
-        Dat_Image_Forth[2,P_Scan_Lines-1-LineNr,i]:=adcRead[ADCI];
-
+      if ReadTopo then Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
+      if ReadCurrent then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
       if DigitalTopo then
       begin
         //Record the current value of the Z DAC
-        Zdigital := var_gbl.dacValues[5]; //the data is inverted as is for rev D and E as is
+        Zdigital := var_gbl.dacValues[5];
         Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-        Dat_Image_Forth[3,P_Scan_Lines-1-LineNr,i]:=Zvalue;
+        Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=Zvalue;
       end;
-
-
     end;
 
-    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    //no estamos teniendo en cuenta si los atenuadores están activados
-    if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-LineNr,i]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-LineNr,i]);
-  end
-  else   // Scan in Y
-  begin
-    if (not StopAction) then
-      begin
-        if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
-        LastY:=OldY; // Lo mismo que arriba.
-      end;
-
+    // Record spectra
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
       if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
@@ -753,47 +780,22 @@ begin
       ContadorIV:=ContadorIV+1;
     end;
 
-    yVolt:=OldY/32768*AmpY*10;
-    Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]:=yVolt*CalY;
-
-    if StopAction then
-    begin
-      Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=0;
-      Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=0;
-      //Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=0;
-    end
-    else
-    begin
-
-      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
-
-      if ReadTopo then Dat_Image_Forth[1,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCTopo];
-      if ReadCurrent then Dat_Image_Forth[2,P_Scan_Lines-1-i,LineNr]:=adcRead[ADCI];
-      if DigitalTopo then
-      begin
-        //Record the current value of the Z DAC
-        Zdigital := var_gbl.dacValues[5];
-        Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-        Dat_Image_Forth[3,P_Scan_Lines-1-i,LineNr]:=Zvalue;
-      end;
-    end;
-
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
     if (EraseLines>0) then ChartLineSerie0.AddXY(Dat_Image_Forth[0,P_Scan_Lines-1-i,LineNr]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Forth[channelToPlot,P_Scan_Lines-1-i,LineNr]);
   end;
 
   QueryPerformanceCounter(C2); // Lectura del cronómetro
   TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
+  // add extra settings for only forth or back image
   if TopoForm.CheckBox3.Checked then
-    begin //should put this into a function
+  begin //should put this into a function
     remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
     hour:= remtm div 3600;
     remtm:= remtm mod 3600;
     mnts := remtm div 60;
     scnd := remtm mod 60;
     TopoForm.Label6.Caption :=  FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
-    end;
+  end;
 
   Application.ProcessMessages;
   i:=i+1;
@@ -824,10 +826,48 @@ begin
   if MakeX then
   begin
     if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
+      LastX:=OldX;
+    end;
+
+    //Record topography
+    xVolt:=OldX/32768*AmpX*10;
+
+    // Nacho Horcas, diciembre de 2017. Cambio el orden en el que se guardan los
+    // datos para que la izquierda sea la misma posición X tanto en la ida como
+    // en la vuelta, en lugar de que sea el punto que se adquirió primero
+    Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
+
+    if StopAction then
+    begin
+      Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+      Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+      //Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+    end
+    else
+    begin
+
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+      
+      if ReadTopo then
       begin
-        if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
-        LastX:=OldX;
+          Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
       end;
+
+      if ReadCurrent then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
+      if DigitalTopo then
+      begin
+      //Record the current value of the Z DAC
+      Zdigital := var_gbl.dacValues[5];
+      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+      Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=Zvalue;
+      end;
+      
+    end;
+
+    // Record spectra
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
       CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);
@@ -861,18 +901,26 @@ begin
       ContadorIV:=ContadorIV+1;
     end;
 
-    xVolt:=OldX/32768*AmpX*10;
+    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
+    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
+  end
+  else
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo moverse cuando empezado
+      LastY:=OldY;
+    end;
 
-    // Nacho Horcas, diciembre de 2017. Cambio el orden en el que se guardan los
-    // datos para que la izquierda sea la misma posición X tanto en la ida como
-    // en la vuelta, en lugar de que sea el punto que se adquirió primero
-    Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=xVolt*CalX;
+    //Record topography
+    yVolt:=OldY/32768*AmpY*10;
+    Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]:=yVolt*CalY;
 
     if StopAction then
     begin
-      Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
-      Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
-      //Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=0;
+      Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=0;
+      Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=0;
+      //Dat_Image_Back[3,P_Scan_Lines-i-1,LineNr]:=0;
     end
     else
     begin
@@ -882,35 +930,19 @@ begin
       
       if ReadTopo then
       begin
-        //if (DigitalPID) then
-        //  Dat_Image_Back[1,LineNr,P_Scan_Lines-i-1]:=Action_PID/32768
-        //   it seems like the digital thing has been tried before...  
-        //else
-          Dat_Image_Back[1,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCTopo];
+          Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
       end;
-
-      if ReadCurrent then Dat_Image_Back[2,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=adcRead[ADCI];
+      if ReadCurrent then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
       if DigitalTopo then
       begin
-      //Record the current value of the Z DAC
-      Zdigital := var_gbl.dacValues[5];
-      Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-      Dat_Image_Back[3,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]:=Zvalue;
+        //Record the current value of the Z DAC
+        Zdigital := var_gbl.dacValues[5];
+        Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
+        Dat_Image_Back[3,i,LineNr]:=Zvalue;
       end;
-      
     end;
 
-    //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
-    if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Back[channelToPlot,P_Scan_Lines-1-LineNr,P_Scan_Lines-i-1]);
-  end
-  else
-  begin
-    if (not StopAction) then
-      begin
-        if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo moverse cuando empezado
-        LastY:=OldY;
-      end;
-
+    // Record spectra
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
       if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
@@ -944,56 +976,24 @@ begin
       ContadorIV:=ContadorIV+1;
     end;
 
-    yVolt:=OldY/32768*AmpY*10;
-    Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]:=yVolt*CalY;
-
-    if StopAction then
-    begin
-      Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=0;
-      Dat_Image_Back[2,P_Scan_Lines-i-1,LineNr]:=0;
-      //Dat_Image_Back[3,P_Scan_Lines-i-1,LineNr]:=0;
-    end
-    else
-    begin
-
-      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
-      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
-      
-      if ReadTopo then
-      begin
-        //if (DigitalPID) then
-        //  Dat_Image_Back[1,P_Scan_Lines-i-1,LineNr]:=Action_PID/32768
-        //else
-          Dat_Image_Back[1,i,LineNr]:=adcRead[ADCTopo];
-      end;
-      if ReadCurrent then Dat_Image_Back[2,i,LineNr]:=adcRead[ADCI];
-      if DigitalTopo then
-      begin
-        //Record the current value of the Z DAC
-        Zdigital := var_gbl.dacValues[5];
-        Zvalue :=Zdigital/32768*DataForm.z_attenuator; //convert to something like the output of the ADCs
-        Dat_Image_Back[3,i,LineNr]:=Zvalue;
-      end;
-    end;
-
     //añadido por Hermann 22/09/2020. Solo pinta si eraselines es mayor que cero
     if (EraseLines>0) then ChartLineSerie1.AddXY(Dat_Image_Back[0,P_Scan_Lines-i-1,LineNr]*DataForm.scan_attenuator,10*yFactor*Dat_Image_Back[channelToPlot,i,LineNr]);
   end;
 
-    QueryPerformanceCounter(C2); // Lectura del cronómetro
-    TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
-    if TopoForm.CheckBox3.Checked then
-    begin
+  QueryPerformanceCounter(C2); // Lectura del cronómetro
+  TiempoMedio:=(C2-TiempoInicial)/(F*PuntosPonderados+1); // El +1 es para evitar dividir entre 0. No supondrá mucho error
+  if TopoForm.CheckBox3.Checked then
+  begin
     remtm := Trunc((PuntosTotales-PuntosMedidos)*TiempoMedio);
     hour:= remtm div 3600;
     remtm:= remtm mod 3600;
     mnts := remtm div 60;
     scnd := remtm mod 60;
     TopoForm.Label6.Caption := FloatToStr(hour) +':'+Format('%.2d',[mnts])+':'+Format('%.2d',[scnd]);
-    end;
-    
-    Application.ProcessMessages;
-    i:=i+1;
+  end;
+
+  Application.ProcessMessages;
+  i:=i+1;
 end;
 
 // Se podría actualizar la gráfica de la curva sólo aquí, por eficiencia
