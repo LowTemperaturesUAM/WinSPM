@@ -1010,19 +1010,13 @@ procedure TScanForm.MakeEmptyLine(Sender: TObject; Saveit: Boolean);
 var
 i,total,OldX,OldY,LastX,LastY, channelToPlot: Integer;
 Princ,Princ2,Fin,Step: Integer;
-//hour,mnts,scnd,remtm: Integer;
 xvolt,yvolt,yFactor: single;
 MakeX: Boolean;
-//zeroSingle: Single;
-//Data:HImg;
-//C2,F:Int64;
 adcRead: TVectorDouble;
 ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
 xVal, yVal: Array [0..10] of single;
 
 begin
-//zeroSingle := 0; // Para completar con ceros el fichero
-
 // Creamos las series (líneas que se dibujarán) en el gráfico
 ChartLineSerie0 := TFastLineSeries.Create(self);
 ChartLineSerie1 := TFastLineSeries.Create(self);
