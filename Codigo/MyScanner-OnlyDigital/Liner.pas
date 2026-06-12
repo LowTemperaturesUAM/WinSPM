@@ -1029,7 +1029,13 @@ begin
     xAxisRange.Caption:=Format('%.3g mV', [Size_xAxis*x_axisMult*-1e3])
     else xAxisRange.Caption:=Format('%.3g mV', [Size_xAxis*x_axisMult*1e3]);
   end
-  else xAxisRange.Caption:=Format('%.3g V', [Size_xAxis*x_axisMult]);
+  else
+  begin
+    //xAxisRange.Caption:=Format('%.3g V', [Size_xAxis*x_axisMult]);
+    if LinerConfig.ReverseCheck.Checked then
+    xAxisRange.Caption:=Format('%.3g V', [-1*Size_xAxis*x_axisMult])
+    else xAxisRange.Caption:=Format('%.3g V', [Size_xAxis*x_axisMult]);
+  end
 end
 else xAxisRange.Caption:=IntToStr(scrollSizeBias.Position);
 end;

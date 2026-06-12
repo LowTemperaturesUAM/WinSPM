@@ -61,7 +61,7 @@ object LinerForm: TLinerForm
       Caption = 'T'
     end
     object SizeLbl: TLabel
-      Left = 608
+      Left = 604
       Top = 14
       Width = 20
       Height = 13
@@ -69,10 +69,11 @@ object LinerForm: TLinerForm
       Caption = 'Size'
     end
     object xAxisRange: TLabel
-      Left = 635
+      Left = 630
       Top = 14
-      Width = 45
+      Width = 50
       Height = 13
+      Alignment = taRightJustify
       Anchors = [akTop, akRight]
       AutoSize = False
       Caption = '100'
