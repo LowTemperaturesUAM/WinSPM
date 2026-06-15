@@ -92,7 +92,7 @@ type
     procedure TestButtonClick(Sender: TObject);
     procedure MakeLine(Sender:TObject; Saveit: Boolean; LineNr: Integer);
     procedure MakeEmptyLine(Sender:TObject; Saveit: Boolean);
-    procedure MakeEmptyLineSlope(Sender:TObject; Saveit: Boolean);
+    //procedure MakeEmptyLineSlope(Sender:TObject; Saveit: Boolean);
     function  FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
     function  FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
     //function  TakeOnePoint(Sender:TObject) : Single;
@@ -1218,7 +1218,7 @@ end;
 
 end;
 
-
+(*
 procedure TScanForm.MakeEmptyLineSlope(Sender: TObject; Saveit: Boolean);
 var
 i,total,OldX,OldY,LastX,LastY, channelToPlot: Integer;
@@ -1422,7 +1422,7 @@ begin
 end;
 
 end;
-
+*)
 // filterOrder: 0 = No filter; 1 = Fit to line
 function TScanForm.FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
 var
