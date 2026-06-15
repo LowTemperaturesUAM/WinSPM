@@ -15,7 +15,7 @@ uses
   FileNames in 'FileNames.pas' {Form9},
   DataAdcquisition in 'DataAdcquisition.pas' {DataForm},
   PID in 'PID.pas' {FormPID},
-  Config_IV in 'Config_IV.pas' {Form11},
+  Config_IV in 'Config_IV.pas' {FormCITS},
   Paste in 'Paste.pas' {FormPaste},
   ThdTimer in 'ThdTimer.pas';
 
@@ -35,7 +35,7 @@ begin
   Application.CreateForm(TForm9, Form9);
   Application.CreateForm(TDataForm, DataForm);
   Application.CreateForm(TFormPID, FormPID);
-  Application.CreateForm(TForm11, Form11);
+  Application.CreateForm(TFormCITS, FormCITS);
   Application.CreateForm(TFormConfig, FormConfig);
   Application.CreateForm(TFormPaste, FormPaste);
   Application.Run;

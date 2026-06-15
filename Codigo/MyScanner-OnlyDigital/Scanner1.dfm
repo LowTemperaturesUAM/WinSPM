@@ -226,23 +226,29 @@ object ScanForm: TScanForm
       AutoSize = False
       Caption = 'Lines Before'
     end
-    object ComboBox2: TComboBox
+    object NrOfLines_Topo: TComboBox
       Left = 28
       Top = 16
       Width = 65
       Height = 21
+      AutoComplete = False
       ItemHeight = 13
-      ItemIndex = 5
+      MaxLength = 3
       TabOrder = 0
       Text = '256'
-      OnChange = ComboBox2Change
+      OnChange = NrOfLines_TopoChange
+      OnExit = NrOfLines_TopoExit
       Items.Strings = (
         '8'
         '16'
         '32'
+        '48'
         '64'
+        '96'
         '128'
+        '192'
         '256'
+        '384'
         '512')
     end
     object TrackBar2: TTrackBar

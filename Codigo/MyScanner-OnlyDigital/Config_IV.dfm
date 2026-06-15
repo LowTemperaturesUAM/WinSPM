@@ -1,6 +1,6 @@
-object Form11: TForm11
-  Left = 1251
-  Top = 538
+object FormCITS: TFormCITS
+  Left = 1250
+  Top = 540
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
   Caption = 'IV config'
@@ -15,14 +15,14 @@ object Form11: TForm11
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
+  object NrOfPointsLbl: TLabel
     Left = 100
     Top = 9
     Width = 82
     Height = 13
     Caption = 'Number of points'
   end
-  object CheckBox1: TCheckBox
+  object DoForth_CITS: TCheckBox
     Left = 8
     Top = 8
     Width = 57
@@ -32,7 +32,7 @@ object Form11: TForm11
     State = cbChecked
     TabOrder = 0
   end
-  object CheckBox2: TCheckBox
+  object DoBack_CITS: TCheckBox
     Left = 8
     Top = 32
     Width = 57
@@ -42,23 +42,27 @@ object Form11: TForm11
     State = cbChecked
     TabOrder = 1
   end
-  object ComboBox1: TComboBox
+  object NrOfLines_CITS: TComboBox
     Left = 100
     Top = 27
     Width = 65
     Height = 21
     ItemHeight = 13
-    ItemIndex = 5
     TabOrder = 2
     Text = '256'
-    OnChange = ComboBox1Change
+    OnChange = NrOfLines_CITSChange
+    OnExit = NrOfLines_CITSExit
     Items.Strings = (
       '8'
       '16'
       '32'
+      '48'
       '64'
+      '96'
       '128'
+      '192'
       '256'
+      '384'
       '512')
   end
   object chkSaveAsWSxM: TCheckBox

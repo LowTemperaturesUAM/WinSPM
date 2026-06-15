@@ -29,7 +29,7 @@ type
     ZoomInLbl: TLabel;
     ComboBox1: TComboBox;
     Panel2: TPanel;
-    ComboBox2: TComboBox;
+    NrOfLines_Topo: TComboBox;
     Label2: TLabel;
     TrackBar1: TTrackBar;
     Label3: TLabel;
@@ -88,10 +88,11 @@ type
     procedure StopBtnClick(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
-    procedure ComboBox2Change(Sender: TObject);
+    procedure NrOfLines_TopoChange(Sender: TObject);
     procedure TestButtonClick(Sender: TObject);
     procedure MakeLine(Sender:TObject; Saveit: Boolean; LineNr: Integer);
     procedure MakeEmptyLine(Sender:TObject; Saveit: Boolean);
+    procedure MakeEmptyLineSlope(Sender:TObject; Saveit: Boolean);
     function  FilterImage(Image: TImageSingle; scanX: Boolean; numPoints, filterOrder: Integer) : HImg;
     function  FitToLine(dataX, dataY: vector; numPoints: Integer; out slope, ord: Single) : Boolean;
     //function  TakeOnePoint(Sender:TObject) : Single;
@@ -133,6 +134,7 @@ type
     procedure SetNewOffset(pntClickedFloat: TPointFloat);
     procedure btnCenterAtTipClick(Sender: TObject);
     procedure MarkRedBtnClick(Sender: TObject);
+    procedure NrOfLines_TopoExit(Sender: TObject);
     //procedure SpinEdit3Change(Sender: TObject);
 
 
@@ -245,8 +247,8 @@ DacvalX:=0;
 DacvalY:=0;
 StopAction:=False;
 PauseAction:=False;
-P_Scan_Lines:=StrtoInt(ComboBox2.Text);
-IV_Scan_Lines:=StrToInt(Form11.ComboBox1.Text);
+P_Scan_Lines:=StrtoInt(NrOfLines_Topo.Text);
+IV_Scan_Lines:=StrToInt(FormCITS.NrOfLines_CITS.Text);
 P_Scan_Mean:=Trackbar1.Position;
 P_Scan_Jump:= Trackbar2.Position;
 P_Scan_Size:=Trackbar3.Position/1000;
@@ -446,11 +448,22 @@ begin
   UpdateCanvas(nil);
 end;
 
-procedure TScanForm.ComboBox2Change(Sender: TObject);
+procedure TScanForm.NrOfLines_TopoChange(Sender: TObject);
+var
+  isValid: Boolean;
+  NewLines: Integer;
 begin
-P_Scan_Lines:=StrtoInt(ComboBox2.Text);  // Número de filas y columnas
-Form11.ComboBox1.ItemIndex := ComboBox2.ItemIndex;
-Form11.ComboBox1Change(nil)
+//Check for valid input for number of lines
+isValid := TryStrtoInt(NrOfLines_Topo.Text,NewLines);
+if isValid then
+begin
+  //Check that it is in the allowed range before assigning
+  if (NewLines>=8) and (NewLines<=512) then
+  begin
+  P_Scan_Lines:=NewLines;
+  FormCITS.NrOfLines_CITS.Text := NrOfLines_Topo.Text;
+  end;
+end;
 end;
 
 procedure TScanForm.TestButtonClick(Sender: TObject);
@@ -681,7 +694,7 @@ begin
     // Record spectra
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then  //si no queremos tomar espectros en cada punto, sino cada varios
     begin
-      if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
+      if (MakeIVChk.Checked)  and (FormCITS.DoForth_CITS.Checked) then
       begin
         CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);  // el i cambiado por Hermann
 
@@ -752,7 +765,7 @@ begin
     // Record spectra
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
-      if (MakeIVChk.Checked)  and (Form11.CheckBox1.Checked) then
+      if (MakeIVChk.Checked)  and (FormCITS.DoForth_CITS.Checked) then
       begin
         CitsSeekToIV(Floor(i/ContadorIV), Floor(LineNr/ContadorIV), 0);
 
@@ -872,7 +885,7 @@ begin
     begin
       CitsSeekToIV(Floor(LineNr/ContadorIV), Floor(i/ContadorIV), 0);
 
-      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
+      if (MakeIVChk.Checked)  and (FormCITS.DoBack_CITS.Checked) then
       begin
         if StopAction then // Si nos han pedido que paremos ponemos a cero los valores que faltan por adquirir.
         begin
@@ -945,7 +958,7 @@ begin
     // Record spectra
     if (ContadorIV=P_Scan_Lines/IV_Scan_Lines) then
     begin
-      if (MakeIVChk.Checked)  and (Form11.CheckBox2.Checked) then
+      if (MakeIVChk.Checked)  and (FormCITS.DoBack_CITS.Checked) then
       begin
         CitsSeekToIV(Floor(P_Scan_Lines-i-1/ContadorIV), Floor(LineNr/ContadorIV), 0);
 
@@ -1015,6 +1028,7 @@ MakeX: Boolean;
 adcRead: TVectorDouble;
 ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
 xVal, yVal: Array [0..10] of single;
+xzStep, yzStep: Single;
 
 begin
 // Creamos las series (líneas que se dibujarán) en el gráfico
@@ -1100,6 +1114,212 @@ begin
     if (not StopAction) then
     begin
       if (i<>0) then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      //here is where I need to add the heigh change due to slope
+      LastX:=OldX; // Lo mismo que arriba.
+    end;
+    xVolt:=OldX/32768*AmpX*10;
+    if (StopAction) then
+    begin
+      xVal[1]:=0;
+      xVal[2]:=0;
+    end
+    else
+    begin
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+      if ReadTopo=True then xVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie0.AddXY(xVolt*CalX*DataForm.scan_attenuator,10*yFactor*xVal[channelToPlot]);
+  end
+  else   // Scan in Y
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      LastY:=OldY; // Lo mismo que arriba.
+    end;
+    yVolt:=OldY/32768*AmpY*10;
+    if StopAction then
+    begin
+      yVal[1]:=0;
+      yVal[2]:=0;
+    end
+    else
+    begin
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+      if ReadTopo=True then yVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie0.AddXY(yVolt*CalY*DataForm.scan_attenuator,10*yFactor*yVal[channelToPlot]);
+  end;
+
+  Application.ProcessMessages;
+  i:=i+1;
+end;
+
+
+//Back
+
+i:=0;
+if MakeX then Princ2:=OldX else Princ2:=OldY;
+while (i<P_Scan_Lines)  do
+begin
+  while (PauseAction=True) do Application.ProcessMessages;
+  if MakeX then OldX:=Princ2-Step*i else OldY:=Princ2-Step*i;
+  if MakeX then
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
+      LastX:=OldX;
+    end;
+    xVolt:=OldX/32768*AmpX*10;
+    if (StopAction) then
+    begin
+      xVal[1]:=0;
+      xVal[2]:=0;
+    end
+    else
+    begin
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+      if ReadTopo=True then xVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then xVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie1.AddXY(xVolt*CalX*DataForm.scan_attenuator,10*yFactor*xVal[channelToPlot]);
+  end
+  else
+  begin
+	  if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      LastY:=OldY; // Lo mismo que arriba.
+    end;
+    yVolt:=OldY/32768*AmpY*10;
+    if StopAction then
+    begin
+      yVal[1]:=0;
+      yVal[2]:=0;
+    end
+    else
+    begin
+      //adcRead:=DataForm.adc_take_all(P_Scan_Mean, AdcWriteRead, nil);
+      adcRead:=DataForm.adc_take_all_os(P_Scan_Mean, AdcWriteRead, nil,OSRatio);
+      if ReadTopo=True then yVal[1]:= adcRead[ADCTopo];
+      if ReadCurrent=True then yVal[2]:=adcRead[ADCI];
+    end;
+    if (EraseLines>0) then ChartLineSerie1.AddXY(yVolt*CalY*DataForm.scan_attenuator,10*yFactor*yVal[channelToPlot]);
+	end;
+  Application.ProcessMessages;
+  i:=i+1;
+end;
+
+end;
+
+
+procedure TScanForm.MakeEmptyLineSlope(Sender: TObject; Saveit: Boolean);
+var
+i,total,OldX,OldY,LastX,LastY, channelToPlot: Integer;
+Princ,Princ2,Fin,Step: Integer;
+xvolt,yvolt,yFactor: single;
+MakeX: Boolean;
+adcRead: TVectorDouble;
+ChartLineSerie0, ChartLineSerie1: TFastLineSeries;
+xVal, yVal: Array [0..10] of single;
+xzStep, yzStep: SmallInt;
+
+begin
+// Creamos las series (líneas que se dibujarán) en el gráfico
+ChartLineSerie0 := TFastLineSeries.Create(self);
+ChartLineSerie1 := TFastLineSeries.Create(self);
+ChartLineSerie0.ParentChart := TopoForm.ChartLine;
+ChartLineSerie1.ParentChart := TopoForm.ChartLine;
+ChartLineSerie0.LinePen.Color := clred;
+ChartLineSerie1.LinePen.Color := clblack;
+TopoForm.ChartLine.AddSeries(ChartLineSerie0);
+TopoForm.ChartLine.AddSeries(ChartLineSerie1);
+
+if RadioGroup1.ItemIndex=0 then MakeX:=True
+else MakeX:=False;
+
+OldX:=0; // dado que son dacs diferentes, el dac del barrido está en 0
+OldY:=0;
+
+LastX:=0;
+LastY:=0;
+
+{if (RadioGroup1.ItemIndex=0) then
+  MakeX:=True
+else
+  MakeY:=True;}
+
+  //modify rounding, Hermann 22/09/2020
+if MakeX then
+begin
+ Princ:=OldX-Round(32768*P_Scan_Size);
+end
+else
+begin
+  Princ:=OldY-Round(32768*P_Scan_Size);
+end;
+if (P_Scan_Size=0) then P_Scan_Size:=1;
+
+if MakeX then Fin:=OldX+Round(32768*P_Scan_Size)
+else Fin:=OldY+Round(32768*P_Scan_Size);
+
+if (abs(Fin)>32768) or (Princ<-32768) then
+begin
+  StopAction:=True;
+  exit;
+end;
+
+total:=Round(abs(Princ-Fin));
+
+//Obtain the size of steps. NOTE for N points there are N-1 steps
+if Fin>Princ then Step:=Round(total/(P_Scan_Lines-1));
+if (Step=0) then Step:=100;
+//obtain the heigh step to be used according to the provided slopes
+xzStep := Round(Step*var_gbl.XTiltDac);
+yzStep := Round(Step*var_gbl.YTiltDac);
+
+if (IV_Scan_Lines>P_Scan_Lines) and (MakeIVChk.Checked) then
+begin
+  MessageDlg('Spectro: too many points',mtError,[mbOK],0);
+  IV_Scan_Lines:=P_Scan_Lines;
+  RedimCits(IV_Scan_Lines, LinerForm.PointNumber);
+end;
+
+TopoForm.ChartLine.BottomAxis.SetMinMax(Min(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX*1.05, Max(Princ, Fin)/32768*AmpX*DataForm.scan_attenuator*10*CalX*1.05);
+
+if (TopoForm.RadioGroup1.ItemIndex = 0) then // Topo
+begin
+  channelToPlot := 1;
+  yFactor := StrtoFloat(FormConfig.TopoCalEdit.Text)*StrtoFloat(FormConfig.TopoAmpBox.Text);//ScanForm.CalTopo*ScanForm.AmpTopo;
+end
+else // Current
+begin
+  channelToPlot := 2;
+  yFactor := ScanForm.MultI*ScanForm.AmpI;
+end;
+
+//Forth
+i:=0;
+
+//QueryPerformanceFrequency(F);
+while (i<P_Scan_Lines) do
+begin
+  while (PauseAction=True) do Application.ProcessMessages;
+  if MakeX then OldX:=Princ+Step*i else OldY:=Princ+Step*i;
+  if MakeX then  // Scan in X
+  begin
+    if (not StopAction) then
+    begin
+      if (i<>0) then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+//      MoveDac(nil,OutPID_DAC, var_gbl.dacValues +xzStep,
+          //DataForm.dac_set(OutPID_DAC,Action_PID, nil);
+      //here is where I need to add the heigh change due to slope
       LastX:=OldX; // Lo mismo que arriba.
     end;
     xVolt:=OldX/32768*AmpX*10;
@@ -1890,7 +2110,7 @@ begin
   SaveSTP(nil,OneImg,'_vc', factorZ);
 
 // Se usa la misma condición que controla si se hacen IVs y aparte, que se quieran guardar los datos en este formato
-if (MakeIVChk.Checked) and (Form11.CheckBox1.Checked) and (Form11.chkSaveAsWSxM.Checked) then
+if (MakeIVChk.Checked) and (FormCITS.DoForth_CITS.Checked) and (FormCITS.chkSaveAsWSxM.Checked) then
   for i := 0 to 3 do
     SaveCits(i);
 end;
@@ -2459,7 +2679,7 @@ end;
 
 procedure TScanForm.STSConfigBtnClick(Sender: TObject);
 begin
-Form11.show;
+FormCITS.Show;
 end;
 
 procedure TScanForm.ScrollBar2Change(Sender: TObject);
@@ -2566,6 +2786,24 @@ end;
 //end;
 
 
+
+procedure TScanForm.NrOfLines_TopoExit(Sender: TObject);
+var
+  isValid: Boolean;
+  NewLines: Integer;
+begin
+//Check for valid input for number of lines
+isValid := TryStrtoInt(NrOfLines_Topo.Text,NewLines);
+if isValid then
+begin
+  // If we already have the proper value, we exit
+  if NewLines = P_Scan_Lines then exit
+  //Otherwise we revert to the last know good value
+  else NrOfLines_Topo.Text := IntToStr(P_Scan_Lines);
+end
+// If an invalid text has been entered, we also revert to the last know value
+else NrOfLines_Topo.Text := IntToStr(P_Scan_Lines);
+end;
 
 end.
 
