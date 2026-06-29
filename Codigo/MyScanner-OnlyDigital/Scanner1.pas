@@ -463,6 +463,8 @@ begin
   begin
   P_Scan_Lines:=NewLines;
   FormCITS.NrOfLines_CITS.Text := NrOfLines_Topo.Text;
+  //Update the corresponding parameters
+  FormCITS.NrOfLines_CITSChange(nil);
   end;
 end;
 end;
