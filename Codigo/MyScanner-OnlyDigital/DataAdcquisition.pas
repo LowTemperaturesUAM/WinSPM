@@ -100,6 +100,7 @@ type
     function InitDataAcq : boolean ;
     function dac_set(ndac,valor:integer; BufferOut: PAnsiChar) : integer;
     function dac_set_buff(ndac: Integer; valor:SmallInt; BufferOut: PAnsiChar) : integer;
+    function send_inmediate(BufferOut: PAnsiChar): Integer;
     function dac_set_buff2(ndac,valor:integer; BufferOut: array of AnsiChar) : integer;
     function dac_set_multi(ndac: array of Integer; valor: array of SmallInt) : Integer ;
     function adc_take(chn,mux,n:integer) : double;
@@ -546,14 +547,15 @@ begin
 
   //Expect that a proper buffer has been provided
   //BufferDest := BufferOut;
-  if (BufferOut = nil) then
+  {if (BufferOut = nil) then
    begin
      BufferDest := Addr(Buffer[1]);
    end
    else
   begin
     BufferDest := BufferOut;
-  end;
+  end;}
+  BufferDest := BufferOut;
   // Construyo la cadena que se enviará
   i := 0; // El primer caracter está reservado para la longitud, se use o no.
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
@@ -569,16 +571,16 @@ begin
   (BufferDest+i)^ := Char(MPSSE_CmdSetPortL); Inc(i);
   (BufferDest+i)^ := Char($FF); Inc(i);
   (BufferDest+i)^ := Char($FB); Inc(i);
-  //Assert(i = 12); //Confirmamos que es el numero correcto
+  Assert(i = 12); //Confirmamos que es el numero correcto
   //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
-  if (BufferOut = nil) then
+  {if (BufferOut = nil) then
   begin
   BytesToWrite:= i;
   SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
   //Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque //Hermann
   If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
       if not simulating then MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
-  end;
+  end;}
 if simulating then simulatedDac[ndac] := valor;
 
 
@@ -592,6 +594,14 @@ end;
 Result:=i;
 
 end;
+
+
+function TDataForm.send_inmediate(BufferOut: PAnsiChar): Integer;
+begin
+  (BufferOut)^ := Char(MPSSE_CmdSendInmediate);
+  Result:=1;
+end;
+
 
 function TDataForm.dac_set_buff2(ndac, valor:integer; BufferOut: array of AnsiChar) : Integer ;
 Var sTexto:String;
@@ -624,16 +634,6 @@ begin
   // set of values each dac requires
   CadenaCS:=$FF-dac_cs[ndac];
   sele_dac:=dac_adr[ndac];
-  {if (ndac  > 3) then
-  begin
-    CadenaCS:=$FF-Ord(pDAC2cs);  //DF
-    sele_dac:=ndac;
-  end
-  else
-  begin
-    CadenaCS:=$FF-Ord(pDACcs);  //F7
-    sele_dac:=ndac+4;
-  end;}
 
   //Expect that a proper buffer has been provided
   //BufferDest := BufferOut;

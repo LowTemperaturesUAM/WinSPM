@@ -103,7 +103,7 @@ type
     procedure OpenLinerBtnClick(Sender: TObject);
     procedure OpenTripBtnClick(Sender: TObject);
     procedure ScanButtonClick(Sender: TObject);
-    procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+    procedure MoveDacOld(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
     procedure SaveCits(dataSet: Integer);
     procedure SetLengthofStr(Sender: TObject; MyLength: Integer; var MyString: String);
@@ -135,8 +135,9 @@ type
     procedure btnCenterAtTipClick(Sender: TObject);
     procedure MarkRedBtnClick(Sender: TObject);
     procedure NrOfLines_TopoExit(Sender: TObject);
-    //ocedure MoveDacSlope(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+    procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure MoveDacSmooth(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+    //pocedure MoveDacSlope(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 
 
   private
@@ -1802,7 +1803,7 @@ end;
 end;
 
 // Nacho, agosto de 2017. Si se pasa un buffer válido, en lugar de enviar el dato lo añade al buffer
-procedure TScanForm.MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+procedure TScanForm.MoveDacOld(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 var
 j,StepNumr,StepSign: Integer;
 Go_jump: Integer;
@@ -1894,10 +1895,39 @@ begin
   Application.ProcessMessages;
 end; *)
 
-// Implement smoother movement by appliying a smoothstep function for every jump
-procedure TScanForm.MoveDacSmooth(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+// Reimplementation of MoveDac avoiding some of the inconsistency issues of the previous version
+procedure TScanForm.MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 var
 j: Integer;
+N,steps : Integer;
+realJump : Double;
+newVal : Integer;
+begin
+  //Calculate the number of DAC values in between init and fin
+  N := fin-init;
+  // Now we decimate this value by the ration given by jump
+  steps := abs(round(N/jump));
+  //If we don't have enough values for this level of decimation, we just leave it as one step
+  if steps<1 then steps:=1;
+  //Now we take the rounded number of teps and calculate the actual jump that
+  //have to make bettween values
+  realJump := N/steps;
+
+  //Instead of rounding the step like we previously did, we are going to split
+  //the interval into equal ranges, and round to the nearest DAC value afterwards
+  for j:=1 to steps do
+  begin
+  newVal :=init+round(j*realJump);
+  DataForm.dac_set(DacNr,newVal, BufferOut);
+  Application.ProcessMessages;
+  end;
+end;
+
+// Implement smoother movement by traversing intermediate DAC values and
+// possibly adding the smoothstep function
+procedure TScanForm.MoveDacSmooth(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+var
+i,j: Integer;
 //StepNumr,StepSign: Integer;
 Go_jump: Integer;
 N,steps : Integer;
@@ -1905,8 +1935,10 @@ realJump : Double;
 jump2:integer;
 //UseSmoothing : Bool;
 prevVal,newVal : Integer;
-//BufferMem: Array[0..FT_Out_Buffer_Size] of Byte;
-//BufferPtr: PAnsiChar;
+BufferMem: Array[0..$8000] of Byte; //Using the value of FT_Out_Buffer_Size (Manually)
+BufferPtr: PAnsiChar;
+m : Integer;
+totalBytes: Integer;
 begin
   //Calculate the number of DAC values in between init and fin
   N := fin-init;
@@ -1922,25 +1954,80 @@ begin
   if abs(TempStep) >64 then UseSmoothing:=True
   else UseSmoothing:=False;}
 
-
+  BufferPtr := Addr(Buffermem[0]);
+  totalBytes :=0;
   //Instead of rounding the step like we previously did, we are going to split
   //the interval into equal ranges, and round to the nearest DAC value afterwards
   prevVal := init;
   for j:=1 to steps do
   begin
-  //jump2 = round(j*realJump);
-  //newVal :=init+jump2;
-  //prevVal := init+round((j-1)*realJump);  //not needed at the moment yet
-  newVal :=init+round(j*realJump);
-  DataForm.dac_set(DacNr,newVal, BufferOut);
-  Application.ProcessMessages;
+    //Positive slope
+    newVal :=init+round(j*realJump);
+    if newVal>prevVal then
+    begin
+      jump2 := newVal-prevVal;
+      for i:=1 to jump2 do
+      begin
+        m:= DataForm.dac_set_buff(DacNr,prevVal+i,BufferPtr);
+        totalBytes := totalBytes+m;
+        BufferPtr := BufferPtr + m;
+        if totalBytes > ($8000-2*m) then
+        begin
+          m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+          totalBytes:=totalBytes+m;
+          //BufferPtr := BufferPtr + m; //not necessaty anymore
+          DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+          BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+          totalBytes :=0;
+        end;
+      end;
+      //Check if any bytes are left to be sent, and finish up
+      if totalBytes > 0 then
+      begin
+        m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+        totalBytes:=totalBytes+m;
+        //BufferPtr := BufferPtr + m; //not necessaty anymore
+        DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+        BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+        totalBytes :=0;
+      end;
+    end
+
+    //Negative slope
+    else if newVal<prevVal then
+    begin
+      jump2 := prevVal-newVal;
+      for i:=1 to jump2 do
+      begin
+        m:= DataForm.dac_set_buff(DacNr,prevVal-i,BufferPtr);
+        totalBytes := totalBytes+m;
+        BufferPtr := BufferPtr + m;
+        if totalBytes > ($8000-2*m) then
+        begin
+          m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+          totalBytes:=totalBytes+m;
+          //BufferPtr := BufferPtr + m; //not necessaty anymore
+          DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+          BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+          totalBytes :=0;
+        end;
+      end;
+      //Check if any bytes are left to be sent, and finish up
+      if totalBytes > 0 then
+      begin
+        m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+        totalBytes:=totalBytes+m;
+        //BufferPtr := BufferPtr + m; //not necessaty anymore
+        DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+        BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+        totalBytes :=0;
+      end;
+    end;
+    //Update the previous value for the next step
+    prevVal := newVal;
+    //Wait for control or user input
+    Application.ProcessMessages;
   end;
-
-
-
-
-
-
 end;
 
 
