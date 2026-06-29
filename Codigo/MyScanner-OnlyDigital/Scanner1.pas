@@ -135,7 +135,8 @@ type
     procedure btnCenterAtTipClick(Sender: TObject);
     procedure MarkRedBtnClick(Sender: TObject);
     procedure NrOfLines_TopoExit(Sender: TObject);
-    //procedure SpinEdit3Change(Sender: TObject);
+    //ocedure MoveDacSlope(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+    procedure MoveDacSmooth(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 
 
   private
@@ -308,13 +309,13 @@ begin
   Princ:=DacvalX;
   Fin:=Round(XOffset*32767);
 
-  MoveDac(nil, XDAC_Pos, Princ, Fin, P_Pos_Jump, nil);
+  MoveDacSmooth(nil, XDAC_Pos, Princ, Fin, P_Pos_Jump, nil);
 
   DacValX:=Fin;
   Princ:=DacvalY;
   Fin:=Round(YOffset*32767);
 
-  MoveDac(nil, YDAC_Pos, Princ, Fin, P_Pos_Jump, nil);
+  MoveDacSmooth(nil, YDAC_Pos, Princ, Fin, P_Pos_Jump, nil);
 
   DacvalY:=Fin;
   UpdateCanvas(nil);
@@ -490,8 +491,10 @@ TopoForm.Show;
 
 //Llevar el DAC a la posición inicial
 Prin:=Round(32767*P_Scan_Size); // no need to convert to int if we are rounding
-if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, 0, -Prin, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC al borde de la ventana
-else MoveDac(nil, YDAC, 0, -Prin, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC al borde de la ventana
+//if (RadioGroup1.ItemIndex=0) then MoveDacSmooth(nil, XDAC, 0, -Prin, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC al borde de la ventana
+//else MoveDacSmooth(nil, YDAC, 0, -Prin, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC al borde de la ventana
+if (RadioGroup1.ItemIndex=0) then MoveDacSmooth(nil, XDAC, 0, -Prin, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC al borde de la ventana
+else MoveDacSmooth(nil, YDAC, 0, -Prin, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC al borde de la ventana
 
 k:=0;
 while (not StopAction) do
@@ -509,12 +512,12 @@ end;
 
 // Para devolver la punta a su sitio, hace falta el último valor en el que está el DAC. Se lleva a makeline
 //Fin:=Round(int(32767*P_Scan_Size)); //Vale tanto para el test en X como en Y
-//if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, Fin, 0, P_Scan_Jump, nil) // Scan en X Hay que llevar el DAC a cero
-//else MoveDac(nil, YDAC, Fin, 0, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+//if (RadioGroup1.ItemIndex=0) then MoveDacSmooth(nil, XDAC, Fin, 0, P_Scan_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+//else MoveDacSmooth(nil, YDAC, Fin, 0, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 //devolvemos el DAC de escaneo del valor en el que se encuentre a cero (da igual si acaba o hemos pulsado stop)
-if (RadioGroup1.ItemIndex=0) then MoveDac(nil, XDAC, -var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
-else MoveDac(nil, YDAC, -var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+if (RadioGroup1.ItemIndex=0) then MoveDacSmooth(nil, XDAC, -var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+else MoveDacSmooth(nil, YDAC, -var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 StopBtn.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
@@ -652,7 +655,7 @@ begin
   begin
     if (not StopAction) then
     begin
-      if (i<>0)then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);     // El primer paso debe de quedarse quieto !
+      if (i<>0)then MoveDacSmooth(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);     // El primer paso debe de quedarse quieto !
       LastX:=OldX; // hay que acordarse de donde se sale para volver a aparcar la punta. Esto está un poco mal
       // lo del temporizador lo deja todo muy oscuro, no comprendo bien el resto del código. Hermann 22/09/20
     end;
@@ -731,7 +734,7 @@ begin
   begin
     if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      if (i<>0) then MoveDacSmooth(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
       LastY:=OldY; // Lo mismo que arriba.
     end;
 
@@ -840,7 +843,7 @@ begin
   begin
     if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
+      if (i<>0) then MoveDacSmooth(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
       LastX:=OldX;
     end;
 
@@ -921,7 +924,7 @@ begin
   begin
     if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo moverse cuando empezado
+      if (i<>0) then MoveDacSmooth(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo moverse cuando empezado
       LastY:=OldY;
     end;
 
@@ -1113,7 +1116,8 @@ begin
   begin
     if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      //if (i<>0) then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      if (i<>0) then MoveDacSmooth(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
       //here is where I need to add the heigh change due to slope
       LastX:=OldX; // Lo mismo que arriba.
     end;
@@ -1136,7 +1140,8 @@ begin
   begin
     if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      //if (i<>0) then MoveDac(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      if (i<>0) then MoveDacSmooth(nil, YDAC, Princ+Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
       LastY:=OldY; // Lo mismo que arriba.
     end;
     yVolt:=OldY/32768*AmpY*10;
@@ -1172,7 +1177,8 @@ begin
   begin
     if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
+      //if (i<>0) then MoveDac(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
+      if (i<>0) then MoveDacSmooth(nil, XDAC, Princ2-Step*(i-1), OldX, P_Scan_Jump, nil);  //solo debe de moverse cuando ya ha empezado
       LastX:=OldX;
     end;
     xVolt:=OldX/32768*AmpX*10;
@@ -1194,7 +1200,8 @@ begin
   begin
 	  if (not StopAction) then
     begin
-      if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      //if (i<>0) then MoveDac(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
+      if (i<>0) then MoveDacSmooth(nil, YDAC, Princ2-Step*(i-1), OldY, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
       LastY:=OldY; // Lo mismo que arriba.
     end;
     yVolt:=OldY/32768*AmpY*10;
@@ -1317,7 +1324,7 @@ begin
     if (not StopAction) then
     begin
       if (i<>0) then MoveDac(nil, XDAC, Princ+Step*(i-1), OldX, P_Scan_Jump, nil);  // solo debe de moverse cuando i<>0
-//      MoveDac(nil,OutPID_DAC, var_gbl.dacValues +xzStep,
+//      MoveDacSmooth(nil,OutPID_DAC, var_gbl.dacValues +xzStep,
           //DataForm.dac_set(OutPID_DAC,Action_PID, nil);
       //here is where I need to add the heigh change due to slope
       LastX:=OldX; // Lo mismo que arriba.
@@ -1632,8 +1639,10 @@ repeat
    PrincX:=Round(-int(32767*P_Scan_Size)); //Punto inicial en X
    //Este movimiento se realiza con el dac de barrido, no de posición,
    //pero queremos poder cambiar la velocidad independientemente de la de la imagen
-   MoveDac(nil, XDAC, 0, PrincX, P_Pos_Jump, nil);
-   MoveDac(nil, YDAC, 0, PrincY, P_Pos_Jump, nil);
+   //MoveDac(nil, XDAC, 0, PrincX, P_Pos_Jump, nil);
+   //MoveDac(nil, YDAC, 0, PrincY, P_Pos_Jump, nil);
+   MoveDacSmooth(nil, XDAC, 0, PrincX, P_Pos_Jump, nil);
+   MoveDacSmooth(nil, YDAC, 0, PrincY, P_Pos_Jump, nil);
    //sleep(500*StrToInt(SpinEdit3.Text));
    //FormPID.se1.Text:='0';
    //sleep(500*StrToInt(SpinEdit3.Text)); //Comentado por Fran
@@ -1673,7 +1682,8 @@ repeat
           p:=p+1;
           TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
           DacValY_Local:=PrincY+Step*i;
-          if (i<>0) then MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY_Local, P_Scan_Jump, nil);
+          //if (i<>0) then MoveDac(nil, YDAC, PrincY+Step*(i-1), DacValY_Local, P_Scan_Jump, nil);
+          if (i<>0) then MoveDacSmooth(nil, YDAC, PrincY+Step*(i-1), DacValY_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
           // if the number of points for the spectroscopy has been reduced,
           // this should be reflected here, as we don't have to take spectroscopies on every line
@@ -1687,7 +1697,7 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        //if (not StopAction) then MoveDac(nil, XDAC, PrincX, 0, P_Pos_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
+        //if (not StopAction) then MoveDacSmooth(nil, XDAC, PrincX, 0, P_Pos_Jump, nil);   //porque en la X se vuelve con makeline si se para, y si no hay que devolverlo a su sitio
         //MoveDac(nil, YDAC, DacvalY_Local, 0, P_Pos_Jump, nil); //porque en la X se vuelve con makeline
 
         
@@ -1723,7 +1733,8 @@ repeat
           p:=p+1;
           TryStrToInt(TopoForm.SpinEdit1.Text, EraseLines);
           DacvalX_Local:=PrincX+Step*i;
-          if (i<>0) then MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX_Local, P_Scan_Jump, nil);
+          //if (i<>0) then MoveDac(nil, XDAC, PrincX+Step*(i-1), DacValX_Local, P_Scan_Jump, nil);
+          if (i<>0) then MoveDacSmooth(nil, XDAC, PrincX+Step*(i-1), DacValX_Local, P_Scan_Jump, nil);
           MakeLine(nil,PaintLines,i); //Save the line and send line number
           if (p>=EraseLines) then
             begin
@@ -1734,7 +1745,7 @@ repeat
           i:=i+1;
         end;
         // Devuelvo la punta a la posición central. Supongo imágenes cuadradas y sin invertir en ningún canal, por lo que el punto final en X e Y será el mismo
-        //MoveDac(nil, XDAC, DacValX_Local, 0, P_Pos_Jump, nil);
+        //MoveDacSmooth(nil, XDAC, DacValX_Local, 0, P_Pos_Jump, nil);
         //if (not StopAction) then MoveDac(nil, YDAC, PrincY, 0, P_Pos_Jump, nil); // que ocurre exactamente a este DAC si no acaba??
       end;
 
@@ -1766,8 +1777,10 @@ repeat
      end;
   //Return the tip from whatever the current position is to the center of the scanning area
   //By using the last tip position we don't have to worry if the image was prematurely stopped or not
-  MoveDac(nil, XDAC, var_gbl.dacFlip[XDAC]* var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
-  MoveDac(nil, YDAC, var_gbl.dacFlip[YDAC]* var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
+  //MoveDac(nil, XDAC, var_gbl.dacFlip[XDAC]* var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
+  //MoveDac(nil, YDAC, var_gbl.dacFlip[YDAC]* var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
+  MoveDacSmooth(nil, XDAC, var_gbl.dacFlip[XDAC]* var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
+  MoveDacSmooth(nil, YDAC, var_gbl.dacFlip[YDAC]* var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
 
   TopoForm.Close;
 
@@ -1823,6 +1836,111 @@ begin
   DataForm.dac_set(DacNr,fin, BufferOut);
   Application.ProcessMessages;
 end;
+
+// Try to implement slope compensation
+(*cedure TScanForm.MoveDacSlope(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+var
+j,StepNumr,StepSign: Integer;
+Go_jump: Integer;
+tilt: Double;
+Zstep: Double;
+Zprev: Integer;
+Znew: Integer;
+begin
+  {j:=0;
+
+  interv:=(fin-init)/jump;
+
+  while (j<jump+1) do
+  begin
+  Go_jump:=Round(init+j*interv);
+  DataForm.dac_set(DacNr,Go_jump, BufferOut);
+  j:=j+1;
+  Application.ProcessMessages;
+  end;
+  }
+  tilt :=0;
+  if DacNr = XDAC then  tilt := var_gbl.XTiltDac
+  else if DacNr = YDAC then tilt:= var_gbl.YTiltDac;
+  j:=0;
+
+  StepNumr:=abs(Round((fin-init)/jump));
+  if (abs(fin-init)>0) then StepSign:=Sign(fin-init)//Round((fin-init)/abs(fin-init))
+  else StepSign:=1;
+  //Doesn't work properly, the amount of slope is Jump dependent...
+  Zstep := StepSign * tilt*jump; //calculate how much the height should increase
+  FormPID.lblZstep.Caption:= Format('%.2f',[Zstep]);
+  {f Zstep>=0.5 then
+  begin
+    Zstep = R
+    Zprev = var_gbl.dacValues[FormPID.OutPID_DAC];
+  end;}
+  while (j<StepNumr+1) do
+  begin
+  Go_jump:=Round(init+StepSign*j*jump);
+  Zprev := var_gbl.dacValues[FormPID.OutPID_DAC];
+  Zprev := var_gbl.dacValues[5];
+  Znew := Round(Zprev+Zstep);
+  Znew := DataForm.clampToDAC16(Znew);
+  DataForm.dac_set(DacNr,Go_jump, BufferOut);
+  //DataForm.dac_set(FormPID.OutPID_DAC,Znew, BufferOut);
+  j:=j+1;
+  Application.ProcessMessages;
+  end;
+
+  DataForm.dac_set(DacNr,fin, BufferOut);
+  Application.ProcessMessages;
+end; *)
+
+// Implement smoother movement by appliying a smoothstep function for every jump
+procedure TScanForm.MoveDacSmooth(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+var
+j: Integer;
+//StepNumr,StepSign: Integer;
+Go_jump: Integer;
+N,steps : Integer;
+realJump : Double;
+jump2:integer;
+//UseSmoothing : Bool;
+prevVal,newVal : Integer;
+//BufferMem: Array[0..FT_Out_Buffer_Size] of Byte;
+//BufferPtr: PAnsiChar;
+begin
+  //Calculate the number of DAC values in between init and fin
+  N := fin-init;
+  // Now we decimate this value by the ration given by jump
+  steps := abs(round(N/jump));
+  //If we don't have enough values for this level of decimation, we just leave it as one step
+  if steps<1 then steps:=1;
+  //Now we take the rounded number of teps and calculate the actual jump that
+  //have to make bettween values
+  realJump := N/steps;
+  {//We use a threshold above which we start applying the smoothstep function
+  //Since for low values digitalization will make this even worse
+  if abs(TempStep) >64 then UseSmoothing:=True
+  else UseSmoothing:=False;}
+
+
+  //Instead of rounding the step like we previously did, we are going to split
+  //the interval into equal ranges, and round to the nearest DAC value afterwards
+  prevVal := init;
+  for j:=1 to steps do
+  begin
+  //jump2 = round(j*realJump);
+  //newVal :=init+jump2;
+  //prevVal := init+round((j-1)*realJump);  //not needed at the moment yet
+  newVal :=init+round(j*realJump);
+  DataForm.dac_set(DacNr,newVal, BufferOut);
+  Application.ProcessMessages;
+  end;
+
+
+
+
+
+
+end;
+
 
 procedure TScanForm.SaveSTP(Sender: TObject; OneImg : HImg; Suffix: String; factorZ: double);
 var
