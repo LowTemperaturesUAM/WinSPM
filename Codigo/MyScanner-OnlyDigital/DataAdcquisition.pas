@@ -428,7 +428,7 @@ begin
 
   // Si vamos a invertir el valor, lo hacemos antes de saturar para evitar desbordamientos con -(-32768)
   //if (ndac> 4) then valor:=-valor;    // No están invertidos, así que se puede hacer por SW para coherencia con las otras salidas del DAC
-  if (ndac < 5) then valor:=-valor;    // Es mejor que un nº positivo ofrezca una salida positiva, de modo que se hace de este modo en vez de como estaba inicialmente previsto en la línea anterior
+  //if (ndac < 5) then valor:=-valor;    // Es mejor que un nº positivo ofrezca una salida positiva, de modo que se hace de este modo en vez de como estaba inicialmente previsto en la línea anterior
   //valor = var_gbl.dacFlip[ndac]* valor; // This is a better way to handle it, probably
   // No estoy seguro de si esto corresponde con la configuracion actual, y no nos sirve para las nuevas versiones con 4 atenuadores
 // Se saturan los valores según indicaciones de Isabel
@@ -517,22 +517,17 @@ var BufferDest: PAnsiChar;
 
 
 begin
+  //early exit if no buffer was provided
+  if (BufferOut = nil) then
+  begin
+    MessageDlg('No valir buffer provided', mtError, [mbOk], 0);
+    exit
+  end;
 
-  // Si vamos a invertir el valor, lo hacemos antes de saturar para evitar desbordamientos con -(-32768)
-  //if (ndac> 4) then valor:=-valor;    // No están invertidos, así que se puede hacer por SW para coherencia con las otras salidas del DAC
-  //if (ndac < 5) then valor:=-valor;    // Es mejor que un nº positivo ofrezca una salida positiva, de modo que se hace de este modo en vez de como estaba inicialmente previsto en la línea anterior
-  // No estoy seguro de si esto corresponde con la configuracion actual, y no nos sirve para las nuevas versiones con 4 atenuadores
-// Se saturan los valores según indicaciones de Isabel
-  //if valor>32767 then valor:=32767 ;
-  //if valor<-32768 then valor:=-32768 ; Eliminamos la comprobacion de los limites del dac. nos tenermos que asegurar de que son validos antes de llamarlo aqui
-
-  // El los registros para enviar la señal a los Canales 0 a 3 de cada DAC son respectivamente 4 a 7
-  // Para los primeros 4 canales de la electronica, tenemos que sumar 4 al valor que usamos,
-  // y para los siguientes 4 podemos dejarlo tal cual
   var_gbl.dacValues[ndac] := valor; //update the state of the dac
-  //instead of conditionals, we just a basic lookup table to figure out what
-  // set of values each dac requires
+  //Pick the correct cs pin to toggle depending on the dac number
   CadenaCS:=$FF-dac_cs[ndac];
+  //Pick the right register to be changed for the given channel
   sele_dac:=dac_adr[ndac];
   {if (ndac  > 3) then
   begin
@@ -562,9 +557,9 @@ begin
   (BufferDest+i)^ := Char(CadenaCS); Inc(i);
   (BufferDest+i)^ := Char($FB); Inc(i);
   (BufferDest+i)^ := Char(MPSSE_CmdWriteDO); Inc(i);
-  (BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1?
+  (BufferDest+i)^ := Char($02); Inc(i); // Numero de bytes a transmitir menos 1
   (BufferDest+i)^ := Char($00); Inc(i);
-  (BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro?
+  (BufferDest+i)^ := Char(sele_dac); Inc(i); //Registro del canal
   (BufferDest+i)^ := Char(valor shr 8); Inc(i); // Byte más significativo del valor
   (BufferDest+i)^ := Char(valor and $FF); Inc(i); // Byte menos significativo del valor
   //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i);
@@ -573,23 +568,16 @@ begin
   (BufferDest+i)^ := Char($FB); Inc(i);
   Assert(i = 12); //Confirmamos que es el numero correcto
   //(BufferDest+i)^ := Char(MPSSE_CmdSendInmediate); Inc(i); // ¿Se puede añadir? No le veo mucho sentido, pero parece que afecta a la lectura de datos.
-  {if (BufferOut = nil) then
+
+  if simulating then simulatedDac[ndac] := valor;
+
+
+  if TRAZAS then // debug
   begin
-  BytesToWrite:= i;
-  SPI_Ret :=  FT_Write(SupraSPI_Hdl, @(Buffer[1]), BytesToWrite, @BytesWritten);
-  //Application.ProcessMessages(); // Por si tiene que hacer feedback o lo que toque //Hermann
-  If (SPI_Ret <> 0) or (BytesToWrite <> BytesWritten) then
-      if not simulating then MessageDlg('error al escribir un valor en el DAC', mtError, [mbOk], 0);
-  end;}
-if simulating then simulatedDac[ndac] := valor;
-
-
-if TRAZAS then // debug
-begin
-  Str( ndac, sTexto );
-  Str( valor, sTexto2 );
-  MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtError, [mbOk], 0);
-end;
+    Str( ndac, sTexto );
+    Str( valor, sTexto2 );
+    MessageDlg('DAC Set numero de dac:'+Stexto+ 'valor:'+sTexto2, mtError, [mbOk], 0);
+  end;
 
 Result:=i;
 

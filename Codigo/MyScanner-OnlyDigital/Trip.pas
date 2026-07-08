@@ -105,8 +105,8 @@ end;
 procedure TTripForm.ApproachBtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  //MakeStepsBuf(times, 1);
-  MakeSteps(times, 1);
+  MakeStepsBuf(times, 1);
+  //MakeSteps(times, 1);
   SetMoving(false);
 end;
 
@@ -119,16 +119,16 @@ end;
 procedure TTripForm.SeparateBtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  //MakeStepsBuf(times, -1);
-  MakeSteps(times, -1);
+  MakeStepsBuf(times, -1);
+  //MakeSteps(times, -1);
   SetMoving(false);
 end;
 
 procedure TTripForm.Separate100BtnClick(Sender: TObject);
 begin
   SetMoving(true);
-  //MakeStepsBuf(100, -1);
-  MakeSteps(100, -1);
+  MakeStepsBuf(100, -1);
+  //MakeSteps(100, -1);
   SetMoving(false);
 end;
 
@@ -147,8 +147,8 @@ begin
     adcRead:=DataForm.adc_take_all_os(TripMean, AdcWriteRead, nil,OSRatio);
     while (abs(adcRead[TripConfig.InADCEdit.Value]/2)<(TripConfig.spinCurrentLimit.Value/100)) and (not StopTrip) do
     begin
-      //MakeStepsBuf(times, 1);
-      MakeSteps(times, 1);
+      MakeStepsBuf(times, 1);
+      //MakeSteps(times, 1);
       //Strom_jetzt:=  DataForm.adc_take(TripConfig.InADCEdit.Value,TripConfig.InADCEdit.Value,TripMean);
       adcRead :=DataForm.adc_take_all_os(TripMean, AdcWriteRead, nil,OSRatio);
     end;
@@ -201,7 +201,7 @@ begin
   begin
     //we could start at one as it always ends in zero the iteration befora
     //maybe add a zero befora the loop to make sure we start from the correct value
-    for j:= 0 to 32767 do
+    for j:= 0 downto -32767 do
     begin
       //its around 65 pints at max speed
       if Frac(j/Speed)=0 then
@@ -210,7 +210,7 @@ begin
         DataForm.dac_set(ZPDac,enviaZ, nil);
       end;
     end;
-    for j:= -32768 to 0 do
+    for j:= 32767 downto 0 do
     begin
       if Frac(j/Speed)=0 then
       begin
@@ -232,55 +232,73 @@ end;
 procedure TTripForm.MakeStepsBuf(numSteps, direction: Integer);
 var
 i,j: SmallInt;
-n : Integer;
+//n : Integer;
 calcZ: Integer;
 enviaZ: Integer;
 //TripBuffer2: array of AnsiChar;
-
+BufferMem: Array[0..$8000] of Byte; //Using the value of FT_Out_Buffer_Size (Manually)
+BufferPtr: PAnsiChar;
+m : Integer;
+totalBytes: Integer;
 begin
   StopTrip:=False;
   i:=0;
   //SetLength(TripBuffer2,6554*12); //Maximum size for Speed =10
   // we can be more clever when creating the size of the buffer,
   // as it would typically be much smaller
-
+  BufferPtr := Addr(Buffermem[0]);
+  totalBytes :=0;
   while (i<numSteps) and (StopTrip=False) do
   begin
-    n:=1;
+    //n:=1;
     //we could start at one as it always ends in zero the iteration befora
     //maybe add a zero before the loop to make sure we start from the correct value
-    for j:= 0 to 32767 do
+    for j:= 0 downto -32767 do
     begin
       //its around 65 points at max speed
       if Frac(j/Speed)=0 then
       begin
         calcZ:=direction*Mult*Round(j*Size/10);
-        if (ZPDac < 5) then calcZ:=-calcZ; //Mantenemos este paso, aunque no tiene mucho sentido
+        //if (ZPDac < 5) then calcZ:=-calcZ; //Mantenemos este paso, aunque no tiene mucho sentido
         //if enviaZ >32767 then enviaZ:=32767;
         //if enviaZ<-32768 then enviaZ:=-32768;
         enviaZ := DataForm.clampToDAC16(calcZ);
-        n := n + DataForm.dac_set_buff(ZPDac,enviaZ, @TripBuffer[n]);
+        m := DataForm.dac_set_buff(ZPDac,enviaZ,BufferPtr);
+        totalBytes := totalBytes + m;
+        BufferPtr := BufferPtr + m;
         //n := n + DataForm.dac_set_buff2(ZPDac,enviaZ, Slice(@TripBuffer[n],12));
       end;
     end;
-    for j:= -32768 to 0 do
+    for j:= 32767 downto 0 do
     begin
       if Frac(j/Speed)=0 then
       begin
         calcZ:=direction*Mult*Round(j*Size/10);
-        if (ZPDac < 5) then calcZ:=-calcZ; //Mantenemos este paso, aunque no tiene mucho sentido
+        //if (ZPDac < 5) then calcZ:=-calcZ; //Mantenemos este paso, aunque no tiene mucho sentido
         //if enviaZ >32767 then enviaZ:=32767;
         //if enviaZ<-32768 then enviaZ:=-32768;
         enviaZ := DataForm.clampToDAC16(calcZ);
-        n := n +DataForm.dac_set_buff(ZPDac,enviaZ, @TripBuffer[n]);
+        m := DataForm.dac_set_buff(ZPDac,enviaZ,BufferPtr);
+        totalBytes := totalBytes + m;
+        BufferPtr := BufferPtr + m;
         //n := n + DataForm.dac_set_buff2(ZPDac,enviaZ, Slice(@TripBuffer[n],12));
       end;
     end;
+    if totalBytes > ($8000-2*m) then MessageDlg('Hemos superado el buffer', mtError, [mbOk], 0);
+    //add the send_inmediate command at the end;
+    m := DataForm.send_inmediate(BufferPtr);;
+    totalBytes := totalBytes + m;
+    BufferPtr := BufferPtr + m;
     //Send the ramp for one step
-    DataForm.send_buffer(@TripBuffer[1], n);
+    DataForm.send_buffer(Addr(Buffermem[0]), totalBytes);
+    BufferPtr := Addr(BufferMem[0]);
+    totalBytes := 0;
     Application.ProcessMessages;
     i:=i+1;
   end;
+
+  TripSteps:= TripSteps -(i*direction*Mult*Size); //Add the number of steps done
+  StepsCount.Caption := IntToStr(TripSteps);
   //n := DataForm.dac_set(ZPDac,0, Addr(TripBuffer[n]));
   // I think this one is redundant now, as the generated ramp always ends in 0
   // and due to the process message in betwee, it waits for a long time (over 1ms)

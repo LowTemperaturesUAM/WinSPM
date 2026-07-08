@@ -519,8 +519,8 @@ end;
 //else MoveDacSmooth(nil, YDAC, Fin, 0, P_Scan_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 //devolvemos el DAC de escaneo del valor en el que se encuentre a cero (da igual si acaba o hemos pulsado stop)
-if (RadioGroup1.ItemIndex=0) then MoveDacSmooth(nil, XDAC, -var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
-else MoveDacSmooth(nil, YDAC, -var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
+if (RadioGroup1.ItemIndex=0) then MoveDacSmooth(nil, XDAC, var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil) // Scan en X Hay que llevar el DAC a cero
+else MoveDacSmooth(nil, YDAC, var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Scan en Y Hay que llevar el DAC a cero
 
 StopBtn.Enabled:=False;
 //CrossPosX:=Round(DacValX/32768*200+200);
@@ -1782,9 +1782,8 @@ repeat
   //By using the last tip position we don't have to worry if the image was prematurely stopped or not
   //MoveDac(nil, XDAC, var_gbl.dacFlip[XDAC]* var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
   //MoveDac(nil, YDAC, var_gbl.dacFlip[YDAC]* var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
-  MoveDacSmooth(nil, XDAC, var_gbl.dacFlip[XDAC]* var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
-  MoveDacSmooth(nil, YDAC, var_gbl.dacFlip[YDAC]* var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
-
+  MoveDacSmooth(nil, XDAC, var_gbl.dacValues[XDAC], 0, P_Pos_Jump, nil); // Movemos el eje X de escaneo
+  MoveDacSmooth(nil, YDAC, var_gbl.dacValues[YDAC], 0, P_Pos_Jump, nil); // Movemos el eje Y de escaneo
   TopoForm.Close;
 
   if (SaveAllImg.Checked) then
@@ -1928,7 +1927,6 @@ end;
 procedure TScanForm.MoveDacSmooth(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 var
 i,j: Integer;
-//StepNumr,StepSign: Integer;
 Go_jump: Integer;
 N,steps : Integer;
 realJump : Double;
@@ -1975,7 +1973,6 @@ begin
         begin
           m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
           totalBytes:=totalBytes+m;
-          //BufferPtr := BufferPtr + m; //not necessaty anymore
           DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
           BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
           totalBytes :=0;
@@ -1986,7 +1983,6 @@ begin
       begin
         m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
         totalBytes:=totalBytes+m;
-        //BufferPtr := BufferPtr + m; //not necessaty anymore
         DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
         BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
         totalBytes :=0;
@@ -2006,7 +2002,6 @@ begin
         begin
           m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
           totalBytes:=totalBytes+m;
-          //BufferPtr := BufferPtr + m; //not necessaty anymore
           DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
           BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
           totalBytes :=0;
@@ -2017,7 +2012,6 @@ begin
       begin
         m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
         totalBytes:=totalBytes+m;
-        //BufferPtr := BufferPtr + m; //not necessaty anymore
         DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
         BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
         totalBytes :=0;
