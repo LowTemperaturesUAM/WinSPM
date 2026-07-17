@@ -137,6 +137,7 @@ type
     procedure NrOfLines_TopoExit(Sender: TObject);
     procedure MoveDac(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
     procedure MoveDacSmooth(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
+    function SmoothStep(Input,Min,Max: Integer):Integer;
     //pocedure MoveDacSlope(Sender: TObject; DacNr, init, fin, jump : integer; BufferOut: PAnsiChar);
 
 
@@ -1228,6 +1229,7 @@ end;
 
 end;
 
+
 (*
 procedure TScanForm.MakeEmptyLineSlope(Sender: TObject; Saveit: Boolean);
 var
@@ -1932,7 +1934,7 @@ N,steps : Integer;
 realJump : Double;
 jump2:integer;
 //UseSmoothing : Bool;
-prevVal,newVal : Integer;
+prevVal,newVal,stepVal : Integer;
 BufferMem: Array[0..$8000] of Byte; //Using the value of FT_Out_Buffer_Size (Manually)
 BufferPtr: PAnsiChar;
 m : Integer;
@@ -1943,7 +1945,7 @@ begin
   // Now we decimate this value by the ration given by jump
   steps := abs(round(N/jump));
   //If we don't have enough values for this level of decimation, we just leave it as one step
-  if steps<1 then steps:=1;
+  if steps<1 then steps:=1; // if less than 0.5,0.25, we should skip some of the values of the dac we traverse
   //Now we take the rounded number of teps and calculate the actual jump that
   //have to make bettween values
   realJump := N/steps;
@@ -1964,12 +1966,25 @@ begin
     if newVal>prevVal then
     begin
       jump2 := newVal-prevVal;
-      for i:=1 to jump2 do
+
+      if jump2<50 then //normal stepping
       begin
-        m:= DataForm.dac_set_buff(DacNr,prevVal+i,BufferPtr);
-        totalBytes := totalBytes+m;
-        BufferPtr := BufferPtr + m;
-        if totalBytes > ($8000-2*m) then
+        for i:=1 to jump2 do
+        begin
+          m:= DataForm.dac_set_buff(DacNr,prevVal+i,BufferPtr);
+          totalBytes := totalBytes+m;
+          BufferPtr := BufferPtr + m;
+          if totalBytes > ($8000-2*m) then
+          begin
+            m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+            totalBytes:=totalBytes+m;
+            DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+            BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+            totalBytes :=0;
+          end;
+        end;
+        //Check if any bytes are left to be sent, and finish up
+        if totalBytes > 0 then
         begin
           m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
           totalBytes:=totalBytes+m;
@@ -1977,15 +1992,33 @@ begin
           BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
           totalBytes :=0;
         end;
-      end;
-      //Check if any bytes are left to be sent, and finish up
-      if totalBytes > 0 then
+      end
+      else //if we have enough points, we try to do a smoothstep
       begin
-        m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
-        totalBytes:=totalBytes+m;
-        DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
-        BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
-        totalBytes :=0;
+        for i:=1 to jump2 do
+        begin+
+          stepVal := SmoothStep(prevVal+i,prevVal,newVal);
+          m:= DataForm.dac_set_buff(DacNr,stepVal,BufferPtr);
+          totalBytes := totalBytes+m;
+          BufferPtr := BufferPtr + m;
+          if totalBytes > ($8000-2*m) then
+          begin
+            m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+            totalBytes:=totalBytes+m;
+            DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+            BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+            totalBytes :=0;
+          end;
+        end;
+        //Check if any bytes are left to be sent, and finish up
+        if totalBytes > 0 then
+        begin
+          m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+          totalBytes:=totalBytes+m;
+          DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+          BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+          totalBytes :=0;
+        end;
       end;
     end
 
@@ -1993,12 +2026,51 @@ begin
     else if newVal<prevVal then
     begin
       jump2 := prevVal-newVal;
-      for i:=1 to jump2 do
+      if jump2<50 then
       begin
-        m:= DataForm.dac_set_buff(DacNr,prevVal-i,BufferPtr);
-        totalBytes := totalBytes+m;
-        BufferPtr := BufferPtr + m;
-        if totalBytes > ($8000-2*m) then
+        for i:=1 to jump2 do
+        begin
+          m:= DataForm.dac_set_buff(DacNr,prevVal-i,BufferPtr);
+          totalBytes := totalBytes+m;
+          BufferPtr := BufferPtr + m;
+          if totalBytes > ($8000-2*m) then
+          begin
+            m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+            totalBytes:=totalBytes+m;
+            DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+            BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+            totalBytes :=0;
+          end;
+        end;
+        //Check if any bytes are left to be sent, and finish up
+        if totalBytes > 0 then
+        begin
+          m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+          totalBytes:=totalBytes+m;
+          DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+          BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+          totalBytes :=0;
+        end;
+      end
+      else
+      begin
+        for i:=1 to jump2 do
+        begin
+          stepVal := SmoothStep(prevVal-i,prevVal,newVal);
+          m:= DataForm.dac_set_buff(DacNr,stepVal,BufferPtr);
+          totalBytes := totalBytes+m;
+          BufferPtr := BufferPtr + m;
+          if totalBytes > ($8000-2*m) then
+          begin
+            m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
+            totalBytes:=totalBytes+m;
+            DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
+            BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
+            totalBytes :=0;
+          end;
+        end;
+        //Check if any bytes are left to be sent, and finish up
+        if totalBytes > 0 then
         begin
           m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
           totalBytes:=totalBytes+m;
@@ -2007,21 +2079,22 @@ begin
           totalBytes :=0;
         end;
       end;
-      //Check if any bytes are left to be sent, and finish up
-      if totalBytes > 0 then
-      begin
-        m := DataForm.send_inmediate(BufferPtr); //add the send_inmediate command at the end
-        totalBytes:=totalBytes+m;
-        DataForm.send_buffer(Addr(Buffermem[0]),totalBytes);
-        BufferPtr := Addr(BufferMem[0]); //reset the buffer pointer to the beginning
-        totalBytes :=0;
-      end;
     end;
     //Update the previous value for the next step
     prevVal := newVal;
     //Wait for control or user input
     Application.ProcessMessages;
   end;
+end;
+
+
+function TScanForm.SmoothStep(Input,Min,Max: Integer):Integer;
+var
+  x,y : Double;
+begin
+  x := (Input-Min)/(Max-Min);
+  y := x*x*(3.0-2.0*x); // cubic hermite defined in [0,1]
+  Result := Round( (Max-Min)*y + Min ); //rescale back to original range
 end;
 
 

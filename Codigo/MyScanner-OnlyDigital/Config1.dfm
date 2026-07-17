@@ -283,7 +283,7 @@ object FormConfig: TFormConfig
       Width = 150
       Height = 30
       Ctl3D = False
-      Max = 100
+      Max = 200
       Min = 1
       ParentCtl3D = False
       Frequency = 10
